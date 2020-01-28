@@ -5,7 +5,7 @@
 
 # VantTec UUV Main Repository
 
-This is the main working repository for the USV (Unmanned Underwater Vehicle) VantTec Platforms. Each directory represents a ROS Package:
+This is the main working repository for the UUV (Unmanned Underwater Vehicle) VantTec Platforms. Each directory represents a ROS Package:
 
 - **arduino_br**: ROS package that uses rosserial_python and rosserial_arduino to interface with the T-100 and the T-200 thrusters.
 - **vectornav_ros**: ROS package that allows the USV to interface with Vectornav's IMUs.
