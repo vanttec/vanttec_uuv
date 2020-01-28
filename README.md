@@ -20,7 +20,7 @@ Enter the following commands into your **Ubuntu 16.04** terminal:
 ```Shell
 cd
 git clone http://github.com/vanttec/vanttec_uuv.git
-cd vanttec_usv
+cd vanttec_uuv
 ./init_worskpace.sh
 ```
 
