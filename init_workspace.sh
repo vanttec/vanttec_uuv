@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd
+cd ~/Desktop
 mkdir vanttec_uuv_ws
 mv vanttec_uuv vanttec_uuv_ws/src
 cd vanttec_uuv_ws/src
