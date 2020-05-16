@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package>
+  <name>uuv_user_control</name>
+  <version>0.1</version>
+  <description>User interface for control of the UUV.</description>
+  <license>GPLv2</license>
+
+  <maintainer email="pedro.sc.97@gmail.com">v01d</maintainer>
+  <author email="pedro.sc.97@gmail.com">v01d</author>
+
+  <!-- Custom Dependencies -->
+  <build_depend>sdl</build_depend>
+  <run_depend>sdl</run_depend>
+
+  <!-- Standard Dependencies -->
+  <build_depend>std_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>roscpp</build_depend>
+
+  <run_depend>message_runtime</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
