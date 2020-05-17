@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(uuv_user_control)
+project(vehicle_user_control)
 
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs message_generation)
+find_package(catkin REQUIRED COMPONENTS 
+  roscpp
+  std_msgs
+  message_generation
+)
+
 find_package(SDL REQUIRED)
 set(LIBS ${SDL_LIBRARY})
 
@@ -11,7 +16,7 @@ set(LIBS ${SDL_LIBRARY})
 
 add_message_files(
   FILES
-  Keys.msg
+  KeyboardKey.msg
 )
 
 generate_messages(
@@ -24,8 +29,7 @@ generate_messages(
 ###################################
 
 catkin_package(
-  #INCLUDE_DIRS include
-  #LIBRARIES keyboard
+  INCLUDE_DIRS include
   CATKIN_DEPENDS roscpp std_msgs message_runtime
   DEPENDS ${LIBS}
 )
@@ -34,23 +38,22 @@ catkin_package(
 ## Build ##
 ###########
 
-include_directories(${catkin_INCLUDE_DIRS} ${SDL_INCLUDE_DIR})
+include_directories(${catkin_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} include)
 
-add_executable(keyboard src/main.cpp src/keyboard.cpp)
+add_executable(vehicle_user_control src/vehicle_user_control.cpp src/keyboard.cpp)
 
-target_link_libraries(keyboard
+target_link_libraries(vehicle_user_control
   ${LIBS}
   ${catkin_LIBRARIES}
 )
 
-add_dependencies(keyboard keyboard_gencpp)
+add_dependencies(vehicle_user_control ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 #############
 ## Install ##
 #############
 
-
-install(TARGETS keyboard
+install(TARGETS vehicle_user_control
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

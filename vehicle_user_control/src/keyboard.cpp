@@ -1,6 +1,6 @@
 #include "keyboard.hpp"
 
-keyboard::Keyboard::Keyboard(int repeat_delay, int repeat_interval)
+VehicleUserControl::Keyboard::Keyboard(int repeat_delay, int repeat_interval)
 {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) 
   {
@@ -12,13 +12,13 @@ keyboard::Keyboard::Keyboard(int repeat_delay, int repeat_interval)
   window = SDL_SetVideoMode(100, 100, 0, 0);
 }
 
-keyboard::Keyboard::~Keyboard(void)
+VehicleUserControl::Keyboard::~Keyboard(void)
 {
   SDL_FreeSurface(window);
   SDL_Quit();
 }
 
-bool keyboard::Keyboard::get_key(bool& new_event, bool& pressed, uint16_t& code, uint16_t& modifiers)
+bool VehicleUserControl::Keyboard::get_key(bool& new_event, bool& pressed, uint16_t& code, uint16_t& modifiers)
 {
   new_event = false;
   SDL_Event event;

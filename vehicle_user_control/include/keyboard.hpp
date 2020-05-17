@@ -1,7 +1,7 @@
 #ifndef __ROS_KEYBOARD_H__
 #define __ROS_KEYBOARD_H__
 
-#include <uuv_user_control/Keys.h>
+#include <vehicle_user_control/KeyboardKey.h>
 #include <SDL.h>
 
 /* Delay specifies how long the key must be pressed before it begins repeating, 
@@ -10,7 +10,7 @@ are expressed in milliseconds. Setting delay to 0 disables key repeating complet
 Good default values are SDL_DEFAULT_REPEAT_DELAY and SDL_DEFAULT_REPEAT_INTERVAL. 
 http:sdl.beuc.net/sdl.wiki/SDL_EnableKeyRepeat */
 
-namespace keyboard 
+namespace VehicleUserControl 
 {
   class Keyboard 
   {

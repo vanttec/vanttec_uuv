@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>uuv_user_control</name>
-  <version>0.1</version>
-  <description>User interface for control of the UUV.</description>
+  <name>vehicle_user_control</name>
+  <version>0.1.0</version>
+  <description>Generic interface package for different vehicle control methods.</description>
   <license>GPLv2</license>
 
   <maintainer email="pedro.sc.97@gmail.com">v01d</maintainer>
