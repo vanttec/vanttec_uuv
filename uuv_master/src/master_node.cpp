@@ -9,12 +9,12 @@ MasterNode::MasterNode(ros::NodeHandle n, ros::NodeHandle n_private)
     nh_ = n;
     nh_private_ = n_private;
     // Subscribe to receive keyboard input
-    key_sub_ = nh_.subscribe("vehicle_user_control/kb_keydown", 10, &MasterNode::keyboardUPCallBack, this);
-    battery_status_sub_ = nh_.subscribe("vehicle_user_control/kb_keyup", 10, &MasterNode::keyboardDOWNCallBack, this);
+    key_down_ = nh_.subscribe("vehicle_user_control/kb_keydown", 10, &MasterNode::keyboardUPCallBack, this);
+    key_up_ = nh_.subscribe("vehicle_user_control/kb_keyup", 10, &MasterNode::keyboardDOWNCallBack, this);
     // Advertise the topics we publish
     velocity_pub_ = nh_.advertise<geometry_msgs::Twist>("/uuv_master/velocity", 10);
     emergency_stop_pub_ = nh_.advertise<std_msgs::Empty>("/uuv_master/emergency_stop_pub_", 10);
-    operation_mode_pub_ = nh_.advertise<std_msgs::UInt8>("/uuv_master/operation_mode_pub_", 10);
+    operation_mode_pub_ = nh_.advertise<vehicle_user_control::KeyboardKey>("/uuv_master/operation_mode_pub_", 10);
 
 }
 
@@ -28,19 +28,29 @@ void MasterNode::keyboardDOWNCallBack(const vehicle_user_control::KeyboardKey::C
 }
 void MasterNode::sendCommands(void)
 {
+    std_msgs::Empty empty_msg;
+    vehicle_user_control::KeyboardKey key_message;
+
     if((upkey == vehicle_user_control::KeyboardKey::KEY_SPACE) || (downkey == vehicle_user_control::KeyboardKey::KEY_SPACE)){
         //Emergency stop
-
+        key_message.DESIREDROUTINE = 0;
+        emergency_stop_pub_.publish(empty_msg);
+        operation_mode_pub_.publish(key_message);
     }
     else{
+
         if((upkey == vehicle_user_control::KeyboardKey::KEY_E) || (downkey == vehicle_user_control::KeyboardKey::KEY_E)){
             //Toogle Motors
             if((upkey == vehicle_user_control::KeyboardKey::KEY_1) || (upkey == vehicle_user_control::KeyboardKey::KEY_2)||(upkey == vehicle_user_control::KeyboardKey::KEY_3) || (upkey == vehicle_user_control::KeyboardKey::KEY_4)||(upkey == vehicle_user_control::KeyboardKey::KEY_5)
                || (downkey == vehicle_user_control::KeyboardKey::KEY_1) || (downkey == vehicle_user_control::KeyboardKey::KEY_2)||(downkey == vehicle_user_control::KeyboardKey::KEY_3)|| (downkey == vehicle_user_control::KeyboardKey::KEY_4)||(downkey == vehicle_user_control::KeyboardKey::KEY_5)){
                 //Autonomous Mode
+                key_message.STATUS = 1;
 
                 if((upkey == vehicle_user_control::KeyboardKey::KEY_1) || (downkey == vehicle_user_control::KeyboardKey::KEY_1)){
                 //Routine 1
+                key_message.DESIREDROUTINE = 1;
+                operation_mode_pub_.publish(key_message);
+
 
                 }
                 else if((upkey == vehicle_user_control::KeyboardKey::KEY_2) || (downkey == vehicle_user_control::KeyboardKey::KEY_2)){
