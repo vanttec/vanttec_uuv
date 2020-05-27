@@ -36,11 +36,13 @@ void MasterNode::sendCommands(void)
         key_message.DESIREDROUTINE = 0;
         emergency_stop_pub_.publish(empty_msg);
         operation_mode_pub_.publish(key_message);
+        velocity_pub_.publish(velocity);
     }
     else{
 
         if((upkey == vehicle_user_control::KeyboardKey::KEY_E) || (downkey == vehicle_user_control::KeyboardKey::KEY_E)){
             //Toogle Motors
+            velocity_pub_.publish(velocity);
             if((upkey == vehicle_user_control::KeyboardKey::KEY_1) || (upkey == vehicle_user_control::KeyboardKey::KEY_2)||(upkey == vehicle_user_control::KeyboardKey::KEY_3) || (upkey == vehicle_user_control::KeyboardKey::KEY_4)||(upkey == vehicle_user_control::KeyboardKey::KEY_5)
                || (downkey == vehicle_user_control::KeyboardKey::KEY_1) || (downkey == vehicle_user_control::KeyboardKey::KEY_2)||(downkey == vehicle_user_control::KeyboardKey::KEY_3)|| (downkey == vehicle_user_control::KeyboardKey::KEY_4)||(downkey == vehicle_user_control::KeyboardKey::KEY_5)){
                 //Autonomous Mode
