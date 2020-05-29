@@ -32,6 +32,7 @@ class MasterNode
     std_msgs::Empty empty_msg;
     uuv_master::UUVMasterStatus key_message;
     std_msgs::Twist velocity;
+    const float const_velocity_ = 0.2;
    
 }
 

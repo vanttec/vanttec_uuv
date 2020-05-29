@@ -28,15 +28,16 @@ void MasterNode::keyboardDOWNCallBack(const vehicle_user_control::KeyboardKey::C
 }
 void MasterNode::sendCommands(void)
 {
-
-    velocity.angular.x = 0.0;//Roll
-    velocity.angular.y = 0.0;//Pitch
-    velocity.angular.z = 0.0;//Yaw
-    velocity.linear.x = 0.0;//x linear movement
-    velocity.linear.y = 0.0;//y linear movement
-    velocity.linear.z = 0.0;//z linear movement
-
-    if((upkey == vehicle_user_control::KeyboardKey::KEY_SPACE) || (downkey == vehicle_user_control::KeyboardKey::KEY_SPACE)){
+    if(downkey == vehicle_user_control::KeyboardKey::KEY_SPACE){
+        velocity.angular.x = 0.0;//Roll
+        velocity.angular.y = 0.0;//Pitch
+        velocity.angular.z = 0.0;//Yaw
+        velocity.linear.x = 0.0;//x linear movement
+        velocity.linear.y = 0.0;//y linear movement
+        velocity.linear.z = 0.0;//z linear movement
+    }
+    else {
+    if(downkey == vehicle_user_control::KeyboardKey::KEY_SPACE){
         //Emergency stop
         key_message.DESIREDROUTINE = 0;
         emergency_stop_pub_.publish(empty_msg);
@@ -44,77 +45,77 @@ void MasterNode::sendCommands(void)
     }
     else{
 
-        if((upkey == vehicle_user_control::KeyboardKey::KEY_E) || (downkey == vehicle_user_control::KeyboardKey::KEY_E)){
-            //Toogle Motors
-            if((upkey == vehicle_user_control::KeyboardKey::KEY_1) || (upkey == vehicle_user_control::KeyboardKey::KEY_2)||(upkey == vehicle_user_control::KeyboardKey::KEY_3) || (upkey == vehicle_user_control::KeyboardKey::KEY_4)||(upkey == vehicle_user_control::KeyboardKey::KEY_5)
-               || (downkey == vehicle_user_control::KeyboardKey::KEY_1) || (downkey == vehicle_user_control::KeyboardKey::KEY_2)||(downkey == vehicle_user_control::KeyboardKey::KEY_3)|| (downkey == vehicle_user_control::KeyboardKey::KEY_4)||(downkey == vehicle_user_control::KeyboardKey::KEY_5)){
-                //Autonomous Mode
-                key_message.STATUS = 1;
+            if(downkey == vehicle_user_control::KeyboardKey::KEY_E){
+                //Toogle Motors
+                if((downkey == vehicle_user_control::KeyboardKey::KEY_1) || (downkey == vehicle_user_control::KeyboardKey::KEY_2)||(downkey == vehicle_user_control::KeyboardKey::KEY_3)|| (downkey == vehicle_user_control::KeyboardKey::KEY_4)||(downkey == vehicle_user_control::KeyboardKey::KEY_5)){
+                    //Autonomous Mode
+                    key_message.STATUS = 1;
 
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_1) || (downkey == vehicle_user_control::KeyboardKey::KEY_1)){
-                //Routine 1
-                key_message.DESIREDROUTINE = 1;
-                operation_mode_pub_.publish(key_message);
-
-
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_1){
+                    //Routine 1
+                    key_message.DESIREDROUTINE = 1;
+                    operation_mode_pub_.publish(key_message);
+                    }
+                    else if(downkey == vehicle_user_control::KeyboardKey::KEY_2){
+                    //Routine 2
+                    key_message.DESIREDROUTINE = 2;
+                    operation_mode_pub_.publish(key_message);
+                    }
+                    else if(downkey == vehicle_user_control::KeyboardKey::KEY_3){
+                    //Routine 3
+                    key_message.DESIREDROUTINE = 3;
+                    operation_mode_pub_.publish(key_message);
+                    }
+                    else if(downkey == vehicle_user_control::KeyboardKey::KEY_4){
+                    //Routine 4
+                    key_message.DESIREDROUTINE = 4;
+                    operation_mode_pub_.publish(key_message);
+                    }          
+                    else{
+                    //Routine 5
+                    key_message.DESIREDROUTINE = 5;
+                    operation_mode_pub_.publish(key_message);
+                    }      
                 }
-                else if((upkey == vehicle_user_control::KeyboardKey::KEY_2) || (downkey == vehicle_user_control::KeyboardKey::KEY_2)){
-                //Routine 2
-                key_message.DESIREDROUTINE = 2;
-                operation_mode_pub_.publish(key_message);
-                }
-                else if((upkey == vehicle_user_control::KeyboardKey::KEY_3) || (downkey == vehicle_user_control::KeyboardKey::KEY_3)){
-                //Routine 3
-                key_message.DESIREDROUTINE = 3;
-                operation_mode_pub_.publish(key_message);
-                }
-                else if((upkey == vehicle_user_control::KeyboardKey::KEY_4) || (downkey == vehicle_user_control::KeyboardKey::KEY_4)){
-                //Routine 4
-                key_message.DESIREDROUTINE = 4;
-                operation_mode_pub_.publish(key_message);
-                }          
                 else{
-                //Routine 5
-                key_message.DESIREDROUTINE = 5;
-                operation_mode_pub_.publish(key_message);
-                }      
-            }
-            else{
-                //Manual Mode
-                key_message.STATUS = 0;
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_W) || (downkey == vehicle_user_control::KeyboardKey::KEY_W)){
-                //Surge+
+                    //Manual Mode
+                    key_message.STATUS = 0;
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_W){
+                    //Surge+
+                    velocity.linear.x = const_velocity_;
 
+                    }
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_S){
+                    //Surge-
+                    velocity.linear.x = -const_velocity_;
+
+                    }
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_A){
+                    //Sway-
+                    velocity.linear.y = const_velocity_;
+                    }
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_D){
+                    //Sway+
+                    velocity.linear.y = -const_velocity_;
+                    }
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_LSHIFT){
+                    //Heave-
+                    velocity.linear.z = -const_velocity_; 
+                    }   
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_LCTRL){
+                    //Heave+
+                    velocity.linear.z = const_velocity_;    
+                    }  
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_LEFT){
+                    //Yaw-
+                    velocity.angular.z = -const_velocity_;
+                    }   
+                    if(downkey == vehicle_user_control::KeyboardKey::KEY_RIGHT){
+                    //Yaw+
+                    velocity.angular.z = const_velocity_;
+                    }   
+                    
                 }
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_A) || (downkey == vehicle_user_control::KeyboardKey::KEY_A)){
-                //Sway-
-
-                }
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_S) || (downkey == vehicle_user_control::KeyboardKey::KEY_S)){
-                //Surge-
-
-                }
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_D) || (downkey == vehicle_user_control::KeyboardKey::KEY_D)){
-                //Sway+
-
-                }
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_LSHIFT) || (downkey == vehicle_user_control::KeyboardKey::KEY_LSHIFT)){
-                //Heave-
-
-                }   
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_LCTRL) || (downkey == vehicle_user_control::KeyboardKey::KEY_LCTRL)){
-                //Heave+
-
-                }  
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_LEFT) || (downkey == vehicle_user_control::KeyboardKey::KEY_LEFT)){
-                //Yaw-
-
-                }   
-                if((upkey == vehicle_user_control::KeyboardKey::KEY_RIGHT) || (downkey == vehicle_user_control::KeyboardKey::KEY_RIGHT)){
-                //Yaw+
-
-                }   
-                
             }
         }
     }
