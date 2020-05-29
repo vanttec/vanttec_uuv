@@ -28,21 +28,24 @@ void MasterNode::keyboardDOWNCallBack(const vehicle_user_control::KeyboardKey::C
 }
 void MasterNode::sendCommands(void)
 {
-    std_msgs::Empty empty_msg;
-    vehicle_user_control::KeyboardKey key_message;
+
+    velocity.angular.x = 0.0;//Roll
+    velocity.angular.y = 0.0;//Pitch
+    velocity.angular.z = 0.0;//Yaw
+    velocity.linear.x = 0.0;//x linear movement
+    velocity.linear.y = 0.0;//y linear movement
+    velocity.linear.z = 0.0;//z linear movement
 
     if((upkey == vehicle_user_control::KeyboardKey::KEY_SPACE) || (downkey == vehicle_user_control::KeyboardKey::KEY_SPACE)){
         //Emergency stop
         key_message.DESIREDROUTINE = 0;
         emergency_stop_pub_.publish(empty_msg);
         operation_mode_pub_.publish(key_message);
-        velocity_pub_.publish(velocity);
     }
     else{
 
         if((upkey == vehicle_user_control::KeyboardKey::KEY_E) || (downkey == vehicle_user_control::KeyboardKey::KEY_E)){
             //Toogle Motors
-            velocity_pub_.publish(velocity);
             if((upkey == vehicle_user_control::KeyboardKey::KEY_1) || (upkey == vehicle_user_control::KeyboardKey::KEY_2)||(upkey == vehicle_user_control::KeyboardKey::KEY_3) || (upkey == vehicle_user_control::KeyboardKey::KEY_4)||(upkey == vehicle_user_control::KeyboardKey::KEY_5)
                || (downkey == vehicle_user_control::KeyboardKey::KEY_1) || (downkey == vehicle_user_control::KeyboardKey::KEY_2)||(downkey == vehicle_user_control::KeyboardKey::KEY_3)|| (downkey == vehicle_user_control::KeyboardKey::KEY_4)||(downkey == vehicle_user_control::KeyboardKey::KEY_5)){
                 //Autonomous Mode
@@ -57,23 +60,28 @@ void MasterNode::sendCommands(void)
                 }
                 else if((upkey == vehicle_user_control::KeyboardKey::KEY_2) || (downkey == vehicle_user_control::KeyboardKey::KEY_2)){
                 //Routine 2
-
+                key_message.DESIREDROUTINE = 2;
+                operation_mode_pub_.publish(key_message);
                 }
                 else if((upkey == vehicle_user_control::KeyboardKey::KEY_3) || (downkey == vehicle_user_control::KeyboardKey::KEY_3)){
                 //Routine 3
-
+                key_message.DESIREDROUTINE = 3;
+                operation_mode_pub_.publish(key_message);
                 }
                 else if((upkey == vehicle_user_control::KeyboardKey::KEY_4) || (downkey == vehicle_user_control::KeyboardKey::KEY_4)){
                 //Routine 4
-
+                key_message.DESIREDROUTINE = 4;
+                operation_mode_pub_.publish(key_message);
                 }          
                 else{
                 //Routine 5
-
+                key_message.DESIREDROUTINE = 5;
+                operation_mode_pub_.publish(key_message);
                 }      
             }
             else{
                 //Manual Mode
+                key_message.STATUS = 0;
                 if((upkey == vehicle_user_control::KeyboardKey::KEY_W) || (downkey == vehicle_user_control::KeyboardKey::KEY_W)){
                 //Surge+
 
@@ -107,12 +115,6 @@ void MasterNode::sendCommands(void)
 
                 }   
                 
-                velocity.angular.x = ;//Roll
-                velocity.angular.y = ;//Pitch
-                velocity.angular.z = ;//Yaw
-                velocity.linear.x = ;//x linear movement
-                velocity.linear.y = ;//y linear movement
-                velocity.linear.z = ;//z linear movement
             }
         }
     }

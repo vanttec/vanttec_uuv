@@ -29,6 +29,9 @@ class MasterNode
     void keyboardUPCallBack(const vehicle_user_control::KeyboardKey::ConstPtr& msg);
     void keyboardDOWNCallBack(const vehicle_user_control::KeyboardKey::ConstPtr& msg));
     void sendCommands(void);
+    std_msgs::Empty empty_msg;
+    uuv_master::UUVMasterStatus key_message;
+    std_msgs::Twist velocity;
    
 }
 
