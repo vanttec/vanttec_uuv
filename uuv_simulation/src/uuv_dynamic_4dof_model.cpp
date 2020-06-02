@@ -122,9 +122,9 @@ void UUVDynamic4DOFModel::CalculateStates()
 
     /* Restoring Forces */
     
-    this->G_eta << (W - B) * sin(theta_b),
-                   -(W - B) * cos(theta_b) * sin(phi_b),
-                   -(W - B) * cos(theta_b) * cos(phi_b),
+    this->G_eta << (weight - buoyancy) * sin(theta_b),
+                   -(weight - buoyancy) * cos(theta_b) * sin(phi_b),
+                   -(weight - buoyancy) * cos(theta_b) * cos(phi_b),
                    0;
 
     /* 4 DoF State Calculation */

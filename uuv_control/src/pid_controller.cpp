@@ -1,11 +1,11 @@
 #include "pid_controller.hpp"
 
-PIDController::PIDController(float _sample_time_s, float _k_p, float _k_i, float _k_d)
+PIDController::PIDController(float _sample_time_s, const float _k_pid[3])
 {
     this->sample_time_s     = _sample_time_s;
-    this->k_p               = _k_p;
-    this->k_i               = _k_i;
-    this->k_d               = _k_d;
+    this->k_p               = _k_pid[0];
+    this->k_i               = _k_pid[1];
+    this->k_d               = _k_pid[2];
 
     this->error             = 0;
     this->prev_error        = 0;
@@ -20,7 +20,7 @@ PIDController::~PIDController(){}
 
 void PIDController::UpdateSetPoint(const std_msgs::Float32& _set_point)
 {
-    this->set_point = _set_point;
+    this->set_point = _set_point.data;
 }
 
 void PIDController::CalculateManipulation(float _current_value)

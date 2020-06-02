@@ -50,14 +50,10 @@ OdometryCalculator::OdometryCalculator(float _sample_time)
     this->pose.position.x = 0;
     this->pose.position.y = 0;
     this->pose.position.z = 0;
-
-    tf2::Quaternion _quaternion;
-    _quaternion.setRPY(0, 0, 0);
-
-    this->pose.orientation.x = _quaternion[0];
-    this->pose.orientation.y = _quaternion[1];
-    this->pose.orientation.z = _quaternion[2];
-    this->pose.orientation.w = _quaternion[3];
+    this->pose.orientation.x = 0;
+    this->pose.orientation.y = 0;
+    this->pose.orientation.z = 0;
+    this->pose.orientation.w = 0;
 
 }
 
@@ -137,13 +133,10 @@ void OdometryCalculator::UpdateParameters()
                                                          this->pose.position.z, 
                                                          this->sample_time_s);
 
-    tf2::Quaternion _quaternion;
-    _quaternion.setRPY(this->angular_position.x, this->angular_position.y, this->angular_position.z);
-
-    this->pose.orientation.x = _quaternion[0];
-    this->pose.orientation.y = _quaternion[1];
-    this->pose.orientation.z = _quaternion[2];
-    this->pose.orientation.w = _quaternion[3];
+    this->pose.orientation.x = this->angular_position.x;
+    this->pose.orientation.y = this->angular_position.y;
+    this->pose.orientation.z = this->angular_position.z;
+    this->pose.orientation.w = 0;
 }
 
 double OdometryCalculator::Integral(double x1, double x2, double c, float timestep)

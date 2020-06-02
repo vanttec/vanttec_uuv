@@ -5,7 +5,6 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Accel.h>
-#include <tf2/LinearMath/Quaternion.h>
 
 class OdometryCalculator
 {

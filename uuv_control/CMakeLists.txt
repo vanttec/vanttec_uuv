@@ -37,3 +37,6 @@ include_directories(
 
 add_executable(uuv_odometry_node src/uuv_odometry_node src/odometry_calculator.cpp)
 target_link_libraries(uuv_odometry_node ${catkin_LIBRARIES})
+
+add_executable(uuv_control_node src/uuv_control_node src/uuv_4dof_controller.cpp src/pid_controller.cpp)
+target_link_libraries(uuv_control_node ${catkin_LIBRARIES})

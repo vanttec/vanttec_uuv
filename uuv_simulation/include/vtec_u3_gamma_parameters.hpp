@@ -23,8 +23,8 @@ static const float Izz             = 0.6488;
 static const float thruster_theta  = 3.14159 / 2;
 static const float b               = 0.585;
 static const float l               = 0.382;
-static const float W               = 13.37 * 9.81;
-static const float B               = 1000 * 9.81 * 0.00886;
+static const float weight          = 13.37 * 9.81;
+static const float buoyancy        = 1000 * 9.81 * 0.00886;
 
 /* Added Mass Parameters */
 
@@ -55,5 +55,12 @@ static const float N_rr            = -0.607;
 
 static const float theta_b         = 0;
 static const float phi_b           = 0;
+
+/* Controller Tuned Constants */
+
+static const float Kpid_u[3]       = {7.5, 0.025, 0.4};
+static const float Kpid_v[3]       = {7.5, 0.025, 0.4};
+static const float Kpid_z[3]       = {1.1, 0, 1.5};
+static const float Kpid_psi[3]     = {0.02, 0, 1.5};
 
 #endif

@@ -1,17 +1,51 @@
-#include <geometry_msgs/Vector3.h>
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Twist.h>
-#include <tf2/LinearMath/Quaternion.h>
+#include "uuv_4dof_controller.hpp"
 
-geometry_msgs::Pose     local_pose;
-geometry_msgs::Twist    local_twist;
+#include <ros/ros.h>
 
-void UpdateTwist(const geometry_msgs::Twist& _twist)
+const float SAMPLE_TIME_S = 0.01;
+
+int main(int argc, char **argv)
 {
+    ros::init(argc, argv, "uuv_control_node");
+    ros::NodeHandle nh;
+    
+    ros::Rate           cycle_rate(int(1 / SAMPLE_TIME_S));
+    UUV4DOFController   system_controller(SAMPLE_TIME_S, Kpid_u, Kpid_v, Kpid_z, Kpid_psi);
+    
+    /*
+    ros::Publisher  uuv_pose    = nh.advertise<geometry_msgs::Pose>("/uuv_control/odometry_calculator/pose", 1000);
+    ros::Publisher  uuv_twist   = nh.advertise<geometry_msgs::Twist>("/uuv_control/odometry_calculator/twist", 1000);;
+    ros::Publisher  uuv_accel   = nh.advertise<geometry_msgs::Accel>("/uuv_control/odometry_calculator/accel", 1000);;
 
-}
+    ros::Subscriber uuv_linear_accel = nh.subscribe("/vectornav/ins_3d/ins_acc", 
+                                                    10, 
+                                                    &OdometryCalculator::AccelPubCallback, 
+                                                    &odom_calc);
+    ros::Subscriber uuv_angular_rate = nh.subscribe("/vectornav/ins_3d/ins_ar", 
+                                                    10, 
+                                                    &OdometryCalculator::AngularRateCallback, 
+                                                    &odom_calc);
+    ros::Subscriber uuv_angular_pose = nh.subscribe("/vectornav/ins_3d/ins_ypr", 
+                                                    10, 
+                                                    &OdometryCalculator::AngularPositionCallback, 
+                                                    &odom_calc);
+    
+    while(ros::ok())
+    {
+        /* Run Queued Callbacks 
+        ros::spinOnce();
 
-void UpdatePose(const geometry_msgs::Pose& _pose)
-{
+        /* Update Parameters with new info 
+        odom_calc.UpdateParameters();
 
+        /* Publish Odometry 
+        uuv_pose.publish(odom_calc.pose);
+        uuv_twist.publish(odom_calc.twist);
+        uuv_accel.publish(odom_calc.accel);
+
+        /* Slee for 10ms 
+        cycle_rate.sleep();
+    }
+    */
+    return 0;
 }

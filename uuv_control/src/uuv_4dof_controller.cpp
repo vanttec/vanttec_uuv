@@ -1,0 +1,119 @@
+#include "uuv_4dof_controller.hpp"
+
+UUV4DOFController::UUV4DOFController(float _sample_time_s, const float _kpid_u[3], const float _kpid_v[3], const float _kpid_z[3], const float _kpid_psi[3])
+                                    : surge_speed_controller(_sample_time_s, _kpid_u)
+                                    , sway_speed_controller(_sample_time_s, _kpid_v)
+                                    , depth_controller(_sample_time_s, _kpid_z)
+                                    , heading_controller(_sample_time_s, _kpid_psi)
+{
+    this->g_x << (1 / (mass - X_u_dot)),
+                 (1 / (mass - Y_v_dot)),
+                 (1 / (mass - Z_w_dot)),
+                 (1 / (Izz - N_r_dot));
+
+    this->surge_speed_controller.g_x    = g_x(0);
+    this->sway_speed_controller.g_x     = g_x(1);
+    this->depth_controller.g_x          = g_x(2);
+    this->heading_controller.g_x        = g_x(3);
+
+    this->f_x << 0,
+                 0,
+                 0,
+                 0;
+}
+
+UUV4DOFController::~UUV4DOFController(){}
+
+void UUV4DOFController::UpdatePose(const geometry_msgs::Pose& _pose)
+{
+    this->local_pose.position.x     = _pose.position.x;
+    this->local_pose.position.y     = _pose.position.y;
+    this->local_pose.position.z     = _pose.position.z;
+    this->yaw_psi_angle             = _pose.orientation.z;
+}
+
+void UUV4DOFController::UpdateTwist(const geometry_msgs::Twist& _twist)
+{
+    this->local_twist.linear.x = _twist.linear.x;
+    this->local_twist.linear.y = _twist.linear.y;
+    this->local_twist.linear.z = _twist.linear.z;
+    this->local_twist.angular.x = _twist.angular.x;
+    this->local_twist.angular.y = _twist.angular.y;
+    this->local_twist.angular.z = _twist.angular.z;
+
+}
+
+void UUV4DOFController::UpdateControlLaw()
+{
+    this->upsilon << ((float) this->local_twist.linear.x),
+                     ((float) this->local_twist.linear.y),
+                     ((float) this->local_twist.linear.z),
+                     ((float) this->local_twist.angular.z);
+    
+    
+    /* Rigid Body Mass Matrix */
+
+    this->M_rb << mass, 0, 0, 0,
+                  0, mass, 0, 0,
+                  0, 0, mass, 0,
+                  0, 0, 0, Izz;
+
+    /* Hydrodynamic Added Mass Matrix */
+
+    this->M_a << X_u_dot, 0, 0, 0,
+                 0, Y_v_dot, 0, 0,
+                 0, 0, Z_w_dot, 0,
+                 0, 0, 0, N_r_dot;
+
+    /* Rigid Body Coriolis Matrix */
+
+    float rb_a_1 = mass * this->upsilon(0);
+    float rb_a_2 = mass * this->upsilon(1);
+    
+    this->C_rb << 0, 0, 0, -rb_a_2,
+                  0, 0, 0, rb_a_1,
+                  0, 0, 0, 0,
+                  rb_a_2, -rb_a_1, 0, 0;
+
+    /* Hydrodynamic Added Mass Coriolis Matrix */
+
+    float a_a_1 = X_u_dot * this->upsilon(0);
+    float a_a_2 = Y_v_dot * this->upsilon(1);
+    
+    this->C_a << 0, 0, 0, a_a_2,
+                 0, 0, 0, -a_a_1,
+                 0, 0, 0, 0,
+                 -a_a_2, a_a_1, 0, 0;
+    
+    /* Hydrodynamic Damping */
+
+    this->D_lin << -(X_u), 0, 0, 0,
+                   0, -(Y_v), 0, 0,
+                   0, 0, -(Z_w), 0,
+                   0, 0, 0, -(N_r);
+
+    this->D_qua << -(X_uu * fabs(this->upsilon(0))), 0, 0, 0,
+                   0, -(Y_vv * fabs(this->upsilon(1))), 0, 0,
+                   0, 0, -(Z_ww * fabs(this->upsilon(2))), 0,
+                   0, 0, 0, -(N_rr * fabs(this->upsilon(3)));
+
+    /* Restoring Forces */
+    
+    this->G_eta << (weight - buoyancy) * sin(theta_b),
+                   -(weight - buoyancy) * cos(theta_b) * sin(phi_b),
+                   -(weight - buoyancy) * cos(theta_b) * cos(phi_b),
+                   0;
+
+    /* 4 DoF State Calculation */
+
+    Eigen::Matrix4f M = this->M_rb - this->M_a;
+    Eigen::Matrix4f C = this->C_rb + this->C_a;
+    Eigen::Matrix4f D = this->D_lin + this->D_qua;
+
+    this->f_x = M.inverse() * (- (C * this->upsilon) - (D * this->upsilon) - this->G_eta);
+
+    this->surge_speed_controller.f_x    = f_x(0);
+    this->sway_speed_controller.f_x     = f_x(1);
+    this->depth_controller.f_x          = f_x(2);
+    this->heading_controller.f_x        = f_x(3);
+}
