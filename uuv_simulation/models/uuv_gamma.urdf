@@ -7,9 +7,9 @@
 
   <link name="uuv">
     <visual>
-    	<origin rpy="1.5708 0 0" xyz="0 0 0"/>
+    	<origin rpy="-1.57 0 -1.57" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://uuv_simulation/meshes/VTEC_U-II_GAMMA.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://uuv_simulation/models/meshes/VTEC_U-II_GAMMA.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="white"/>
     </visual>
