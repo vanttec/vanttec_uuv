@@ -18,11 +18,6 @@ PIDController::PIDController(float _sample_time_s, const float _k_pid[3])
 
 PIDController::~PIDController(){}
 
-void PIDController::UpdateSetPoint(const std_msgs::Float32& _set_point)
-{
-    this->set_point = _set_point.data;
-}
-
 void PIDController::CalculateManipulation(float _current_value)
 {
     this->prev_error    = this->error;

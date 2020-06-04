@@ -22,8 +22,7 @@ class PIDController
         
         PIDController(float _sample_time_s, const float _k_pid[3]);
         ~PIDController();
-
-        void UpdateSetPoint(const std_msgs::Float32& _set_point);
+        
         void CalculateManipulation(float _current_value);
 };
 

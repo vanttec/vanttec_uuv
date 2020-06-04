@@ -12,40 +12,38 @@ int main(int argc, char **argv)
     ros::Rate           cycle_rate(int(1 / SAMPLE_TIME_S));
     UUV4DOFController   system_controller(SAMPLE_TIME_S, Kpid_u, Kpid_v, Kpid_z, Kpid_psi);
     
-    /*
-    ros::Publisher  uuv_pose    = nh.advertise<geometry_msgs::Pose>("/uuv_control/odometry_calculator/pose", 1000);
-    ros::Publisher  uuv_twist   = nh.advertise<geometry_msgs::Twist>("/uuv_control/odometry_calculator/twist", 1000);;
-    ros::Publisher  uuv_accel   = nh.advertise<geometry_msgs::Accel>("/uuv_control/odometry_calculator/accel", 1000);;
+    ros::Publisher  uuv_thrust      = nh.advertise<uuv_control::ThrustControl>("/uuv_control/uuv_control_node/thrust", 1000);
 
-    ros::Subscriber uuv_linear_accel = nh.subscribe("/vectornav/ins_3d/ins_acc", 
-                                                    10, 
-                                                    &OdometryCalculator::AccelPubCallback, 
-                                                    &odom_calc);
-    ros::Subscriber uuv_angular_rate = nh.subscribe("/vectornav/ins_3d/ins_ar", 
-                                                    10, 
-                                                    &OdometryCalculator::AngularRateCallback, 
-                                                    &odom_calc);
-    ros::Subscriber uuv_angular_pose = nh.subscribe("/vectornav/ins_3d/ins_ypr", 
-                                                    10, 
-                                                    &OdometryCalculator::AngularPositionCallback, 
-                                                    &odom_calc);
+    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/pose",
+                                                    1000,
+                                                    &UUV4DOFController::UpdatePose,
+                                                    &system_controller);
+
+    ros::Subscriber uuv_twist       = nh.subscribe("/uuv_simulation/dynamic_model/vel", 
+                                                    10,
+                                                    &UUV4DOFController::UpdateTwist,
+                                                    &system_controller);
+
+    ros::Subscriber uuv_setpoint    = nh.subscribe("/uuv_control/uuv_control_node/setpoint", 
+                                                    10,
+                                                    &UUV4DOFController::UpdateSetPoints,
+                                                    &system_controller); 
     
     while(ros::ok())
     {
-        /* Run Queued Callbacks 
+        /* Run Queued Callbacks */ 
         ros::spinOnce();
 
-        /* Update Parameters with new info 
-        odom_calc.UpdateParameters();
+        /* Update Parameters with new info */ 
+        system_controller.UpdateControlLaw();
+        system_controller.UpdateThrustOutput();
 
-        /* Publish Odometry 
-        uuv_pose.publish(odom_calc.pose);
-        uuv_twist.publish(odom_calc.twist);
-        uuv_accel.publish(odom_calc.accel);
+        /* Publish Odometry */ 
+        uuv_thrust.publish(system_controller.thrust);
 
-        /* Slee for 10ms 
+        /* Slee for 10ms */
         cycle_rate.sleep();
     }
-    */
+    
     return 0;
 }

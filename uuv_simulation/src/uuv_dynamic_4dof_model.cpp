@@ -141,12 +141,17 @@ void UUVDynamic4DOFModel::CalculateStates()
     Eigen::Vector4f upsilon_dot_sum = this->upsilon_dot + this->upsilon_dot_prev;
     this->upsilon = (upsilon_dot_sum / 2 * this->sample_time_s) + this->upsilon;
 
-    std::cout << this->upsilon_dot << std::endl;
-
     /* Integrating Velocities to get Position */
 
     Eigen::Vector4f upsilon_sum = this->upsilon + this->upsilon_prev;
     this->body_pos = (upsilon_sum / 2 * this->sample_time_s) + this->body_pos;
+
+    if (fabs(this->body_pos(3)) > pi)
+    {
+        this->body_pos(3) = (this->body_pos(3) / fabs(this->body_pos(3))) * (this->body_pos(3) - 2 * pi);
+    }
+
+    std::cout << this->body_pos << std::endl;
 
     /* Update ROS Messages */
 
@@ -165,4 +170,10 @@ void UUVDynamic4DOFModel::CalculateStates()
     this->velocities.linear.x = upsilon(0);
     this->velocities.linear.y = upsilon(1);
     this->velocities.linear.z = upsilon(2);
+    this->velocities.angular.z = upsilon(3);
+
+    this->pose.position.x = body_pos(0);
+    this->pose.position.y = body_pos(1);
+    this->pose.position.z = body_pos(2);
+    this->pose.orientation.z = body_pos(3);
 }

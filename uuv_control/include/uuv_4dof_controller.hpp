@@ -3,16 +3,20 @@
 
 #include "pid_controller.hpp"
 #include "vtec_u3_gamma_parameters.hpp"
+#include "uuv_control/ThrustControl.h"
 
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Twist.h>
 #include <eigen3/Eigen/Dense>
 
+
 class UUV4DOFController
 {
     public:
-        geometry_msgs::Pose     local_pose;
-        geometry_msgs::Twist    local_twist;
+        geometry_msgs::Pose         local_pose;
+        geometry_msgs::Twist        local_twist;
+        
+        uuv_control::ThrustControl  thrust;
 
         float yaw_psi_angle;
 
@@ -29,7 +33,10 @@ class UUV4DOFController
 
         void UpdatePose(const geometry_msgs::Pose& _pose);
         void UpdateTwist(const geometry_msgs::Twist& _twist);
+        void UpdateSetPoints(const geometry_msgs::Twist& _set_points);
+        
         void UpdateControlLaw();
+        void UpdateThrustOutput();
     
     private:
 

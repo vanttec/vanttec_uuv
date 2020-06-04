@@ -43,6 +43,14 @@ void UUV4DOFController::UpdateTwist(const geometry_msgs::Twist& _twist)
 
 }
 
+void UUV4DOFController::UpdateSetPoints(const geometry_msgs::Twist& _set_points)
+{
+    this->surge_speed_controller.set_point      = _set_points.linear.x;
+    this->sway_speed_controller.set_point       = _set_points.linear.y;
+    this->depth_controller.set_point            = _set_points.linear.z;
+    this->heading_controller.set_point          = _set_points.angular.z;
+}
+
 void UUV4DOFController::UpdateControlLaw()
 {
     this->upsilon << ((float) this->local_twist.linear.x),
@@ -117,3 +125,51 @@ void UUV4DOFController::UpdateControlLaw()
     this->depth_controller.f_x          = f_x(2);
     this->heading_controller.f_x        = f_x(3);
 }
+
+void UUV4DOFController::UpdateThrustOutput()
+{
+    /* Calculate Controller Ouput/Manipulation */
+    this->surge_speed_controller.CalculateManipulation(this->local_twist.linear.x);
+    this->sway_speed_controller.CalculateManipulation(this->local_twist.linear.y);
+    this->depth_controller.CalculateManipulation(this->local_pose.position.z);
+    this->heading_controller.CalculateManipulation(this->yaw_psi_angle);
+
+    /* Saturate Controller Ouput/Manipulation */
+
+    if (fabs(this->surge_speed_controller.manipulation) > MAX_THRUST_SURGE)
+    {
+        this->thrust.tau_x = (this->surge_speed_controller.manipulation / fabs(this->surge_speed_controller.manipulation)) * (MAX_THRUST_SURGE);
+    }
+    else
+    {
+        this->thrust.tau_x = this->surge_speed_controller.manipulation;
+    }
+
+    if (fabs(this->sway_speed_controller.manipulation) > MAX_THRUST_SWAY)
+    {
+        this->thrust.tau_y = (this->sway_speed_controller.manipulation / fabs(this->sway_speed_controller.manipulation)) * (MAX_THRUST_SWAY);
+    }
+    else
+    {
+        this->thrust.tau_y = this->sway_speed_controller.manipulation;
+    }
+
+    if (fabs(this->depth_controller.manipulation) > MAX_THRUST_HEAVE)
+    {
+        this->thrust.tau_z = (this->depth_controller.manipulation / fabs(this->depth_controller.manipulation)) * (MAX_THRUST_HEAVE);
+    }
+    else
+    {
+        this->thrust.tau_z = this->depth_controller.manipulation;
+    }
+
+    if (fabs(this->heading_controller.manipulation) > MAX_THRUST_YAW)
+    {
+        this->thrust.tau_yaw = (this->heading_controller.manipulation / fabs(this->heading_controller.manipulation)) * (MAX_THRUST_YAW);
+    }
+    else
+    {
+        this->thrust.tau_yaw = this->heading_controller.manipulation;
+    }
+}
+

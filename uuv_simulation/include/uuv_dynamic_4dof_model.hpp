@@ -6,6 +6,7 @@
 
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
 #include <eigen3/Eigen/Dense>
 
 class UUVDynamic4DOFModel
@@ -19,6 +20,7 @@ class UUVDynamic4DOFModel
         geometry_msgs::Vector3  angular_position;
 
         geometry_msgs::Twist    velocities;
+        geometry_msgs::Pose     pose;
 
         UUVDynamic4DOFModel(float _sample_time_s);
         ~UUVDynamic4DOFModel();

@@ -56,6 +56,13 @@ static const float N_rr            = -0.607;
 static const float theta_b         = 0;
 static const float phi_b           = 0;
 
+/* Max Thrust Values for different DoFs */
+
+static const float MAX_THRUST_SURGE = 100;
+static const float MAX_THRUST_SWAY  = 100;
+static const float MAX_THRUST_HEAVE = 100;
+static const float MAX_THRUST_YAW   = 100;
+
 /* Controller Tuned Constants */
 
 static const float Kpid_u[3]       = {7.5, 0.025, 0.4};

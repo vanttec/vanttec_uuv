@@ -16,9 +16,10 @@ int main(int argc, char **argv)
     ros::Publisher  uuv_accel  = nh.advertise<geometry_msgs::Vector3>("/vectornav/ins_3d/ins_acc", 1000);
     ros::Publisher  uuv_arate  = nh.advertise<geometry_msgs::Vector3>("/vectornav/ins_3d/ins_ar", 1000);
     ros::Publisher  uuv_apos   = nh.advertise<geometry_msgs::Vector3>("/vectornav/ins_3d/ins_ypr", 1000);
-    ros::Publisher  uuv_vel    = nh.advertise<geometry_msgs::Twist>("/uuv_simulation/dynamic_model/vel", 1000);;
+    ros::Publisher  uuv_vel    = nh.advertise<geometry_msgs::Twist>("/uuv_simulation/dynamic_model/vel", 1000);
+    ros::Publisher  uuv_pos    = nh.advertise<geometry_msgs::Pose>("/uuv_simulation/dynamic_model/pose", 1000);
 
-    ros::Subscriber uuv_thrust_input = nh.subscribe("/uuv_control/pid_controller/thrust", 
+    ros::Subscriber uuv_thrust_input = nh.subscribe("/uuv_control/uuv_control_node/thrust", 
                                                     10, 
                                                     &UUVDynamic4DOFModel::ThrustCallback, 
                                                     &uuv_model);
@@ -36,6 +37,7 @@ int main(int argc, char **argv)
         uuv_arate.publish(uuv_model.angular_rate);
         uuv_apos.publish(uuv_model.angular_position);
         uuv_vel.publish(uuv_model.velocities);
+        uuv_pos.publish(uuv_model.pose);
         
         /* Sleep for 10ms */
         cycle_rate.sleep();
