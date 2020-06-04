@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot name="boat">
+<robot name="uuv">
 
   <material name="white">
     <color rgba="0.25 0.25 0.25 1"/>

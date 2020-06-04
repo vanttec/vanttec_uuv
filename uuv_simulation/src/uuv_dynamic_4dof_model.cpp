@@ -151,6 +151,15 @@ void UUVDynamic4DOFModel::CalculateStates()
         this->body_pos(3) = (this->body_pos(3) / fabs(this->body_pos(3))) * (this->body_pos(3) - 2 * pi);
     }
 
+    /* Calculate Transformation Matrix */
+
+    this->J << cos(this->body_pos(3)), -sin(this->body_pos(3)), 0, 0,
+               sin(this->body_pos(3)), cos(this->body_pos(3)), 0, 0,
+               0, 0, 1, 0,
+               0, 0, 0, 1;
+
+    this->eta_dot = this->J * this->upsilon;
+
     std::cout << this->body_pos << std::endl;
 
     /* Update ROS Messages */
@@ -167,11 +176,18 @@ void UUVDynamic4DOFModel::CalculateStates()
     this->angular_position.y = 0;
     this->angular_position.z = body_pos(3); 
 
+    /*
+    this->velocities.linear.x = this->eta_dot(0);
+    this->velocities.linear.y = this->eta_dot(1);
+    this->velocities.linear.z = this->eta_dot(2);
+    this->velocities.angular.z = this->eta_dot(3);
+    */
+    
     this->velocities.linear.x = upsilon(0);
     this->velocities.linear.y = upsilon(1);
     this->velocities.linear.z = upsilon(2);
     this->velocities.angular.z = upsilon(3);
-
+    
     this->pose.position.x = body_pos(0);
     this->pose.position.y = body_pos(1);
     this->pose.position.z = body_pos(2);

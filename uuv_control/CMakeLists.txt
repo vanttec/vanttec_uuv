@@ -35,8 +35,11 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(uuv_odometry_node src/uuv_odometry_node src/odometry_calculator.cpp)
+add_executable(uuv_odometry_node src/uuv_odometry_node.cpp src/odometry_calculator.cpp)
 target_link_libraries(uuv_odometry_node ${catkin_LIBRARIES})
 
-add_executable(uuv_control_node src/uuv_control_node src/uuv_4dof_controller.cpp src/pid_controller.cpp)
+add_executable(uuv_control_node src/uuv_control_node.cpp src/uuv_4dof_controller.cpp src/pid_controller.cpp)
 target_link_libraries(uuv_control_node ${catkin_LIBRARIES})
+
+add_executable(uuv_trajectory_node src/uuv_trajectory_node.cpp)
+target_link_libraries(uuv_trajectory_node ${catkin_LIBRARIES})

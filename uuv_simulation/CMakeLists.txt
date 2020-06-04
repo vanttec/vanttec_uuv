@@ -27,3 +27,6 @@ include_directories(
 
 add_executable(uuv_simulation_node src/uuv_simulation_node.cpp src/uuv_dynamic_4dof_model.cpp)
 target_link_libraries(uuv_simulation_node ${catkin_LIBRARIES})
+
+add_executable(uuv_tf_broadcast_node src/uuv_tf_broadcast_node.cpp src/tf_broadcaster.cpp)
+target_link_libraries(uuv_tf_broadcast_node ${catkin_LIBRARIES})

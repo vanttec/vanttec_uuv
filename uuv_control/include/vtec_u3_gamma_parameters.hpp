@@ -68,6 +68,6 @@ static const float MAX_THRUST_YAW   = 100;
 static const float Kpid_u[3]       = {7.5, 0.025, 0.4};
 static const float Kpid_v[3]       = {7.5, 0.025, 0.4};
 static const float Kpid_z[3]       = {1.1, 0, 1.5};
-static const float Kpid_psi[3]     = {0.02, 0, 1.5};
+static const float Kpid_psi[3]     = {0.025, 0, 1.5};
 
 #endif
