@@ -1,3 +1,0 @@
-uint8 STATUS
-uint8 DESIREDROUTINE
- 

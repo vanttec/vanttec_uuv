@@ -9,8 +9,8 @@ int main(int argc, char** argv)
   ros::NodeHandle n("~");
   ros::Rate r(50);
 
-  ros::Publisher pub_down = n.advertise<vehicle_user_control::KeyboardKey>("vehicle_user_control/kb_keydown", 10);
-  ros::Publisher pub_up = n.advertise<vehicle_user_control::KeyboardKey>("vehicle_user_control/kb_keyup", 10);
+  ros::Publisher pub_down = n.advertise<vehicle_user_control::KeyboardKey>("/vehicle_user_control/vehicle_user_control/kb_keydown", 10);
+  ros::Publisher pub_up = n.advertise<vehicle_user_control::KeyboardKey>("/vehicle_user_control/vehicle_user_control/kb_keyup", 10);
 
   bool allow_repeat = false;
   int repeat_delay, repeat_interval;
