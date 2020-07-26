@@ -23,10 +23,12 @@ int main(int argc, char **argv)
         /* Run Queued Callbacks */ 
         ros::spinOnce();
 
-        setpoints.linear.x = 0.5;
-        setpoints.linear.y = 0.5 * PI * cos(0.2 * PI * (sample_counter * SAMPLE_TIME_S * setpoints.linear.x));
+        setpoints.linear.x = 0.25;
+        setpoints.linear.y = 0; 
+        //setpoints.linear.z = 0.5; 
+        //setpoints.linear.y = 0.5 * PI * cos(0.2 * PI * (sample_counter * SAMPLE_TIME_S * setpoints.linear.x));
         setpoints.linear.z = 0.5 * PI * sin(0.2 * PI * (sample_counter * SAMPLE_TIME_S * setpoints.linear.x));;
-        setpoints.angular.z = 0.5 * PI * cos(0.2 * PI * (sample_counter * SAMPLE_TIME_S * setpoints.linear.x));
+        setpoints.angular.z = 0;
         sample_counter++;
 
         /* Publish Odometry */ 

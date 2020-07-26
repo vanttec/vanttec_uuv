@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- upload urdf -->
+    <param name="robot_description" textfile="$(find uuv_simulation)/models/uuv_gamma.urdf"/>
+    <node name="rviz" pkg="rviz" type="rviz"/>
+    <node name="uuv_trajectory_node" pkg="uuv_control" type="uuv_trajectory_node" />
+    <node name="uuv_control_node" pkg="uuv_control" type="uuv_control_node" />
+    <node name="uuv_tf_broadcast_node" pkg="uuv_simulation" type="uuv_tf_broadcast_node" />
+    <node name="uuv_simulation_node" pkg="uuv_simulation" type="uuv_simulation_node" />
+</launch>
