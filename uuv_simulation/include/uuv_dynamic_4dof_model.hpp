@@ -47,6 +47,7 @@ class UUVDynamic4DOFModel
         Eigen::Vector4f G_eta;
         Eigen::Matrix4f J;
         Eigen::Vector4f eta_dot;
+        Eigen::Vector4f eta;
 };
 
 #endif

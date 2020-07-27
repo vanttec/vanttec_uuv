@@ -1,0 +1,3 @@
+uint8 guidance_law
+uint8 waypoint_list_length
+std_msgs/Float32MultiArray waypoint_list

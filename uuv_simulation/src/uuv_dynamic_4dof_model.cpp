@@ -158,38 +158,37 @@ void UUVDynamic4DOFModel::CalculateStates()
                0, 0, 1, 0,
                0, 0, 0, 1;
 
-    this->eta_dot = this->J * this->upsilon;
+    /* Integrating Velocities to get Position on NED */
 
-    std::cout << this->body_pos << std::endl;
+    Eigen::Vector4f eta_dot_sum = (this->J * this->upsilon) + (this->J * this->upsilon_prev);
+    this->eta = (eta_dot_sum / 2 * this->sample_time_s) + this->eta;
+
+    if (fabs(this->eta(3)) > pi)
+    {
+        this->eta(3) = (this->eta(3) / fabs(this->eta(3))) * (this->eta(3) - 2 * pi);
+    }
 
     /* Update ROS Messages */
 
-    this->linear_acceleration.x = upsilon_dot(0);
-    this->linear_acceleration.y = upsilon_dot(1);
-    this->linear_acceleration.z = upsilon_dot(2);
+    this->linear_acceleration.x = this->upsilon_dot(0);
+    this->linear_acceleration.y = this->upsilon_dot(1);
+    this->linear_acceleration.z = this->upsilon_dot(2);
 
     this->angular_rate.x = 0;
     this->angular_rate.y = 0;
-    this->angular_rate.z = upsilon(3);
+    this->angular_rate.z = this->upsilon(3);
 
     this->angular_position.x = 0;
     this->angular_position.y = 0;
-    this->angular_position.z = body_pos(3); 
-
-    /*
-    this->velocities.linear.x = this->eta_dot(0);
-    this->velocities.linear.y = this->eta_dot(1);
-    this->velocities.linear.z = this->eta_dot(2);
-    this->velocities.angular.z = this->eta_dot(3);
-    */
+    this->angular_position.z = this->body_pos(3); 
+   
+    this->velocities.linear.x = this->upsilon(0);
+    this->velocities.linear.y = this->upsilon(1);
+    this->velocities.linear.z = this->upsilon(2);
+    this->velocities.angular.z = this->upsilon(3);
     
-    this->velocities.linear.x = upsilon(0);
-    this->velocities.linear.y = upsilon(1);
-    this->velocities.linear.z = upsilon(2);
-    this->velocities.angular.z = upsilon(3);
-    
-    this->pose.position.x = body_pos(0);
-    this->pose.position.y = body_pos(1);
-    this->pose.position.z = body_pos(2);
-    this->pose.orientation.z = body_pos(3);
+    this->pose.position.x = this->eta(0);
+    this->pose.position.y = this->eta(1);
+    this->pose.position.z = this->eta(2);
+    this->pose.orientation.z = this->eta(3);
 }
