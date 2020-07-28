@@ -1,3 +1,5 @@
 uint8 guidance_law
 uint8 waypoint_list_length
-std_msgs/Float32MultiArray waypoint_list
+float32[] waypoint_list_x
+float32[] waypoint_list_y
+float32[] waypoint_list_z

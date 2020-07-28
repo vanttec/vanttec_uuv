@@ -1,5 +1,4 @@
 #include <uuv_guidance_controller.hpp>
-#include <math.h>
 
 GuidanceController::GuidanceController()
 {
@@ -18,6 +17,7 @@ GuidanceController::GuidanceController()
     this->los_lookahead_distance = 0.9; // Lookahead distance corresponds to 2 times the length of the UUV
     this->los_min_speed = 0;
     this->los_min_speed = 0.5;
+    this->los_position_error_threshold = 0.4;
 }
 
 GuidanceController::~GuidanceController(){}
@@ -37,6 +37,7 @@ void GuidanceController::OnWaypointReception(const uuv_guidance::GuidanceWaypoin
     node is not executing any other type of action/law; only acceptable input is an emergency stop */
     
     switch(this->current_guidance_law)
+    {
         case NONE:
             
             /* Trigger the appropriate guidance law state machine */
@@ -53,13 +54,14 @@ void GuidanceController::OnWaypointReception(const uuv_guidance::GuidanceWaypoin
 
             /* Update the current guidance law selection and the internal waypoint list */
             this->current_guidance_law = (GuidanceLaws_E) _waypoints.guidance_law;
-            this->current_waypoints = _waypoints;
+            this->current_waypoint_list = _waypoints;
             break;
 
         case LOS_GUIDANCE_LAW:
         case ORBIT_GUIDANCE_LAW:
         default:
             break;
+    }
 }
 
 void GuidanceController::OnEmergencyStop(const std_msgs::Empty& _msg)
@@ -92,31 +94,33 @@ void GuidanceController::UpdateStateMachines()
             switch(this->los_state_machine.state_machine)
             {
                 case LOS_LAW_STANDBY:
+                {
                     this->desired_setpoints.linear.x = 0;
                     this->desired_setpoints.linear.y = 0;
                     this->los_state_machine.current_waypoint = 0;
                     break;
-
+                }
                 case LOS_LAW_DEPTH_NAV:
-                    this->desired_setpoints.linear.z = this->current_waypoints.waypoint_list.data[this->los_state_machine.current_waypoint][2]
+                {
+                    this->desired_setpoints.linear.z = this->current_waypoint_list.waypoint_list_z[this->los_state_machine.current_waypoint + 1];
                     float los_depth_error = abs((float) this->current_positions_ned.position.z - (float) this->desired_setpoints.linear.z);
                     if (los_depth_error <= this->los_depth_error_threshold)
                     {
                         this->los_state_machine.state_machine = LOS_LAW_WAYPOINT_NAV;
                     }
                     break;
-
+                }
                 case LOS_LAW_WAYPOINT_NAV:
-                    
+                {
                     /* Create references for readability */
-                    float& x_k  = this->current_waypoints.waypoint_list.data[this->los_state_machine.current_waypoint][0];
-                    float& x_k1 = this->current_waypoints.waypoint_list.data[this->los_state_machine.current_waypoint][1];
+                    float x_k  = this->current_waypoint_list.waypoint_list_x[this->los_state_machine.current_waypoint];
+                    float x_k1 = this->current_waypoint_list.waypoint_list_x[this->los_state_machine.current_waypoint + 1];
 
-                    float& y_k  = this->current_waypoints.waypoint_list.data[this->los_state_machine.current_waypoint + 1][0];
-                    float& y_k1 = this->current_waypoints.waypoint_list.data[this->los_state_machine.current_waypoint + 1][1];
+                    float y_k  = this->current_waypoint_list.waypoint_list_y[this->los_state_machine.current_waypoint];
+                    float y_k1 = this->current_waypoint_list.waypoint_list_y[this->los_state_machine.current_waypoint + 1];
 
-                    float& x_uuv = this->current_positions_ned.position.x;
-                    float& y_uuv = this->current_positions_ned.position.y;
+                    float x_uuv = this->current_positions_ned.position.x;
+                    float y_uuv = this->current_positions_ned.position.y;
 
                     /* Algorithm */
                     float alpha_k = atan2((y_k1 - y_k), (x_k1 - x_k));
@@ -125,13 +129,45 @@ void GuidanceController::UpdateStateMachines()
 
                     float desired_heading = alpha_k + atan(-(cross_track_error/this->los_lookahead_distance));
 
+                    if ((desired_heading / PI) > 1)
+                    {
+                        desired_heading = desired_heading - (desired_heading/abs(desired_heading)) * 2 * PI;
+                    }
+                    else
+                    {
+                        desired_heading = desired_heading;
+                    }
+                    
                     float desired_velocity = (this->los_max_speed - this->los_min_speed) * 
-                                             (1 - (abs(along_track_distance) / sqrt(along_track_distance^2 + this->los_speed_gain)));
+                                             (1 - (abs(along_track_distance) / sqrt(pow(along_track_distance, 2) + this->los_speed_gain)));
                     
                     float desired_surge_speed = desired_velocity * cos(desired_heading);
                     float desired_sway_speed = desired_velocity * sin(desired_heading);
 
+                    this->desired_setpoints.linear.x = desired_surge_speed;
+                    this->desired_setpoints.linear.y = desired_sway_speed;
+
+                    float euclidean_distance = sqrt(pow((x_k1 - x_uuv), 2) + pow((y_k1 - y_uuv), 2));
+
+                    if (euclidean_distance <= this->los_position_error_threshold)
+                    {
+                        this->desired_setpoints.linear.x = 0;
+                        this->desired_setpoints.linear.y = 0;
+                        
+                        if ((this->los_state_machine.current_waypoint + LOS_WAYPOINT_OFFSET) < this->current_waypoint_list.waypoint_list_length)
+                        {
+                            this->los_state_machine.current_waypoint += 1;
+                            this->los_state_machine.state_machine = LOS_LAW_DEPTH_NAV;
+                        }
+                        else
+                        {
+                            this->los_state_machine.state_machine = LOS_LAW_STANDBY;
+                            this->los_state_machine.current_waypoint = 0;
+                            this->current_guidance_law = NONE;
+                        }
+                    }
                     break;
+                }
             }
             break;
 
@@ -147,8 +183,4 @@ void GuidanceController::UpdateStateMachines()
         default:
             break;
     }
-}
-
-void GuidanceController::CalculateDesiredValues_2D_LOS()
-{
 }

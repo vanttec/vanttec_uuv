@@ -32,6 +32,6 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
 )
 
-#add_executable(uuv_guidance_node src/uuv_guidance_node.cpp src/los_guidance.cpp)
-#target_link_libraries(uuv_guidance_node ${catkin_LIBRARIES})
+add_executable(uuv_guidance_node src/uuv_guidance_node.cpp src/uuv_guidance_controller.cpp)
+target_link_libraries(uuv_guidance_node ${catkin_LIBRARIES})
 
