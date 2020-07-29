@@ -13,11 +13,14 @@ GuidanceController::GuidanceController()
     this->los_state_machine.state_machine = LOS_LAW_STANDBY;
 
     /* LOS Parameter Init */
+    this->los_state_machine.current_waypoint = 0;
     this->los_depth_error_threshold = 0.01;
-    this->los_lookahead_distance = 0.9; // Lookahead distance corresponds to 2 times the length of the UUV
+    this->los_lookahead_distance = 0.65; // Lookahead distance corresponds to 2 times the length of the UUV
     this->los_min_speed = 0;
-    this->los_min_speed = 0.5;
-    this->los_position_error_threshold = 0.4;
+    this->los_max_speed = 0.9;
+    this->los_position_error_threshold = 0.25;
+    this->euclidean_distance = 0;
+    this->los_speed_gain = 50;
 }
 
 GuidanceController::~GuidanceController(){}
@@ -102,6 +105,9 @@ void GuidanceController::UpdateStateMachines()
                 }
                 case LOS_LAW_DEPTH_NAV:
                 {
+                    this->desired_setpoints.linear.x = 0;
+                    this->desired_setpoints.linear.y = 0;
+                    this->desired_setpoints.angular.z = 0;
                     this->desired_setpoints.linear.z = this->current_waypoint_list.waypoint_list_z[this->los_state_machine.current_waypoint + 1];
                     float los_depth_error = abs((float) this->current_positions_ned.position.z - (float) this->desired_setpoints.linear.z);
                     if (los_depth_error <= this->los_depth_error_threshold)
@@ -124,35 +130,53 @@ void GuidanceController::UpdateStateMachines()
 
                     /* Algorithm */
                     float alpha_k = atan2((y_k1 - y_k), (x_k1 - x_k));
+                    if (abs(alpha_k) > PI)
+                    {
+                        alpha_k = (alpha_k/abs(alpha_k)) * (abs(alpha_k) - 2 * PI);
+                    }
                     float along_track_distance = (x_uuv - x_k) * cos(alpha_k) + (y_uuv - y_k) * sin(alpha_k);
                     float cross_track_error = - (x_uuv - x_k) * sin(alpha_k) + (y_uuv - y_k) * cos(alpha_k);
-
+                    
+                    float total_distance = (x_k1 - x_k) * cos(alpha_k) + (y_k1 - y_k) * sin(alpha_k);
+                    /*
+                    if (along_track_distance > total_distance)
+                    {
+                        alpha_k = alpha_k - PI;
+                        if (abs(alpha_k) > PI)
+                        {
+                            alpha_k = (alpha_k/abs(alpha_k)) * (abs(alpha_k) - 2 * PI);
+                        }
+                        along_track_distance = (x_uuv - x_k) * cos(alpha_k) + (y_uuv - y_k) * sin(alpha_k);
+                        cross_track_error = - (x_uuv - x_k) * sin(alpha_k) + (y_uuv - y_k) * cos(alpha_k);
+                    }
+                    */
                     float desired_heading = alpha_k + atan(-(cross_track_error/this->los_lookahead_distance));
 
-                    if ((desired_heading / PI) > 1)
+                    if (abs(desired_heading) > PI)
                     {
-                        desired_heading = desired_heading - (desired_heading/abs(desired_heading)) * 2 * PI;
+                        desired_heading = (desired_heading/abs(desired_heading)) * (abs(desired_heading) - 2 * PI);
                     }
-                    else
-                    {
-                        desired_heading = desired_heading;
-                    }
-                    
+
                     float desired_velocity = (this->los_max_speed - this->los_min_speed) * 
                                              (1 - (abs(along_track_distance) / sqrt(pow(along_track_distance, 2) + this->los_speed_gain)));
+
+                    if (abs(this->current_positions_ned.orientation.z - desired_heading) > 0.75)
+                    {
+                        float desired_velocity = 0.075;
+                    }
                     
-                    float desired_surge_speed = desired_velocity * cos(desired_heading);
-                    float desired_sway_speed = desired_velocity * sin(desired_heading);
+                    this->desired_setpoints.linear.x = desired_velocity;
+                    this->desired_setpoints.linear.y = 0;
+                    this->desired_setpoints.angular.z = desired_heading;
 
-                    this->desired_setpoints.linear.x = desired_surge_speed;
-                    this->desired_setpoints.linear.y = desired_sway_speed;
+                    this->euclidean_distance = sqrt(pow((x_k1 - x_uuv), 2) + pow((y_k1 - y_uuv), 2));
 
-                    float euclidean_distance = sqrt(pow((x_k1 - x_uuv), 2) + pow((y_k1 - y_uuv), 2));
-
-                    if (euclidean_distance <= this->los_position_error_threshold)
+                    if (this->euclidean_distance <= this->los_position_error_threshold)
                     {
                         this->desired_setpoints.linear.x = 0;
                         this->desired_setpoints.linear.y = 0;
+                        this->desired_setpoints.angular.z = 0;
+                        this->euclidean_distance = 0;
                         
                         if ((this->los_state_machine.current_waypoint + LOS_WAYPOINT_OFFSET) < this->current_waypoint_list.waypoint_list_length)
                         {

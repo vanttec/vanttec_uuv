@@ -40,7 +40,7 @@ typedef enum LOSLawStates_E
 typedef struct LOSLawStateMachine_S
 {
     LOSLawStates_E      state_machine;
-    uint8_t             current_waypoint;      
+    int                 current_waypoint;      
 } LOSLawStateMachine_S;
 
 /***************** Orbit ******************/
@@ -58,6 +58,8 @@ class GuidanceController
         geometry_msgs::Pose                 current_positions_ned;
         geometry_msgs::Twist                desired_setpoints;
         uuv_guidance::GuidanceWaypoints     current_waypoint_list;
+
+        float euclidean_distance;
 
         GuidanceController();
         ~GuidanceController();

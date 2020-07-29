@@ -16,11 +16,11 @@ void TfBroadcaster::BroadcastTransform(const geometry_msgs::Pose& _pose)
     transformStamped.header.frame_id            = this->parent_frame;
     transformStamped.child_frame_id             = this->child_frame;
     transformStamped.transform.translation.x    = _pose.position.x;
-    transformStamped.transform.translation.y    = _pose.position.y;
+    transformStamped.transform.translation.y    = -_pose.position.y;
     transformStamped.transform.translation.z    = -_pose.position.z;
 
     tf2::Quaternion q;
-    q.setRPY(0, 0, _pose.orientation.z);
+    q.setRPY(0, 0, -_pose.orientation.z);
     transformStamped.transform.rotation.x = q.x();
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
@@ -33,7 +33,7 @@ void TfBroadcaster::BroadcastTransform(const geometry_msgs::Pose& _pose)
     pose.header.stamp       = ros::Time::now();
     pose.header.frame_id    = this->parent_frame;
     pose.pose.position.x    = _pose.position.x;
-    pose.pose.position.y    = _pose.position.y;
+    pose.pose.position.y    = -_pose.position.y;
     pose.pose.position.z    = -_pose.position.z;
 
     this->path.header.stamp     = ros::Time::now();

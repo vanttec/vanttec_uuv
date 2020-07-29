@@ -2,6 +2,8 @@
 
 #include <ros/ros.h>
 
+#include <stdio.h>
+
 const float SAMPLE_TIME_S = 0.01;
 
 int main(int argc, char **argv)
@@ -29,6 +31,8 @@ int main(int argc, char **argv)
                                                                 &GuidanceController::OnWaypointReception,
                                                                 &guidance_controller);
 
+    uint32_t counter = 0;
+
     while(ros::ok())
     {
         /* Run Queued Callbacks */ 
@@ -36,6 +40,27 @@ int main(int argc, char **argv)
 
         /* Update Parameters with new info */ 
         guidance_controller.UpdateStateMachines();
+
+        if (counter % 100 == 0)
+        {
+            std::cout << guidance_controller.los_state_machine.state_machine << std::endl;
+        }
+
+        if (counter % 10 == 0)
+        {
+            std::cout << "dist: " << guidance_controller.euclidean_distance << std::endl;
+
+            if (guidance_controller.los_state_machine.state_machine != 0)
+            {
+                std::cout << "wp: " << guidance_controller.los_state_machine.current_waypoint << std::endl;
+                std::cout << "xk1: " << guidance_controller.current_waypoint_list.waypoint_list_x[guidance_controller.los_state_machine.current_waypoint + 1] << std::endl;
+                std::cout << "yk1: " << guidance_controller.current_waypoint_list.waypoint_list_y[guidance_controller.los_state_machine.current_waypoint + 1] << std::endl;
+                std::cout << "x: " << guidance_controller.current_positions_ned.position.x << std::endl;
+                std::cout << "y: " << guidance_controller.current_positions_ned.position.y << std::endl;
+            }
+        }
+        
+        counter++;
 
         /* Publish Odometry */ 
         uuv_desired_setpoints.publish(guidance_controller.desired_setpoints);
