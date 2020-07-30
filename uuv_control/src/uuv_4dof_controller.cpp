@@ -1,10 +1,10 @@
 #include "uuv_4dof_controller.hpp"
 
 UUV4DOFController::UUV4DOFController(float _sample_time_s, const float _kpid_u[3], const float _kpid_v[3], const float _kpid_z[3], const float _kpid_psi[3])
-                                    : surge_speed_controller(_sample_time_s, _kpid_u)
-                                    , sway_speed_controller(_sample_time_s, _kpid_v)
-                                    , depth_controller(_sample_time_s, _kpid_z)
-                                    , heading_controller(_sample_time_s, _kpid_psi)
+                                    : surge_speed_controller(_sample_time_s, _kpid_u, LINEAR_DOF_PID)
+                                    , sway_speed_controller(_sample_time_s, _kpid_v, LINEAR_DOF_PID)
+                                    , depth_controller(_sample_time_s, _kpid_z, LINEAR_DOF_PID)
+                                    , heading_controller(_sample_time_s, _kpid_psi, ANGULAR_DOF_PID)
 {
     this->g_x << (1 / (mass - X_u_dot)),
                  (1 / (mass - Y_v_dot)),
@@ -45,10 +45,20 @@ void UUV4DOFController::UpdateTwist(const geometry_msgs::Twist& _twist)
 
 void UUV4DOFController::UpdateSetPoints(const geometry_msgs::Twist& _set_points)
 {
-    this->surge_speed_controller.set_point      = _set_points.linear.x;
-    this->sway_speed_controller.set_point       = _set_points.linear.y;
-    this->depth_controller.set_point            = _set_points.linear.z;
-    this->heading_controller.set_point          = _set_points.angular.z;
+    this->surge_speed_controller.set_point      = (float) _set_points.linear.x;
+    this->sway_speed_controller.set_point       = (float) _set_points.linear.y;
+    this->depth_controller.set_point            = (float) _set_points.linear.z;
+
+    float uncorrected_angle                     = (float) _set_points.angular.z;
+
+    if (std::abs(uncorrected_angle) > 3.1416)
+    {
+        this->heading_controller.set_point      = (uncorrected_angle / std::abs(uncorrected_angle)) * (std::abs(uncorrected_angle) - (2 * 3.1416));
+    }
+    else
+    {
+        this->heading_controller.set_point      = uncorrected_angle;
+    } 
 }
 
 void UUV4DOFController::UpdateControlLaw()

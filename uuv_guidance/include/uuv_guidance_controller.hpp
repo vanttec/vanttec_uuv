@@ -1,7 +1,7 @@
 #ifndef __UUV_GUIDANCE_CONTROLLER_H__
 #define __UUV_GUIDANCE_CONTROLLER_H__
 
-#include <math.h>
+#include <cmath>
 
 #include <std_msgs/Empty.h>
 #include <geometry_msgs/Pose.h>
@@ -45,6 +45,20 @@ typedef struct LOSLawStateMachine_S
 
 /***************** Orbit ******************/
 
+typedef enum OrbitLawStates_E
+{
+    ORBIT_LAW_STANDBY = 0,
+    ORBIT_LAW_DEPTH_NAV = 1,
+    ORBIT_LAW_WAYPOINT_NAV = 2,
+} OrbitLawStates_E;
+
+/* Orbit Guidance Law Struct */
+
+typedef struct OrbitLawStateMachine_S
+{
+    OrbitLawStates_E    state_machine;
+    int                 current_waypoint;      
+} OrbitLawStateMachine_S;
 
 /********** Guidance Controller ***********/
 
@@ -54,12 +68,11 @@ class GuidanceController
         
         GuidanceLaws_E          current_guidance_law;
         LOSLawStateMachine_S    los_state_machine;
+        OrbitLawStateMachine_S  orbit_state_machine;
         
         geometry_msgs::Pose                 current_positions_ned;
         geometry_msgs::Twist                desired_setpoints;
         uuv_guidance::GuidanceWaypoints     current_waypoint_list;
-
-        float euclidean_distance;
 
         GuidanceController();
         ~GuidanceController();
@@ -79,8 +92,17 @@ class GuidanceController
         float los_max_speed;
         float los_min_speed;
         float los_speed_gain;
+        float los_euclidean_distance;
 
-        /* Orbit Parameters */        
+        /* Orbit Parameters */
+        float orbit_depth_error_threshold;
+        float orbit_position_error_threshold;
+        float orbit_lookahead_distance;
+        float orbit_max_speed;
+        float orbit_min_speed;
+        float orbit_speed_gain;
+        float orbit_euclidean_distance;
+
 };
 
 #endif

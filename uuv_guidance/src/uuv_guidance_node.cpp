@@ -43,9 +43,10 @@ int main(int argc, char **argv)
 
         if (counter % 100 == 0)
         {
-            std::cout << guidance_controller.los_state_machine.state_machine << std::endl;
+            std::cout << guidance_controller.current_guidance_law << std::endl;
         }
 
+        /*
         if (counter % 10 == 0)
         {
             std::cout << "dist: " << guidance_controller.euclidean_distance << std::endl;
@@ -61,6 +62,7 @@ int main(int argc, char **argv)
         }
         
         counter++;
+        */
 
         /* Publish Odometry */ 
         uuv_desired_setpoints.publish(guidance_controller.desired_setpoints);

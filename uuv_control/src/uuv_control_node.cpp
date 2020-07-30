@@ -1,6 +1,7 @@
 #include "uuv_4dof_controller.hpp"
 
 #include <ros/ros.h>
+#include <stdio.h>
 
 const float SAMPLE_TIME_S = 0.01;
 
@@ -28,6 +29,8 @@ int main(int argc, char **argv)
                                                     10,
                                                     &UUV4DOFController::UpdateSetPoints,
                                                     &system_controller); 
+
+    int counter = 0;
     
     while(ros::ok())
     {
@@ -37,7 +40,17 @@ int main(int argc, char **argv)
         /* Update Parameters with new info */ 
         system_controller.UpdateControlLaw();
         system_controller.UpdateThrustOutput();
+        
+        /*
+        if (counter % 10 == 0)
+        {
+            std::cout << "E: " << system_controller.heading_controller.error << std::endl;
+            std::cout << "S: " << system_controller.heading_controller.set_point << std::endl;
+        }
 
+        counter++;     
+        */
+       
         /* Publish Odometry */ 
         uuv_thrust.publish(system_controller.thrust);
 
