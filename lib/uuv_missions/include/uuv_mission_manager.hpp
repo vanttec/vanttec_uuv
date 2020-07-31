@@ -19,7 +19,6 @@ typedef enum MissionType_E
     BUOY = 2,
 } MissionType_E;
 
-
 class MissionManager
 {
     public:
