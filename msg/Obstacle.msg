@@ -1,4 +1,4 @@
 Header header
 string class
 geometry_msgs/Pose pose
-float32
+float32 radio
