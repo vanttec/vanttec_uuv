@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_odometry_node.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: ROS odometry node for the UUV. Uses uuv_odometry library.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "odometry_calculator.hpp"
 
 #include <ros/ros.h>

@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: pid_controller.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: PID Controller class, which implements a single DOF controller.
+ * -----------------------------------------------------------------------------
+ * */
+
 #include "pid_controller.hpp"
 
 PIDController::PIDController(float _sample_time_s, const float _k_pid[3], const DOFControllerType_E _type)

@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: waypoint_publisher.hpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Waypoint publisher class, used to test waypoint navigation.
+ * -----------------------------------------------------------------------------
+ * */
+
 #ifndef __WAYPOINT_PUBLISHER_H__
 #define __WAYPOINT_PUBLISHER_H__
 

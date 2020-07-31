@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_control_node.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: ROS control node for the UUV. Uses uuv_control library.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "uuv_4dof_controller.hpp"
 
 #include <ros/ros.h>

@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: tf_broadcaster.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Used to publish the current pose of the simulated UUV and correctly
+ *         represent it in RViz.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "tf_broadcaster.hpp"
 
 TfBroadcaster::TfBroadcaster(const std::string& _parent, const std::string& _child)

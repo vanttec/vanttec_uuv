@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_waypoint_publisher_node.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: ROS waypoint publisher node for the UUV. Uses uuv_motion_planning
+ *         library.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "waypoint_publisher.hpp"
 
 #include <ros/ros.h>

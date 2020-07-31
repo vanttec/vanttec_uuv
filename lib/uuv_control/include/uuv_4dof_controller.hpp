@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_4dof_controller.hpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: 4-DOF controller class, using a different, decoupled controller for
+ *         each DOF.
+ * -----------------------------------------------------------------------------
+ * */
+
 #ifndef __UUV_4DOF_CONTROLLER_H__
 #define __UUV_4DOF_CONTROLLER_H__
 

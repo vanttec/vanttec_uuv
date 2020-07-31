@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_tf_broadcast_node.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: ROS tf broadcast node for the UUV. Uses uuv_simulation library.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "tf_broadcaster.hpp"
 
 #include <ros/ros.h>

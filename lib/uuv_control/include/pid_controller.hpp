@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: pid_controller.hpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: PID Controller class, which implements a single DOF controller.
+ * -----------------------------------------------------------------------------
+ * */
+
 #ifndef __PID_CONTROLLER_H__
 #define __PID_CONTROLLER_H__
 

@@ -35,6 +35,7 @@ catkin_package(
 
 include_directories(
     lib/uuv_common/include
+    lib/uuv_odometry/include
     lib/uuv_control/include
     lib/uuv_guidance/include
     lib/uuv_master/include
@@ -45,7 +46,7 @@ include_directories(
 
 add_executable(uuv_odometry_node 
     src/uuv_odometry_node.cpp 
-    lib/uuv_control/src/odometry_calculator.cpp)
+    lib/uuv_odometry/src/odometry_calculator.cpp)
 add_dependencies(uuv_odometry_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_odometry_node ${catkin_LIBRARIES})
 

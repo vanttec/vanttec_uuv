@@ -1,10 +1,20 @@
+/** ----------------------------------------------------------------------------
+ * @file: master_node.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Master node, in charge of receiving control input and managing other
+ *         nodes in the architecture.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "master_node.hpp"
 
 UUVMasterNode::UUVMasterNode(const float _default_speed)
 {
     this->default_speed = _default_speed;
     this->e_stop_flag   = 0;
-    this->publish_flag  = 0;
 }
 
 UUVMasterNode::~UUVMasterNode(){}
@@ -17,18 +27,12 @@ void UUVMasterNode::keyboardUpCallback(const vehicle_user_control::KeyboardKey& 
         case vehicle_user_control::KeyboardKey::KEY_a:
         case vehicle_user_control::KeyboardKey::KEY_s:
         case vehicle_user_control::KeyboardKey::KEY_d:
-        case vehicle_user_control::KeyboardKey::KEY_LSHIFT:
-        case vehicle_user_control::KeyboardKey::KEY_LCTRL:
-        case vehicle_user_control::KeyboardKey::KEY_RIGHT:
-        case vehicle_user_control::KeyboardKey::KEY_LEFT:
             this->velocities.angular.x      = 0.0;      //Roll
             this->velocities.angular.y      = 0.0;      //Pitch
             this->velocities.linear.x       = 0.0;      //x linear movement
             this->velocities.linear.y       = 0.0;      //y linear movement
             break;
     }
-
-    this->publish_flag = 1;
 }
 
 void UUVMasterNode::keyboardDownCallback(const vehicle_user_control::KeyboardKey& msg)
@@ -111,6 +115,4 @@ void UUVMasterNode::keyboardDownCallback(const vehicle_user_control::KeyboardKey
                 break;
         }
     }
-
-    this->publish_flag = 1;
 }

@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: tf_broadcaster.hpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Used to publish the current pose of the simulated UUV and correctly
+ *         represent it in RViz.
+ * -----------------------------------------------------------------------------
+ **/
+
 #ifndef __TF_BROADCASTER_H__
 #define __TF_BROADCASTER_H__
 

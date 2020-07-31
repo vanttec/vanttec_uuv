@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: waypoint_publisher.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Waypoint publisher class, used to test waypoint navigation.
+ * -----------------------------------------------------------------------------
+ * */
+
 #include <waypoint_publisher.hpp>
 
 WaypointPublisher::WaypointPublisher()

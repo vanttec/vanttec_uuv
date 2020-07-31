@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_master_node.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: ROS master node for the UUV. Uses uuv_master library.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "master_node.hpp"
 
 #include <ros/ros.h>
@@ -13,9 +23,7 @@ int main(int argc, char **argv)
     
     ros::Rate           cycle_rate(int(1 / SAMPLE_TIME_S));
     UUVMasterNode       uuv_master(DEFAULT_SPEED_MPS);
-    
-    std::cout << uuv_master.default_speed << std::endl;
-    
+        
     ros::Publisher  uuv_vel      = nh.advertise<geometry_msgs::Twist>("/uuv_control/uuv_control_node/setpoint", 1000);
     ros::Publisher  uuv_status   = nh.advertise<vanttec_uuv::MasterStatus>("/uuv_master/uuv_master_node/status", 1000);
     ros::Publisher  uuv_estop    = nh.advertise<std_msgs::Empty>("/uuv_master/uuv_master_node/e_stop", 1000);
@@ -36,15 +44,13 @@ int main(int argc, char **argv)
         ros::spinOnce();
 
         /* Publish Data */ 
-        if (uuv_master.publish_flag == 1)
-        {
-            uuv_vel.publish(uuv_master.velocities);
-            uuv_master.publish_flag = 0;
-        }
         uuv_status.publish(uuv_master.status);
 
-        //std::cout << uuv_master.velocities << std::endl;
-        
+        if (uuv_master.status.status == 0)
+        {
+            uuv_vel.publish(uuv_master.velocities);
+        }
+                
         if (uuv_master.e_stop_flag == 1)
         {
             uuv_master.e_stop_flag = 0;
