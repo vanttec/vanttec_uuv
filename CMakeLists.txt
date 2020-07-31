@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
     tf2_ros
     tf2_geometry_msgs
     vehicle_user_control
+    visualization_msgs
 )
 
 add_message_files(
@@ -21,15 +22,17 @@ add_message_files(
    ThrustControl.msg
    GuidanceWaypoints.msg
    MasterStatus.msg
+   Obstacle.msg
 )
 
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
 )
 
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs message_runtime
+  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs
   DEPENDS ${LIBS}
 )
 
@@ -63,6 +66,11 @@ add_executable(uuv_simulation_node
     lib/uuv_simulation/src/uuv_dynamic_4dof_model.cpp)
 add_dependencies(uuv_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_simulation_node ${catkin_LIBRARIES})
+
+add_executable(uuv_obstacle_simulation_node 
+    src/uuv_obstacle_simulation_node.cpp) 
+add_dependencies(uuv_obstacle_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_obstacle_simulation_node ${catkin_LIBRARIES})
 
 add_executable(uuv_tf_broadcast_node 
     src/uuv_tf_broadcast_node.cpp 
