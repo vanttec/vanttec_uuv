@@ -99,7 +99,7 @@ void GuidanceController::OnEmergencyStop(const std_msgs::Empty& _msg)
 void GuidanceController::OnMasterStatus(const vanttec_uuv::MasterStatus& _status)
 {
     /* Store the current status */
-    this->uuv_status = _status;
+    this->uuv_status = _status; 
 }
 
 
@@ -241,7 +241,7 @@ void GuidanceController::UpdateStateMachines()
                     this->desired_setpoints.linear.y = 0;
                     this->orbit_state_machine.current_waypoint = 0;
                     break;
-                }
+                } 
 
                 case ORBIT_LAW_DEPTH_NAV:
                 {

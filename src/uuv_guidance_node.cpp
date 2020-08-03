@@ -46,7 +46,7 @@ int main(int argc, char **argv)
                                                                 &guidance_controller);
 
     uint32_t counter = 0;
-
+ 
     while(ros::ok())
     {
         /* Run Queued Callbacks */ 

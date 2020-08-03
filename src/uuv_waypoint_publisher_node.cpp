@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     ros::Subscriber radius_select = nh.subscribe("/uuv_planning/motion_planning/circle_radius",
                                                      1000,
                                                      &WaypointPublisher::OnRadiusReceive,
-                                                     &waypoint_publisher);
+                                                     &waypoint_publisher); 
 
     while(ros::ok())
     {

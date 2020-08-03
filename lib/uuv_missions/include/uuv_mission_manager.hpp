@@ -8,22 +8,27 @@
  * -----------------------------------------------------------------------------
  * */
 
-
 #ifndef __UUV_MISSION_MANAGER__
 #define __UUV_MISSION_MANAGER__
+
+#include <geometry_msgs/Pose.h>
 
 typedef enum MissionType_E
 {
     NONE = 0,
     GATE = 1,
     BUOY = 2,
+    TORPEDOES = 3,
 } MissionType_E;
 
 class MissionManager
 {
     public:
     
-        MissionType_E current_mission;
+        MissionType_E   current_mission;
+
+        geometry_msgs::Pose     current_pose;
+        
 
         MissionManager();
         ~MissionManager();

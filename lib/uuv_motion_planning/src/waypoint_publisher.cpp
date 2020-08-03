@@ -11,7 +11,7 @@
 #include <waypoint_publisher.hpp>
 
 WaypointPublisher::WaypointPublisher()
-{
+{ 
     this->trajectory_selector     = 0;
     this->path_publish_flag       = 0;
     this->circle_radius           = 1.0;
@@ -43,7 +43,7 @@ void WaypointPublisher::WaypointSelection()
             case 1:
                 this->waypoints = uuv_common::GenerateCircle(this->circle_radius, 1.2, 2.7, 0);
                 this->waypoints.guidance_law = 2;
-                break;
+                break; 
             case 2:
                 this->waypoints.guidance_law = 1;
                 this->waypoints.waypoint_list_length = 10;
