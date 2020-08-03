@@ -24,6 +24,7 @@ add_message_files(
    MasterStatus.msg
    Obstacle.msg
    DetectedObstacles.msg
+   MissionStatus.msg
 )
 
 generate_messages(

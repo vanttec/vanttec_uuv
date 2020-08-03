@@ -11,7 +11,11 @@
 #ifndef __UUV_MISSION_MANAGER__
 #define __UUV_MISSION_MANAGER__
 
+#include "gate_mission.hpp"
+
 #include <vanttec_uuv/DetectedObstacles.h>
+#include <vanttec_uuv/GuidanceWaypoints.h>
+#include <vanttec_uuv/MasterStatus.h>
 #include <geometry_msgs/Pose.h>
 
 typedef enum MissionType_E
@@ -20,19 +24,55 @@ typedef enum MissionType_E
     GATE = 1,
     BUOY = 2,
     TORPEDOES = 3,
+    LOS_NAV_TEST = 4,
+    ORBIT_NAV_TEST = 5,
 } MissionType_E;
+
+typedef enum Side_E
+{
+    LEFT = 0,
+    RIGHT = 1,
+} Side_E;
+
+typedef enum Mode_E
+{
+    MANUAL = 0,
+    AUTO = 1,
+} Mode_E;
 
 class MissionManager
 {
     public:
     
-        MissionType_E           current_mission;
-
-        geometry_msgs::Pose     current_pose;
+        unsigned int                        ignore_e_stop;
         
+        Side_E                              selected_side;
+        Mode_E                              current_mode;       
+
+        // Inputs
+        geometry_msgs::Pose                 current_pose;
+        vanttec_uuv::DetectedObstacles      detected_obstacles;
+
+        // Outputs
+        vanttec_uuv::GuidanceWaypoints      desired_waypoints;
+        vanttec_uuv::MissionStatus          mission_status;
+
+        // Missions
+        GateMission::GateMission* gate_mission;
 
         MissionManager();
         ~MissionManager();
+
+        void OnObstacleReception(const vanttec_uuv::DetectedObstacles& _obstacles);
+        void OnMasterStatusReception(const vanttec_uuv::MasterStatus& _status);
+        void OnMissionConfigReception(const vanttec_uuv::MissionStatus& _mission);
+        void OnPoseReception(const geometry_msgs::Pose& _pose);
+        void OnEStopReception(const std_msgs:Empty& _empty);
+
+        void UpdateStateMachines();
+    
+    private:
+        void ResetWaypoints();
 };
 
 #endif // __UUV_MISSION_MANAGER__

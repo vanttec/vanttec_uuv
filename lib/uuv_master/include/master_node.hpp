@@ -13,6 +13,7 @@
 #define __UUV_MASTER_NODE_H__
 
 #include "vanttec_uuv/MasterStatus.h"
+#include "vanttec_uuv/MissionStatus.h"
 #include "vehicle_user_control/KeyboardKey.h"
 
 #include <std_msgs/Empty.h>
@@ -26,13 +27,16 @@ class UUVMasterNode
         std_msgs::Empty                 emergency_stop;
         geometry_msgs::Twist            velocities;
         vanttec_uuv::MasterStatus       status;
+        vanttec_uuv::MissionStatus      mission;
 
         float default_speed;
         int e_stop_flag;
+        int mission_debounce;
 
         UUVMasterNode(const float default_speed);
         ~UUVMasterNode();
 
+        void OnMissionFinishedReception(const std_msgs::Empty& _empty);
         void keyboardUpCallback(const vehicle_user_control::KeyboardKey& msg);
         void keyboardDownCallback(const vehicle_user_control::KeyboardKey& msg);
 };

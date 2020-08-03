@@ -72,6 +72,9 @@ void GuidanceController::OnWaypointReception(const vanttec_uuv::GuidanceWaypoint
             this->los_state_machine.state_machine = LOS_LAW_STANDBY;
             break;
         case NONE:
+            this->desired_setpoints.linear.z = _waypoints.depth_setpoint;
+            this->desired_setpoints.angular.z = _waypoints.heading_setpoint;
+            break;
         default:
             break;
     }
@@ -203,7 +206,6 @@ void GuidanceController::UpdateStateMachines()
                     {
                         this->desired_setpoints.linear.x = 0;
                         this->desired_setpoints.linear.y = 0;
-                        //this->desired_setpoints.angular.z = 0;
                         this->los_euclidean_distance = 0;
                         
                         if ((this->los_state_machine.current_waypoint + LOS_WAYPOINT_OFFSET) < this->current_waypoint_list.waypoint_list_length)

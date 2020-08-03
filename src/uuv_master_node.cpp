@@ -27,6 +27,8 @@ int main(int argc, char **argv)
     ros::Publisher  uuv_vel      = nh.advertise<geometry_msgs::Twist>("/uuv_control/uuv_control_node/setpoint", 1000);
     ros::Publisher  uuv_status   = nh.advertise<vanttec_uuv::MasterStatus>("/uuv_master/uuv_master_node/status", 1000);
     ros::Publisher  uuv_estop    = nh.advertise<std_msgs::Empty>("/uuv_master/uuv_master_node/e_stop", 1000);
+    ros::Publisher  uuv_mission  = nh.advertise<vanttec_uuv::MissionStatus>("/uuv_master/uuv_master_node/mission_config", 1000);
+
 
     ros::Subscriber kb_up_key    = nh.subscribe("/vehicle_user_control/vehicle_user_control/kb_keyup",
                                                 1000,
@@ -50,7 +52,15 @@ int main(int argc, char **argv)
         {
             uuv_vel.publish(uuv_master.velocities);
         }
-                
+        else
+        {
+            if (uuv_master.mission_debounce == 1)
+            {
+                uuv_mission.publish(uuv_master.mission);
+                uuv_master.mission_debounce = 0;
+            }
+        }
+                        
         if (uuv_master.e_stop_flag == 1)
         {
             uuv_master.e_stop_flag = 0;
