@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_guidance_controller.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Guidance controller, which manages the different guidance laws 
+ *         available to the UUV.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include <uuv_guidance_controller.hpp>
 
 GuidanceController::GuidanceController()
@@ -83,6 +94,12 @@ void GuidanceController::OnEmergencyStop(const std_msgs::Empty& _msg)
     /* Reset the guidance law and the state machines */
     this->current_guidance_law = NONE;
     this->los_state_machine.state_machine = LOS_LAW_STANDBY;
+}
+
+void GuidanceController::OnMasterStatus(const vanttec_uuv::MasterStatus& _status)
+{
+    /* Store the current status */
+    this->uuv_status = _status; 
 }
 
 
@@ -224,7 +241,7 @@ void GuidanceController::UpdateStateMachines()
                     this->desired_setpoints.linear.y = 0;
                     this->orbit_state_machine.current_waypoint = 0;
                     break;
-                }
+                } 
 
                 case ORBIT_LAW_DEPTH_NAV:
                 {

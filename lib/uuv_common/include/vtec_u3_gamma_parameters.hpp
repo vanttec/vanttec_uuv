@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: vtec_u3_gamma_parameters.hpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Mathematical constants that describe the UUV model for simulation.
+ * -----------------------------------------------------------------------------
+ * */
+
 #ifndef __VTEC_U3_GAMMA_PARAMETERS_H__
 #define __VTEC_U3_GAMMA_PARAMETERS_H__
 

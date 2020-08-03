@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: odometry_calculator.hpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Odometry calculator class. Used to get velocities and positions 
+ *         from the IMU.
+ * -----------------------------------------------------------------------------
+ * */
+
 #ifndef __ODOMETRY_CALCULATOR_H__
 #define __ODOMETRY_CALCULATOR_H__
 

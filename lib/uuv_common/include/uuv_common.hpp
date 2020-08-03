@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_common.hpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Common functions and constants used throughout the uuv package.
+ * -----------------------------------------------------------------------------
+ * */
+
 #ifndef __UUV_COMMON_H__
 #define __UUV_COMMON_H__
 

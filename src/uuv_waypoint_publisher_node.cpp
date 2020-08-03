@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_waypoint_publisher_node.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: ROS waypoint publisher node for the UUV. Uses uuv_motion_planning
+ *         library.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "waypoint_publisher.hpp"
 
 #include <ros/ros.h>
@@ -23,7 +34,7 @@ int main(int argc, char **argv)
     ros::Subscriber radius_select = nh.subscribe("/uuv_planning/motion_planning/circle_radius",
                                                      1000,
                                                      &WaypointPublisher::OnRadiusReceive,
-                                                     &waypoint_publisher);
+                                                     &waypoint_publisher); 
 
     while(ros::ok())
     {

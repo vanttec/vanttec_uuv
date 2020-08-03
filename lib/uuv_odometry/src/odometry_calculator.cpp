@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: odometry_calculator.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Odometry calculator class. Used to get velocities and positions 
+ *         from the IMU.
+ * -----------------------------------------------------------------------------
+ * */
+
 #include "odometry_calculator.hpp"
 
 OdometryCalculator::OdometryCalculator(float _sample_time)

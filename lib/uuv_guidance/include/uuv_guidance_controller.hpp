@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_guidance_controller.hpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Guidance controller, which manages the different guidance laws 
+ *         available to the UUV.
+ * -----------------------------------------------------------------------------
+ * */
+
 #ifndef __UUV_GUIDANCE_CONTROLLER_H__
 #define __UUV_GUIDANCE_CONTROLLER_H__
 
@@ -8,6 +19,7 @@
 #include <geometry_msgs/Twist.h>
 
 #include <vanttec_uuv/GuidanceWaypoints.h>
+#include <vanttec_uuv/MasterStatus.h>
 
 /********** Helper Constants ***********/
 
@@ -73,6 +85,7 @@ class GuidanceController
         geometry_msgs::Pose                 current_positions_ned;
         geometry_msgs::Twist                desired_setpoints;
         vanttec_uuv::GuidanceWaypoints      current_waypoint_list;
+        vanttec_uuv::MasterStatus           uuv_status;
 
         GuidanceController();
         ~GuidanceController();
@@ -80,6 +93,7 @@ class GuidanceController
         void OnCurrentPositionReception(const geometry_msgs::Pose& _pose);
         void OnWaypointReception(const vanttec_uuv::GuidanceWaypoints& _waypoints);
         void OnEmergencyStop(const std_msgs::Empty& _msg);
+        void OnMasterStatus(const vanttec_uuv::MasterStatus& _status);
 
         void UpdateStateMachines();
 

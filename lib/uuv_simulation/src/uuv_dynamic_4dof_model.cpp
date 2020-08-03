@@ -1,3 +1,13 @@
+/** ----------------------------------------------------------------------------
+ * @file: uuv_dynamic_4dof_model.cpp
+ * @date: July 30, 2020
+ * @author: Pedro Sanchez
+ * @email: pedro.sc.97@gmail.com
+ * 
+ * @brief: Implementation of the kinematic 4dof model of the UUV for simulation.
+ * -----------------------------------------------------------------------------
+ **/
+
 #include "uuv_dynamic_4dof_model.hpp"
 
 #include <math.h>
