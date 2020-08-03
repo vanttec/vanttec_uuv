@@ -23,6 +23,7 @@ add_message_files(
    GuidanceWaypoints.msg
    MasterStatus.msg
    Obstacle.msg
+   detectedObstacles.msg
 )
 
 generate_messages(
