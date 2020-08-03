@@ -11,6 +11,7 @@
 #ifndef __UUV_MISSION_MANAGER__
 #define __UUV_MISSION_MANAGER__
 
+#include <vanttec_uuv/DetectedObstacles.h>
 #include <geometry_msgs/Pose.h>
 
 typedef enum MissionType_E
@@ -25,7 +26,7 @@ class MissionManager
 {
     public:
     
-        MissionType_E   current_mission;
+        MissionType_E           current_mission;
 
         geometry_msgs::Pose     current_pose;
         

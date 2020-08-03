@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include <vanttec_uuv/Obstacle.h>
-#include <vanttec_uuv/detectedObstacles.h>
+#include <vanttec_uuv/DetectedObstacles.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <geometry_msgs/Pose2D.h>
@@ -30,7 +30,7 @@ struct obj_list {
 
     }val;
 };*/
- union obj_list  
+union obj_list  
     {
         char  objeto;
         float x;
@@ -62,7 +62,7 @@ class ObstacleSimulator{
     {
         nh_ = nh;
         marker_pub = nh_.advertise<visualization_msgs::MarkerArray>("Obstacle_markers",1000);
-        detector_pub = nh_.advertise<vanttec_uuv::detectedObstacles>("detected_objects",1000);
+        detector_pub = nh_.advertise<vanttec_uuv::DetectedObstacles>("detected_objects",1000);
         challenge = challenge_select;
         if (challenge == 0){
 
@@ -95,7 +95,7 @@ class ObstacleSimulator{
     }
     void simulate()
     {   
-        vanttec_uuv::detectedObstacles obstaculos_detectados;
+        vanttec_uuv::DetectedObstacles obstaculos_detectados;
         int k = 0;
         for (int i = 0; i< sizeof(this->lista_objetos)/sizeof(obj_list);i++)
         {
@@ -122,8 +122,8 @@ class ObstacleSimulator{
                    obstaculo_act.pose.orientation.y = 0;
                    obstaculo_act.pose.orientation.z = orientation;
                    obstaculo_act.pose.orientation.w = 0;
-                   obstaculo_act.tipo = this->lista_objetos[i].objeto;
-                   obstaculo_act.radio = radio;
+                   obstaculo_act.type = this->lista_objetos[i].objeto;
+                   obstaculo_act.radius = radio;
                    k ++;
                    obstaculos_detectados.obstacles.resize(k);
                    obstaculos_detectados.obstacles[k-1] = obstaculo_act;
