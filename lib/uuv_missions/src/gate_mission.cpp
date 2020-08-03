@@ -47,21 +47,29 @@ namespace GateMission
                 }
                 break;
             case SEARCH:
-                for (float _heading = -PI/2; _heading < PI/2; _heading += PI)
+                uint8_t gate_found = 0;
+                
+                if (_obstacles.size() > 0)
                 {
-                    if (_obstacles.size() > 0)
+                    for (int i = 0; i < _obstacles.size(); i++)
                     {
-                        for (int i = 0; i < _obstacles.size(); i++)
+                        if (_obstacles[i].type == 0)
                         {
-                            if (_obstacles[i].type == 0)
-                            {
-                                break;
-                            }
+                            gate_found++;
+                            break;
                         }
                     }
-
-                    _waypoints.heading_setpoint = _heading;
                 }
+
+                if (gate_found == 0)
+                {
+                    _waypoints.heading_setpoint += PI/8;
+                }
+                else
+                {
+                    this->state_machine = CALCULATE;
+                    continue;
+                }                    
                 break;
             case CALCULATE:
                 break;
