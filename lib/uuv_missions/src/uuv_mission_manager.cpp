@@ -7,3 +7,133 @@
  * @brief: Mission manager class, used to trigger and track mission progress.
  * -----------------------------------------------------------------------------
  * */
+
+#include <uuv_mission_manager.hpp>
+
+MissionManager::MissionManager()
+{
+    this->selected_side                     = LEFT;
+    this->current_mode                      = MANUAL;
+
+    this->current_pose.position.x           = 0;
+    this->current_pose.position.y           = 0;
+    this->current_pose.position.z           = 0;
+    this->current_pose.orientation.z        = 0;
+
+    this->mission_status.current_mission    = 0;
+    this->mission_status.current_state      = 0;
+
+    this->detected_obstacles.clear();
+
+    this->ResetWaypoints();
+
+    // Mission pointer initializations
+
+    this->gate_mission = nullptr;
+}
+
+MissionManager::~MissionManager(){}
+
+void MissionManager::OnObstacleReception(const vanttec_uuv::DetectedObstacles& _obstacles)
+{
+    this->detected_obstacles = _obstacles;
+}
+
+void MissionManager::OnMasterStatusReception(const vanttec_uuv::MasterStatus& _status)
+{
+    if (this->current_mode != (Mode_E) _status.status)
+    {
+        this->mission_status.current_mission = 0;
+        this->mission_status.current_state = 0;
+        this->current_mode = (Mode_E) _status.status;
+    }
+}
+
+void MissionManager::OnMissionConfigReception(const vanttec_uuv::MissionStatus& _mission)
+{
+    if (((MissionType_E) this->mission_status.current_mission) == NONE)
+    {
+        this->mission_status.current_mission = _mission.current_mission;
+        this->mission_status.selected_side = _mission.selected_side;
+
+        switch((MissionType_E) this->mission_status.current_mission)
+        {
+            case GATE:
+                this->gate_mission = new GateMission::GateMission;
+                break;
+            case BUOY:
+            case TORPEDOES:
+            case LOS_NAV_TEST:
+            case ORBIT_NAV_TEST:
+            default:
+                break;
+        }
+    }
+}
+
+void MissionManager::OnPoseReception(const geometry_msgs::Pose& _pose)
+{
+    this->current_pose.position.x       = _pose.position.x;
+    this->current_pose.position.y       = _pose.position.y;
+    this->current_pose.position.z       = _pose.position.z;
+    this->current_pose.orientation.z    = _pose.orientation.z;
+}
+
+void MissionManager::OnEStopReception(const std_msgs:Empty& _empty)
+{
+    this->mission_status.current_mission    = 0;
+    this->mission_status.current_state      = 0;
+}
+
+void MissionManager::UpdateStateMachines()
+{
+    if (this->current_mode == MANUAL)
+    {
+        this->mission_status.current_mission = 0;
+        this->mission_status.current_state = 0;
+    }
+    else
+    {
+        switch((MissionType_E) this->mission_status.current_mission)
+        {
+            case NONE:
+                this->ResetWaypoints();
+                this->mission_status.current_state = 0;
+                break;
+            case GATE:
+                if (this->gate_mission != nullptr)
+                {
+                    this->gate_mission->UpdateStateMachine(this->selected_side, 
+                                                           this->detected_obstacles, 
+                                                           this->current_pose,
+                                                           this->desired_waypoints);
+
+                    if (this->gate_mission->state_machine == GateMission::DONE)
+                    {
+                        delete this->gate_mission;
+                        this->gate_mission = nullptr;
+                        this->mission_status.current_mission = NONE;
+                    }
+                }
+                break;
+            case BUOY:
+            case TORPEDOES:
+            case LOS_NAV_TEST:
+            case ORBIT_NAV_TEST:
+            default:
+                break;
+        }
+    }
+    
+}
+
+void MissionManager::ResetWaypoints()
+{
+    this->desired_waypoints.guidance_law = 0;
+    this->desired_waypoints.waypoint_list_length = 0;
+    this->desired_waypoints.waypoint_list_x.clear();
+    this->desired_waypoints.waypoint_list_y.clear();
+    this->desired_waypoints.waypoint_list_z.clear();
+    this->desired_waypoints.depth_setpoint = 0;
+    this->desired_waypoints.heading_setpoint = 0;
+}

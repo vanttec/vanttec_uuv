@@ -13,8 +13,12 @@
 
 UUVMasterNode::UUVMasterNode(const float _default_speed)
 {
-    this->default_speed = _default_speed;
-    this->e_stop_flag   = 0;
+    this->default_speed             = _default_speed;
+    this->e_stop_flag               = 0;
+    this->mission_debounce          = 0;
+    this->mission.current_mission   = 0;
+    this->mission.selected_side     = 0;
+    this->status.status             = 0;
 }
 
 UUVMasterNode::~UUVMasterNode(){}
@@ -44,7 +48,8 @@ void UUVMasterNode::keyboardDownCallback(const vehicle_user_control::KeyboardKey
             this->velocities.angular.y      = 0.0;      //Pitch
             this->velocities.linear.x       = 0.0;      //x linear movement
             this->velocities.linear.y       = 0.0;      //y linear movement
-            this->status.desired_routine    = 0;
+            this->mission.current_mission   = 0;
+            this->mission.selected_side     = 0;
             this->e_stop_flag               = 1;
             break;
         case vehicle_user_control::KeyboardKey::KEY_e:
@@ -60,7 +65,19 @@ void UUVMasterNode::keyboardDownCallback(const vehicle_user_control::KeyboardKey
             this->velocities.angular.y      = 0.0;      //Pitch
             this->velocities.linear.x       = 0.0;      //x linear movement
             this->velocities.linear.y       = 0.0;      //y linear movement
-            this->status.desired_routine    = 0;
+            this->mission.current_mission   = 0;
+            this->mission.selected_side     = 0;
+            break;
+        case vehicle_user_control::KeyboardKey::KEY_f:
+            if (this->mission.selected_side == 0)
+            {
+                this->mission.selected_side = 1;
+            }
+            else
+            {
+                this->mission.selected_side = 0;
+            }
+            this->mission_debounce = 1;
             break;
     }
 
@@ -99,20 +116,32 @@ void UUVMasterNode::keyboardDownCallback(const vehicle_user_control::KeyboardKey
         switch(msg.code)
         {
             case vehicle_user_control::KeyboardKey::KEY_1:
-                this->status.desired_routine = 1;
+                this->mission.current_mission = 1; // Choose Side 
+                this->mission_debounce = 1;
                 break;
             case vehicle_user_control::KeyboardKey::KEY_2:
-                this->status.desired_routine = 2;
+                this->mission.current_mission = 2; // Buoy
+                this->mission_debounce = 1;
                 break;
             case vehicle_user_control::KeyboardKey::KEY_3:
-                this->status.desired_routine = 3;
+                this->mission.current_mission = 3; // Torpedoes
+                this->mission_debounce = 1;
                 break;
             case vehicle_user_control::KeyboardKey::KEY_4:
-                this->status.desired_routine = 4;
+                this->mission.current_mission = 4; // Linear Waypoint Test
+                this->mission_debounce = 1;
                 break;
             case vehicle_user_control::KeyboardKey::KEY_5:
-                this->status.desired_routine = 5;
+                this->mission.current_mission = 5; // Orbit Waypoint Test
+                this->mission_debounce = 1;
+                break;
+            default:
                 break;
         }
     }
+}
+
+void UUVMasterNode::OnMissionFinishedReception(const std_msgs::Empty& _empty)
+{
+    this->mission.current_mission = 0;
 }
