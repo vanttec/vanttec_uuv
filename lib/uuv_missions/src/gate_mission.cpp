@@ -32,6 +32,8 @@ namespace GateMission
                                          geometry_msgs::Pose& _pose, 
                                          vanttec_uuv::GuidanceWaypoints& _waypoints)
     {
+        int gate_found = -1;
+
         switch(this->state_machine)
         {
             case INIT:
@@ -47,7 +49,6 @@ namespace GateMission
                 }
                 break;
             case SEARCH:
-                uint8_t gate_found = 0;
                 
                 if (_obstacles.size() > 0)
                 {
@@ -55,15 +56,15 @@ namespace GateMission
                     {
                         if (_obstacles[i].type == 0)
                         {
-                            gate_found++;
+                            gate_found = i;
                             break;
                         }
                     }
                 }
 
-                if (gate_found == 0)
+                if (gate_found < 0)
                 {
-                    _waypoints.heading_setpoint += PI/8;
+                    _waypoints.heading_setpoint += PI/800.0;
                 }
                 else
                 {
@@ -72,6 +73,7 @@ namespace GateMission
                 }                    
                 break;
             case CALCULATE:
+                
                 break;
             case NAVIGATE:
                 break;

@@ -18,7 +18,7 @@
 
 #include <std_msgs/Empty.h>
 #include <geometry_msgs/Twist.h>
-
+#include <cmath>
 
 class UUVMasterNode
 {

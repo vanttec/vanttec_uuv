@@ -110,6 +110,12 @@ void UUVMasterNode::keyboardDownCallback(const vehicle_user_control::KeyboardKey
                 this->velocities.angular.z = this->velocities.angular.z - 0.1;
                 break;
         }
+
+        if (abs(this->velocities.angular.z) > 3.1416)
+        {
+            this->velocities.angular.z = this->velocities.angular.z/abs(this->velocities.angular.z) * 
+                                         (abs(this->velocities.angular.z) - 2 * 3.1416);
+        }
     }
     else
     {
