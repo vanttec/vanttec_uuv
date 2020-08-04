@@ -17,19 +17,6 @@
 using namespace Eigen;
 
 /*
-struct obj_list {
-    enum {is_float, is_char} type;
-    union  
-    {
-        char  objeto;
-        float x;
-        float y;
-        float z;
-        float orientation;
-        float radio;
-
-    }val;
-};*/
 union obj_list  
     {
         char  objeto;
@@ -39,6 +26,16 @@ union obj_list
         float orientation;
         float radio;
 
+    };
+*/
+struct obj_list
+    {
+        char  objeto;
+        float x;
+        float y;
+        float z;
+        float orientation;
+        float radio;  
     };
 //const float SAMPLE_TIME_S       = 0.01;
 //const float DEFAULT_SPEED_MPS   = 0.2;
@@ -108,27 +105,33 @@ class ObstacleSimulator{
            float delta_x = x-this->ned_x;
            float delta_y = y-this->ned_y;
            float distance = pow(delta_x*delta_x+delta_y*delta_y,0.5);
-           if (distance < this->max_visible_radius)
+           if (distance < (this->max_visible_radius+0.225))
            {
-               ROS_INFO("UN OBJETO EN RADIO DE DISTANCIA");
+               
+               
                this->ned_to_body(&x,&y);
-               if(x>1)
+               if((y>-2.5 && y<2.5)&&(x>0.225&&x<10))
                {
-                   vanttec_uuv::Obstacle obstaculo_act;
-                   obstaculo_act.pose.position.x = x;
-                   obstaculo_act.pose.position.y = y;
-                   obstaculo_act.pose.position.z = z;
-                   obstaculo_act.pose.orientation.x = 0;
-                   obstaculo_act.pose.orientation.y = 0;
-                   obstaculo_act.pose.orientation.z = orientation;
-                   obstaculo_act.pose.orientation.w = 0;
-                   obstaculo_act.type = this->lista_objetos[i].objeto;
-                   obstaculo_act.radius = radio;
-                   k ++;
-                   obstaculos_detectados.obstacles.resize(k);
-                   obstaculos_detectados.obstacles[k-1] = obstaculo_act;
+                    
+                        vanttec_uuv::Obstacle obstaculo_act;
+                        obstaculo_act.pose.position.x = x;
+                        obstaculo_act.pose.position.y = y;
+                        obstaculo_act.pose.position.z = z;
+                        obstaculo_act.pose.orientation.x = 0;
+                        obstaculo_act.pose.orientation.y = 0;
+                        obstaculo_act.pose.orientation.z = orientation;
+                        obstaculo_act.pose.orientation.w = 0;
+                        obstaculo_act.type = this->lista_objetos[i].objeto;
+                        obstaculo_act.radius = radio;
+                        k ++;
+                        //obstaculos_detectados.obstacles.resize(k);
+                        obstaculos_detectados.obstacles.push_back(obstaculo_act); 
+                        ROS_INFO("UN OBJETO EN RADIO DE DISTANCIA");
                   
+                    
+
                }
+               
            } 
         }
         this->detector_pub.publish(obstaculos_detectados);
