@@ -72,7 +72,7 @@ class ObstacleSimulator
                 // Gate
                 this->lista_objetos[0].objeto         = 'g';
                 this->lista_objetos[0].x              = 3.5; 
-                this->lista_objetos[0].y              = 1.5; 
+                this->lista_objetos[0].y              = 2.5; 
                 this->lista_objetos[0].z              = -2; 
                 this->lista_objetos[0].orientation    = 2;
                 this->lista_objetos[0].radio          = 1;
