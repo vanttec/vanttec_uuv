@@ -70,10 +70,20 @@ add_executable(uuv_simulation_node
 add_dependencies(uuv_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_simulation_node ${catkin_LIBRARIES})
 
-add_executable(uuv_obstacle_simulation_node 
-    src/uuv_obstacle_simulation_node.cpp) 
-add_dependencies(uuv_obstacle_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(uuv_obstacle_simulation_node ${catkin_LIBRARIES})
+add_executable(uuv_gate_simulation_node 
+    src/uuv_gate_simulation_node.cpp) 
+add_dependencies(uuv_gate_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_gate_simulation_node ${catkin_LIBRARIES})
+
+add_executable(uuv_buoy_simulation_node 
+    src/uuv_buoy_simulation_node.cpp) 
+add_dependencies(uuv_buoy_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_buoy_simulation_node ${catkin_LIBRARIES})
+
+add_executable(uuv_shootout_simulation_node 
+    src/uuv_shootout_simulation_node.cpp) 
+add_dependencies(uuv_shootout_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_shootout_simulation_node ${catkin_LIBRARIES})
 
 add_executable(uuv_tf_broadcast_node 
     src/uuv_tf_broadcast_node.cpp 
