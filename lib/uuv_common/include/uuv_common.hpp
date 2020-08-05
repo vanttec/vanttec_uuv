@@ -14,6 +14,12 @@
 #include <vanttec_uuv/GuidanceWaypoints.h>
 #include <cmath>
 
+typedef enum Side_E
+{
+    LEFT = 0,
+    RIGHT = 1,
+} Side_E;
+
 namespace uuv_common
 {
     /* Helper constants */

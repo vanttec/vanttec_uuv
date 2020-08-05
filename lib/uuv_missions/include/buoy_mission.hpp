@@ -1,15 +1,15 @@
 /** ----------------------------------------------------------------------------
- * @file: gate_mission.cpp
+ * @file: buoy_mission.cpp
  * @date: August 2, 2020
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
  * 
- * @brief: Gate mission class.
+ * @brief: Buoy mission class.
  * -----------------------------------------------------------------------------
  * */
 
-#ifndef __CHOOSE_SIDE_MISSION__
-#define __CHOOSE_SIDE_MISSION__
+#ifndef __BUOY_MISSION__
+#define __BUOY_MISSION__
 
 #include <cmath>
 
@@ -20,35 +20,37 @@
 #include <vanttec_uuv/Obstacle.h>
 #include <geometry_msgs/Pose.h>
 
-
-namespace GateMission
+namespace BuoyMission
 {
-    typedef enum GateMissionStates_E
+    typedef enum BuoyMissionStates_E
     {
         STANDBY = 0,
         INIT = 1,
         SWEEP = 2,
         ADVANCE = 3,
         CALCULATE = 4,
-        PUBLISH = 5,
-        NAVIGATE = 6,
-        DONE = 7,
-    } GateMissionStates_E;
+        IDENTIFY = 5,
+        PUBLISH = 6,
+        NAVIGATE = 7,
+        DONE = 8,
+    } BuoyMissionStates_E;
 
-    class GateMission
+    class BuoyMission
     {
         public:
             
             Side_E                           selected_side;
-            GateMissionStates_E              state_machine;
-            GateMissionStates_E              prev_state;
+            BuoyMissionStates_E              state_machine;
+            BuoyMissionStates_E              prev_state;
 
             int search_counter;
+            int buoy_found;
 
-            vanttec_uuv::Obstacle            gate;
+            vanttec_uuv::Obstacle            first_buoy;
+            vanttec_uuv::Obstacle            second_buoy;
 
-            GateMission();
-            ~GateMission();
+            BuoyMission();
+            ~BuoyMission();
 
             void UpdateStateMachine(Side_E* _side, 
                                     vanttec_uuv::DetectedObstacles* _obstacles,

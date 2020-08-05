@@ -20,6 +20,8 @@
 #include <std_msgs/Empty.h>
 #include <geometry_msgs/Pose.h>
 
+using namespace uuv_common;
+
 typedef enum MissionType_E
 {
     NONE = 0,
