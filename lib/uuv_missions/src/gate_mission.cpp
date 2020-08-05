@@ -37,6 +37,7 @@ namespace GateMission
         switch(this->state_machine)
         {
             case INIT:
+                _waypoints.guidance_law = 0;
                 _waypoints.depth_setpoint = -2;
                 _waypoints.heading_setpoint = -PI/2;
 
@@ -49,12 +50,11 @@ namespace GateMission
                 }
                 break;
             case SEARCH:
-                
                 if (_obstacles.size() > 0)
                 {
                     for (int i = 0; i < _obstacles.size(); i++)
                     {
-                        if (_obstacles[i].type == 0)
+                        if (_obstacles[i].type == "g")
                         {
                             gate_found = i;
                             break;
@@ -64,7 +64,20 @@ namespace GateMission
 
                 if (gate_found < 0)
                 {
-                    _waypoints.heading_setpoint += PI/800.0;
+                    if (_waypoints.heading_setpoint > PI/2.0)
+                    {
+                        _waypoints.guidance_law = 1;
+                        _waypoints.waypoint_list_length = 2;
+                        _waypoints.waypoint_list_x = {_pose.position.x, _pose.position.x + 0.5};
+                        _waypoints.waypoint_list_y = {_pose.position.y, _pose.position.z};
+                        _waypoints.waypoint_list_z = {_pose.position.z, _pose.position.z};
+                        _waypoints.heading_setpoint = -PI/2.0;
+                    }
+                    else
+                    {
+                        _waypoints.guidance_law = 0;
+                        _waypoints.heading_setpoint += PI/800.0;
+                    }
                 }
                 else
                 {

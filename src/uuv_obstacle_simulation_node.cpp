@@ -70,12 +70,12 @@ class ObstacleSimulator
         {
             case 0:
                 // Gate
-                lista_objetos[0].objeto         = 'g';
-                lista_objetos[0].x              = 1; 
-                lista_objetos[0].y              = 0; 
-                lista_objetos[0].z              = -1; 
-                lista_objetos[0].orientation    = 0;
-                lista_objetos[0].radio          = 1;
+                this->lista_objetos[0].objeto         = 'g';
+                this->lista_objetos[0].x              = 3.5; 
+                this->lista_objetos[0].y              = 1.5; 
+                this->lista_objetos[0].z              = -2; 
+                this->lista_objetos[0].orientation    = 2;
+                this->lista_objetos[0].radio          = 1;
 
                 //Marker
                 /*
@@ -97,7 +97,7 @@ class ObstacleSimulator
     {
         this->ned_x     = msg.position.x;
         this->ned_y     = msg.position.y;
-        this->yaw       = msg.orientation.z;
+        this->yaw       = -msg.orientation.z;
     }
 
     void simulate()
@@ -114,9 +114,9 @@ class ObstacleSimulator
 
             this->ned_to_body(&x, &y);
 
-            std::cout << this->yaw << std::endl;
+            std::cout << x << ", " << y << std::endl;
             
-            if((y > -1.5 && y < 1.5) && (x > 0.225 && x < 5))
+            if(((y >= -1.5) && (y <= 1.5)) && ((x >= 0.225) && (x <= 5.0)))
             {
                 vanttec_uuv::Obstacle obstaculo_act;
                 obstaculo_act.pose.position.x = x;
@@ -172,9 +172,9 @@ class ObstacleSimulator
             //Primer poste gate
             marker.type = visualization_msgs::Marker::CYLINDER;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = 1;
-            marker.pose.position.y = -1;
-            marker.pose.position.z = -1.5;
+            marker.pose.position.x = this->lista_objetos[0].x;
+            marker.pose.position.y = -this->lista_objetos[0].y;
+            marker.pose.position.z = -this->lista_objetos[0].z + 0.5;
             marker.pose.orientation.x = 0.0;
             marker.pose.orientation.y = 0.0;
             marker.pose.orientation.z = 0.0;
@@ -195,9 +195,9 @@ class ObstacleSimulator
 
             marker.type = visualization_msgs::Marker::CYLINDER;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = 1;
-            marker.pose.position.y = 1;
-            marker.pose.position.z = -1.5;
+            marker.pose.position.x = this->lista_objetos[0].x - cos(this->lista_objetos[0].orientation);
+            marker.pose.position.y = -(this->lista_objetos[0].y - sin(this->lista_objetos[0].orientation));
+            marker.pose.position.z = -this->lista_objetos[0].z + 0.5;
             marker.pose.orientation.x = 0.0;
             marker.pose.orientation.y = 0.0;
             marker.pose.orientation.z = 0.0;
@@ -217,9 +217,9 @@ class ObstacleSimulator
 
             marker.type = visualization_msgs::Marker::CYLINDER;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = 1;
-            marker.pose.position.y = 0;
-            marker.pose.position.z = -1.5;
+            marker.pose.position.x = this->lista_objetos[0].x + cos(this->lista_objetos[0].orientation);
+            marker.pose.position.y = -(this->lista_objetos[0].y + sin(this->lista_objetos[0].orientation));
+            marker.pose.position.z = -this->lista_objetos[0].z + 0.5;
             marker.pose.orientation.x = 0.0;
             marker.pose.orientation.y = 0.0;
             marker.pose.orientation.z = 0.0;
@@ -238,13 +238,13 @@ class ObstacleSimulator
             //Poste transversal
             tf2::Quaternion quat;
             geometry_msgs::Quaternion quat_msg;
-            quat.setRPY(M_PI_2,0,0);
+            quat.setRPY(M_PI_2, 0, -(this->lista_objetos[0].orientation - M_PI_2));
             quat_msg = tf2::toMsg(quat);
             marker.type = visualization_msgs::Marker::CYLINDER;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = 1;
-            marker.pose.position.y = 0;
-            marker.pose.position.z = -1;
+            marker.pose.position.x = this->lista_objetos[0].x;
+            marker.pose.position.y = -(this->lista_objetos[0].y);
+            marker.pose.position.z = -(this->lista_objetos[0].z - 1);
             marker.pose.orientation = quat_msg;
             marker.scale.x = 0.0762;
             marker.scale.y = 0.0762;
