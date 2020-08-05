@@ -35,18 +35,22 @@ class ObstacleSimulator
 {
     public:
         
-        obj_list lista_objetos[1];
+        obj_list lista_objetos[2];
         
         float ned_x;
         float ned_y;
         float yaw;
         int challenge;
         float max_visible_radius;
+        float fov_angle;
+        float fov_slope;
+        float fov_x_offset;
 
         ros::NodeHandle     nh_;
         ros::Publisher      marker_pub;
         ros::Publisher      detector_pub;
         ros::Subscriber     pose_sub;
+        ros::Publisher      fov_pub;
     
     ObstacleSimulator(int challenge_select, ros::NodeHandle nh)
     {
@@ -54,10 +58,16 @@ class ObstacleSimulator
         this->ned_y = 0;
         this->yaw = 0;
         this->challenge = 0;
-        this->max_visible_radius = 15;
+        this->max_visible_radius = 3.5;
+        this->fov_angle = M_PI/ 6.0;
+        this->fov_x_offset = 0.225;
+
+        this->fov_slope = ((sin(this->fov_angle) - this->fov_x_offset)/cos(this->fov_angle)); 
         
         this->nh_ = nh;
         this->marker_pub        = this->nh_.advertise<visualization_msgs::MarkerArray>("/object_simulator/obstacle_markers", 1000);
+        this->fov_pub           = this->nh_.advertise<visualization_msgs::MarkerArray>("/object_simulator/fov", 1000);
+
         this->detector_pub      = this->nh_.advertise<vanttec_uuv::DetectedObstacles>("/object_simulator/detected_objects", 1000);
         this->pose_sub          = this->nh_.subscribe("/uuv_simulation/dynamic_model/pose",
                                                         1000,
@@ -69,14 +79,23 @@ class ObstacleSimulator
         switch(this->challenge)
         {
             case 0:
-                // Gate
-                this->lista_objetos[0].objeto         = 'g';
-                this->lista_objetos[0].x              = 5.5; 
-                this->lista_objetos[0].y              = -3.4; 
+                // Primera Boya
+                this->lista_objetos[0].objeto         = 'b';
+                this->lista_objetos[0].x              = 5.0; 
+                this->lista_objetos[0].y              = -1.0; 
                 this->lista_objetos[0].z              = -2.2; 
-                this->lista_objetos[0].orientation    = 0.52;
+                this->lista_objetos[0].orientation    = 0.0;
                 this->lista_objetos[0].radio          = 1;
 
+                // Segunda Boya
+                this->lista_objetos[1].objeto         = 'b';
+                this->lista_objetos[1].x              = 5.0; 
+                this->lista_objetos[1].y              = 1.0; 
+                this->lista_objetos[1].z              = -2.2; 
+                this->lista_objetos[1].orientation    = 0.0;
+                this->lista_objetos[1].radio          = 1;
+                
+                
                 //Marker
                 /*
                 lista_objetos[1].objeto = 'marker';
@@ -112,11 +131,29 @@ class ObstacleSimulator
             float orientation = this->lista_objetos[i].orientation;
             float radio = this->lista_objetos[i].radio;
 
+            std::cout << "NED G " << this->lista_objetos[i].x << ", " << this->lista_objetos[i].y << std::endl;
+            std::cout << "NED S " << this->ned_x << ", " << this->ned_y << ", " << this->yaw << std::endl;
+            
             this->ned_to_body(&x, &y);
 
-            std::cout << x << ", " << y << std::endl;
+            float expected_x;
             
-            if(((y >= -1.5) && (y <= 1.5)) && ((x >= 0.225) && (x <= 3.5)))
+            if (y >= 0)
+            {
+                expected_x = (1.8 * this->fov_slope * y) + this->fov_x_offset;
+            }
+            else 
+            {
+                expected_x = -(1.8 * this->fov_slope * y) + this->fov_x_offset;
+            }
+            
+            std::cout << expected_x << std::endl;
+            std::cout << x << ", " << y << std::endl;
+
+            float cone_end = sqrt(pow(this->max_visible_radius, 2) - pow(y,2));
+            std::cout << cone_end << std::endl;
+
+            if((x >= expected_x) && (x <= cone_end))
             {
                 vanttec_uuv::Obstacle obstaculo_act;
                 obstaculo_act.pose.position.x = x;
@@ -132,7 +169,7 @@ class ObstacleSimulator
                 //obstaculos_detectados.obstacles.resize(k);
                 obstaculos_detectados.obstacles.push_back(obstaculo_act); 
                 //ROS_INFO("UN OBJETO EN RADIO DE DISTANCIA");
-            }   
+            }  
         } 
     
         this->detector_pub.publish(obstaculos_detectados);       
@@ -164,13 +201,83 @@ class ObstacleSimulator
         visualization_msgs::Marker marker;
         visualization_msgs::MarkerArray marker_array;
         
+        visualization_msgs::Marker marker_fov;
+        visualization_msgs::MarkerArray marker_array_fov;
+        
+                // FOV Cone
+        marker_fov.header.frame_id  = "/uuv";
+        marker_fov.lifetime = ros::Duration(0.1);
+
+        tf2::Quaternion quat;
+        geometry_msgs::Quaternion quat_msg;
+        quat.setRPY(M_PI_2, 0, this->fov_angle);
+        quat_msg = tf2::toMsg(quat);
+        marker_fov.type = visualization_msgs::Marker::CYLINDER;
+        marker_fov.action = visualization_msgs::Marker::ADD;
+        marker_fov.pose.position.x = (0.225/2) + this->max_visible_radius/2 * sin(this->fov_angle);
+        marker_fov.pose.position.y = -this->max_visible_radius/2 * cos(this->fov_angle);
+        marker_fov.pose.position.z = 0.190;
+        marker_fov.pose.orientation = quat_msg;
+        marker_fov.scale.x = 0.00762;
+        marker_fov.scale.y = 0.00762;
+        marker_fov.scale.z = this->max_visible_radius - this->fov_x_offset;
+        marker_fov.color.a = 1.0;
+        marker_fov.color.r = 0.0;
+        marker_fov.color.g = 1.0;
+        marker_fov.color.b = 0.5;
+        marker_fov.id = 1;
+
+        marker_array_fov.markers.push_back(marker_fov);
+
+        quat.setRPY(M_PI_2, 0, -this->fov_angle);
+        quat_msg = tf2::toMsg(quat);
+        marker_fov.type = visualization_msgs::Marker::CYLINDER;
+        marker_fov.action = visualization_msgs::Marker::ADD;
+        marker_fov.pose.position.x = (0.225/2) + this->max_visible_radius/2 * sin(this->fov_angle);
+        marker_fov.pose.position.y = this->max_visible_radius/2 * cos(this->fov_angle);
+        marker_fov.pose.position.z = 0.190;
+        marker_fov.pose.orientation = quat_msg;
+        marker_fov.scale.x = 0.00762;
+        marker_fov.scale.y = 0.00762;
+        marker_fov.scale.z = this->max_visible_radius - this->fov_x_offset;
+        marker_fov.color.a = 1.0;
+        marker_fov.color.r = 0.0;
+        marker_fov.color.g = 1.0;
+        marker_fov.color.b = 0.5;
+        marker_fov.id = 2;
+
+        marker_array_fov.markers.push_back(marker_fov);
+
+        quat.setRPY(M_PI_2, 0, M_PI_2);
+        quat_msg = tf2::toMsg(quat);
+        marker_fov.type = visualization_msgs::Marker::CYLINDER;
+        marker_fov.action = visualization_msgs::Marker::ADD;
+        marker_fov.pose.position.x = this->max_visible_radius/2 + (0.225/2);
+        marker_fov.pose.position.y = 0;
+        marker_fov.pose.position.z = 0.190;
+        marker_fov.pose.orientation = quat_msg;
+        marker_fov.scale.x = 0.00762;
+        marker_fov.scale.y = 0.00762;
+        marker_fov.scale.z = this->max_visible_radius - this->fov_x_offset;
+        marker_fov.color.a = 1.0;
+        marker_fov.color.r = 0.0;
+        marker_fov.color.g = 1.0;
+        marker_fov.color.b = 0.5;
+        marker_fov.id = 3;
+
+        marker_array_fov.markers.push_back(marker_fov);
+
+        this->fov_pub.publish(marker_array_fov);
+        
         if (this->challenge == 0)
         {                                              
             marker.header.frame_id  = "/world";
             marker.lifetime = ros::Duration(0.1);
 
+            
+
             //Primer poste gate
-            marker.type = visualization_msgs::Marker::CYLINDER;
+            marker.type = visualization_msgs::Marker::SPHERE;
             marker.action = visualization_msgs::Marker::ADD;
             marker.pose.position.x = this->lista_objetos[0].x;
             marker.pose.position.y = -this->lista_objetos[0].y;
@@ -179,9 +286,9 @@ class ObstacleSimulator
             marker.pose.orientation.y = 0.0;
             marker.pose.orientation.z = 0.0;
             marker.pose.orientation.w = 1.0;
-            marker.scale.x = 0.0762;
-            marker.scale.y = 0.0762;
-            marker.scale.z = 1;
+            marker.scale.x = 0.254;
+            marker.scale.y = 0.254;
+            marker.scale.z = 0.254;
             marker.color.a = 1.0;
             marker.color.r = 0.0;
             marker.color.g = 1.0;
@@ -193,18 +300,18 @@ class ObstacleSimulator
             
             //Segundo poste gate 
 
-            marker.type = visualization_msgs::Marker::CYLINDER;
+            marker.type = visualization_msgs::Marker::SPHERE;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = this->lista_objetos[0].x - cos(this->lista_objetos[0].orientation);
-            marker.pose.position.y = -(this->lista_objetos[0].y - sin(this->lista_objetos[0].orientation));
-            marker.pose.position.z = -this->lista_objetos[0].z + 0.5;
+            marker.pose.position.x = this->lista_objetos[1].x - cos(this->lista_objetos[1].orientation);
+            marker.pose.position.y = -(this->lista_objetos[1].y - sin(this->lista_objetos[1].orientation));
+            marker.pose.position.z = -this->lista_objetos[1].z + 0.5;
             marker.pose.orientation.x = 0.0;
             marker.pose.orientation.y = 0.0;
             marker.pose.orientation.z = 0.0;
             marker.pose.orientation.w = 1.0;
-            marker.scale.x = 0.0762;
-            marker.scale.y = 0.0762;
-            marker.scale.z = 1;
+            marker.scale.x = 0.254;
+            marker.scale.y = 0.254;
+            marker.scale.z = 0.254;
             marker.color.a = 1.0;
             marker.color.r = 0.0;
             marker.color.g = 1.0;
@@ -213,70 +320,7 @@ class ObstacleSimulator
             
             marker_array.markers.push_back(marker);
 
-            // Poste medio gate 
-
-            marker.type = visualization_msgs::Marker::CYLINDER;
-            marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = this->lista_objetos[0].x + cos(this->lista_objetos[0].orientation);
-            marker.pose.position.y = -(this->lista_objetos[0].y + sin(this->lista_objetos[0].orientation));
-            marker.pose.position.z = -this->lista_objetos[0].z + 0.5;
-            marker.pose.orientation.x = 0.0;
-            marker.pose.orientation.y = 0.0;
-            marker.pose.orientation.z = 0.0;
-            marker.pose.orientation.w = 1.0;
-            marker.scale.x = 0.0762;
-            marker.scale.y = 0.0762;
-            marker.scale.z = 1;
-            marker.color.a = 1.0;
-            marker.color.r = 0.0;
-            marker.color.g = 1.0;
-            marker.color.b = 0.0;
-            marker.id = 3;
-            
-            marker_array.markers.push_back(marker);
-
-            //Poste transversal
-            tf2::Quaternion quat;
-            geometry_msgs::Quaternion quat_msg;
-            quat.setRPY(M_PI_2, 0, -(this->lista_objetos[0].orientation - M_PI_2));
-            quat_msg = tf2::toMsg(quat);
-            marker.type = visualization_msgs::Marker::CYLINDER;
-            marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = this->lista_objetos[0].x;
-            marker.pose.position.y = -(this->lista_objetos[0].y);
-            marker.pose.position.z = -(this->lista_objetos[0].z - 1);
-            marker.pose.orientation = quat_msg;
-            marker.scale.x = 0.0762;
-            marker.scale.y = 0.0762;
-            marker.scale.z = 2;
-            marker.color.a = 1.0;
-            marker.color.r = 0.0;
-            marker.color.g = 1.0;
-            marker.color.b = 0.0;
-            marker.id = 2;
-            marker_array.markers.push_back(marker);
-            
-            /*
-            marker.type = visualization_msgs::Marker::CYLINDER;
-            marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = 13;
-            marker.pose.position.y = 0;
-            marker.pose.position.z = -1;
-            marker.pose.orientation.x = 0.0;
-            marker.pose.orientation.y = 0.0;
-            marker.pose.orientation.z = 0.0;
-            marker.pose.orientation.w = 1.0;
-            marker.scale.x = 0.0762;
-            marker.scale.y = 0.0762;
-            marker.scale.z = 2;
-            marker.color.a = 1.0;
-            marker.color.r = 0.0;
-            marker.color.g = 1.0;
-            marker.color.b = 0.0;
-            marker.id = 3;
-            marker_array.markers.push_back(marker);
-            */
-
+          
             this->marker_pub.publish(marker_array);
         }
     }
