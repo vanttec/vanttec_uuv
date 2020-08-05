@@ -16,6 +16,8 @@
 #include <vanttec_uuv/DetectedObstacles.h>
 #include <vanttec_uuv/GuidanceWaypoints.h>
 #include <vanttec_uuv/MasterStatus.h>
+#include <vanttec_uuv/MissionStatus.h>
+#include <std_msgs/Empty.h>
 #include <geometry_msgs/Pose.h>
 
 typedef enum MissionType_E
@@ -27,12 +29,6 @@ typedef enum MissionType_E
     LOS_NAV_TEST = 4,
     ORBIT_NAV_TEST = 5,
 } MissionType_E;
-
-typedef enum Side_E
-{
-    LEFT = 0,
-    RIGHT = 1,
-} Side_E;
 
 typedef enum Mode_E
 {
@@ -67,7 +63,7 @@ class MissionManager
         void OnMasterStatusReception(const vanttec_uuv::MasterStatus& _status);
         void OnMissionConfigReception(const vanttec_uuv::MissionStatus& _mission);
         void OnPoseReception(const geometry_msgs::Pose& _pose);
-        void OnEStopReception(const std_msgs:Empty& _empty);
+        void OnEStopReception(const std_msgs::Empty& _empty);
 
         void UpdateStateMachines();
     

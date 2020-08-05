@@ -46,6 +46,7 @@ include_directories(
     lib/uuv_master/include
     lib/uuv_motion_planning/include
     lib/uuv_simulation/include
+    lib/uuv_missions/include
     ${catkin_INCLUDE_DIRS}
 )
 
@@ -99,4 +100,12 @@ add_executable(uuv_guidance_node
     lib/uuv_guidance/src/uuv_guidance_controller.cpp)
 add_dependencies(uuv_guidance_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_guidance_node ${catkin_LIBRARIES})
+
+add_executable(uuv_mission_manager_node 
+    src/uuv_mission_manager_node.cpp 
+    lib/uuv_missions/src/uuv_mission_manager.cpp 
+    lib/uuv_missions/src/gate_mission.cpp
+)
+add_dependencies(uuv_mission_manager_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_mission_manager_node ${catkin_LIBRARIES})
 

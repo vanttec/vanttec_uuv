@@ -17,9 +17,14 @@
 
 #include <vanttec_uuv/GuidanceWaypoints.h>
 #include <vanttec_uuv/DetectedObstacles.h>
+#include <vanttec_uuv/Obstacle.h>
 #include <geometry_msgs/Pose.h>
 
-typedef struct Side_E Side_E;
+typedef enum Side_E
+{
+    LEFT = 0,
+    RIGHT = 1,
+} Side_E;
 
 namespace GateMission
 {
@@ -27,10 +32,12 @@ namespace GateMission
     {
         STANDBY = 0,
         INIT = 1,
-        SEARCH = 2,
-        CALCULATE = 3,
-        NAVIGATE = 4,
-        DONE = 5,
+        SWEEP = 2,
+        ADVANCE = 3,
+        CALCULATE = 4,
+        PUBLISH = 5,
+        NAVIGATE = 6,
+        DONE = 7,
     } GateMissionStates_E;
 
     class GateMission
@@ -39,14 +46,23 @@ namespace GateMission
             
             Side_E                           selected_side;
             GateMissionStates_E              state_machine;
+            GateMissionStates_E              prev_state;
+
+            int search_counter;
+
+            vanttec_uuv::Obstacle            gate;
 
             GateMission();
             ~GateMission();
 
-            void UpdateStateMachine(Side_E& _side, 
-                                    vanttec_uuv::DetectedObstacles& _obstacles,
-                                    geometry_msgs::Pose& _pose,
-                                    vanttec_uuv::GuidanceWaypoints& _waypoints);
+            void UpdateStateMachine(Side_E* _side, 
+                                    vanttec_uuv::DetectedObstacles* _obstacles,
+                                    geometry_msgs::Pose* _pose,
+                                    vanttec_uuv::GuidanceWaypoints* _waypoints);
+        
+        private:
+            
+            float init_adv_pos;
     };
 }
 

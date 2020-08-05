@@ -71,10 +71,10 @@ class ObstacleSimulator
             case 0:
                 // Gate
                 this->lista_objetos[0].objeto         = 'g';
-                this->lista_objetos[0].x              = 3.5; 
-                this->lista_objetos[0].y              = 2.5; 
-                this->lista_objetos[0].z              = -2; 
-                this->lista_objetos[0].orientation    = 2;
+                this->lista_objetos[0].x              = 5.5; 
+                this->lista_objetos[0].y              = -3.4; 
+                this->lista_objetos[0].z              = -2.2; 
+                this->lista_objetos[0].orientation    = 0.52;
                 this->lista_objetos[0].radio          = 1;
 
                 //Marker
@@ -116,7 +116,7 @@ class ObstacleSimulator
 
             std::cout << x << ", " << y << std::endl;
             
-            if(((y >= -1.5) && (y <= 1.5)) && ((x >= 0.225) && (x <= 5.0)))
+            if(((y >= -1.5) && (y <= 1.5)) && ((x >= 0.225) && (x <= 3.5)))
             {
                 vanttec_uuv::Obstacle obstaculo_act;
                 obstaculo_act.pose.position.x = x;
