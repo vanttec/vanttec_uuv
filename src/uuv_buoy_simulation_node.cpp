@@ -80,17 +80,17 @@ class ObstacleSimulator
         {
             case 0:
                 // Primera Boya
-                this->lista_objetos[0].objeto         = 'a';
-                this->lista_objetos[0].x              = 5.0; 
+                this->lista_objetos[0].objeto         = 'l';
+                this->lista_objetos[0].x              = 3.0; 
                 this->lista_objetos[0].y              = -1.0; 
                 this->lista_objetos[0].z              = -2.2; 
                 this->lista_objetos[0].orientation    = 0.0;
                 this->lista_objetos[0].radio          = 1;
 
                 // Segunda Boya
-                this->lista_objetos[1].objeto         = 'b';
-                this->lista_objetos[1].x              = 5.0; 
-                this->lista_objetos[1].y              = 1.0; 
+                this->lista_objetos[1].objeto         = 'r';
+                this->lista_objetos[1].x              = 2.5; 
+                this->lista_objetos[1].y              = 1.0;    
                 this->lista_objetos[1].z              = -2.2; 
                 this->lista_objetos[1].orientation    = 0.0;
                 this->lista_objetos[1].radio          = 1;
@@ -291,8 +291,8 @@ class ObstacleSimulator
             marker.scale.z = 0.254;
             marker.color.a = 1.0;
             marker.color.r = 0.0;
-            marker.color.g = 1.0;
-            marker.color.b = 0.0;
+            marker.color.g = 0.0;
+            marker.color.b = 1.0;
             
             marker.id = 0;
 
@@ -302,8 +302,8 @@ class ObstacleSimulator
 
             marker.type = visualization_msgs::Marker::SPHERE;
             marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position.x = this->lista_objetos[1].x - cos(this->lista_objetos[1].orientation);
-            marker.pose.position.y = -(this->lista_objetos[1].y - sin(this->lista_objetos[1].orientation));
+            marker.pose.position.x = this->lista_objetos[1].x;
+            marker.pose.position.y = -(this->lista_objetos[1].y);
             marker.pose.position.z = -this->lista_objetos[1].z + 0.5;
             marker.pose.orientation.x = 0.0;
             marker.pose.orientation.y = 0.0;
@@ -314,8 +314,8 @@ class ObstacleSimulator
             marker.scale.z = 0.254;
             marker.color.a = 1.0;
             marker.color.r = 0.0;
-            marker.color.g = 0.0;
-            marker.color.b = 1.0;
+            marker.color.g = 1.0;
+            marker.color.b = 0.0;
             marker.id = 1;
             
             marker_array.markers.push_back(marker);

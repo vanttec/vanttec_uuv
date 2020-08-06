@@ -30,9 +30,11 @@ namespace BuoyMission
         ADVANCE = 3,
         CALCULATE = 4,
         IDENTIFY = 5,
-        PUBLISH = 6,
-        NAVIGATE = 7,
-        DONE = 8,
+        RETRACT = 6,
+        PUBLISH = 7,
+        NAVIGATE = 8,
+        DONE = 9,
+        STOP = 10,
     } BuoyMissionStates_E;
 
     class BuoyMission
@@ -45,6 +47,8 @@ namespace BuoyMission
 
             int search_counter;
             int buoy_found;
+            int current_buoy;
+            int found_right_buoy;
 
             vanttec_uuv::Obstacle            first_buoy;
             vanttec_uuv::Obstacle            second_buoy;
@@ -59,7 +63,7 @@ namespace BuoyMission
         
         private:
             
-            float init_adv_pos;
+            float init_adv_pos[2];
     };
 }
 

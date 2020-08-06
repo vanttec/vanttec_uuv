@@ -64,7 +64,15 @@ int main(int argc, char **argv)
         if (manager.gate_mission != nullptr)
         {
             if (manager.gate_mission->state_machine != GateMission::NAVIGATE && 
-                manager.mission_status.current_mission != 0)
+                manager.mission_status.current_mission != 0 )
+            {   
+                waypoints.publish(manager.desired_waypoints);   
+            }
+        }
+        if (manager.buoy_mission != nullptr)
+        {
+            if (manager.buoy_mission->state_machine != BuoyMission::NAVIGATE && 
+                manager.mission_status.current_mission != 0 )
             {   
                 waypoints.publish(manager.desired_waypoints);   
             }

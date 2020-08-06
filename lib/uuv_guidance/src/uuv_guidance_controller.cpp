@@ -72,6 +72,8 @@ void GuidanceController::OnWaypointReception(const vanttec_uuv::GuidanceWaypoint
             this->los_state_machine.state_machine = LOS_LAW_STANDBY;
             break;
         case NONE:
+            this->desired_setpoints.linear.x = _waypoints.waypoint_list_x[0];
+            this->desired_setpoints.linear.y = _waypoints.waypoint_list_y[0];
             this->desired_setpoints.linear.z = _waypoints.depth_setpoint;
             this->desired_setpoints.angular.z = _waypoints.heading_setpoint;
             break;

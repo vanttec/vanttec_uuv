@@ -44,7 +44,15 @@ namespace GateMission
                 break;
             case INIT:
             {
+                _waypoints->waypoint_list_x.clear();
+                _waypoints->waypoint_list_y.clear();
+                _waypoints->waypoint_list_z.clear();
+
                 _waypoints->guidance_law = 0;
+                _waypoints->waypoint_list_length = 2;
+                _waypoints->waypoint_list_x = {0,0};
+                _waypoints->waypoint_list_y = {0,0};
+                
                 _waypoints->depth_setpoint = -2;
                 _waypoints->heading_setpoint = -5.0*PI/6.0;
 
@@ -59,6 +67,15 @@ namespace GateMission
             }
             case SWEEP:
             {
+                _waypoints->waypoint_list_x.clear();
+                _waypoints->waypoint_list_y.clear();
+                _waypoints->waypoint_list_z.clear();
+
+                _waypoints->guidance_law = 0;
+                _waypoints->waypoint_list_length = 2;
+                _waypoints->waypoint_list_x = {0,0};
+                _waypoints->waypoint_list_y = {0,0};
+
                 int gate_found = -1;
                 if (_obstacles->obstacles.size() > 0)
                 {

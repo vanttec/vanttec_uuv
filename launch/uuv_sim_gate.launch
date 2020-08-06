@@ -8,5 +8,6 @@
     <node name="uuv_tf_broadcast_node"       pkg="vanttec_uuv"           type="uuv_tf_broadcast_node" />
     <node name="uuv_simulation_node"         pkg="vanttec_uuv"           type="uuv_simulation_node" />
     <node name="uuv_mission_manager_node"    pkg="vanttec_uuv"           type="uuv_mission_manager_node" />
+    <node name="uuv_gate_simulation_node"    pkg="vanttec_uuv"           type="uuv_gate_simulation_node" />
     <node name="vehicle_user_control"        pkg="vehicle_user_control"  type="vehicle_user_control" />
 </launch>

@@ -12,6 +12,7 @@
 #define __UUV_MISSION_MANAGER__
 
 #include "gate_mission.hpp"
+#include "buoy_mission.hpp"
 
 #include <vanttec_uuv/DetectedObstacles.h>
 #include <vanttec_uuv/GuidanceWaypoints.h>
@@ -57,6 +58,7 @@ class MissionManager
 
         // Missions
         GateMission::GateMission* gate_mission;
+        BuoyMission::BuoyMission* buoy_mission;
 
         MissionManager();
         ~MissionManager();
