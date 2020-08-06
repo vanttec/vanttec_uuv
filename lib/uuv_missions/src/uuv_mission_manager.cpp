@@ -30,8 +30,9 @@ MissionManager::MissionManager()
 
     // Mission pointer initializations
 
-    this->gate_mission = nullptr;
-    this->buoy_mission = nullptr;
+    this->gate_mission              = nullptr;
+    this->buoy_mission              = nullptr;
+    this->shootout_mission          = nullptr;
 }
 
 MissionManager::~MissionManager(){}
@@ -68,6 +69,8 @@ void MissionManager::OnMissionConfigReception(const vanttec_uuv::MissionStatus& 
                 this->buoy_mission = new BuoyMission::BuoyMission;
                 break;
             case TORPEDOES:
+                this->shootout_mission = new ShootOutMission::ShootOutMission;
+                break;
             case LOS_NAV_TEST:
             case ORBIT_NAV_TEST:
             default:
@@ -145,6 +148,23 @@ void MissionManager::UpdateStateMachines()
                 }
                 break;
             case TORPEDOES:
+                if (this->shootout_mission != nullptr)
+                {
+                    this->shootout_mission->UpdateStateMachine(&this->selected_side, 
+                                                                &this->detected_obstacles, 
+                                                                &this->current_pose,
+                                                                &this->desired_waypoints);
+
+                    this->mission_status.current_state = (int) this->shootout_mission->state_machine;
+
+                    if (this->shootout_mission->state_machine == BuoyMission::DONE)
+                    {
+                        delete this->shootout_mission;
+                        this->shootout_mission = nullptr;
+                        this->mission_status.current_mission = NONE;
+                        this->ResetWaypoints();
+                    }
+                }
             case LOS_NAV_TEST:
             case ORBIT_NAV_TEST:
             default:

@@ -116,6 +116,7 @@ add_executable(uuv_mission_manager_node
     lib/uuv_missions/src/uuv_mission_manager.cpp 
     lib/uuv_missions/src/gate_mission.cpp
     lib/uuv_missions/src/buoy_mission.cpp
+    lib/uuv_missions/src/shootout_mission.cpp
     lib/uuv_common/src/uuv_common.cpp
 )
 add_dependencies(uuv_mission_manager_node ${${PROJECT_NAME}_EXPORTED_TARGETS})

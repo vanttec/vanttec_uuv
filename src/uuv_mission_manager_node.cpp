@@ -77,6 +77,14 @@ int main(int argc, char **argv)
                 waypoints.publish(manager.desired_waypoints);   
             }
         }
+        if (manager.shootout_mission != nullptr)
+        {
+            if (manager.shootout_mission->state_machine != ShootOutMission::NAVIGATE && 
+                manager.mission_status.current_mission != 0 )
+            {   
+                waypoints.publish(manager.desired_waypoints);   
+            }
+        }
         status.publish(manager.mission_status);
         
         /* Sleep for 10ms */
