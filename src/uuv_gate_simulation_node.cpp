@@ -142,7 +142,14 @@ class ObstacleSimulator
             std::cout << expected_x << std::endl;
             std::cout << x << ", " << y << std::endl;
 
-            float cone_end = sqrt(pow(this->max_visible_radius, 2) - pow(y,2));
+            
+            float cone_end = this->max_visible_radius;
+
+            if (abs(y) <= this->max_visible_radius)
+            {
+                cone_end = sqrt(pow(this->max_visible_radius, 2) - pow(y,2));
+            }
+            
             std::cout << cone_end << std::endl;
 
             if((x >= expected_x) && (x <= cone_end))

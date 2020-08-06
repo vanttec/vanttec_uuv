@@ -159,8 +159,8 @@ namespace GateMission
                 switch((Side_E)*_side)
                 {
                     case RIGHT:
-                        center_point_x = x_gate_ned + (0.5 * cos(this->gate.pose.orientation.z));
-                        center_point_y = y_gate_ned + (0.5 * sin(this->gate.pose.orientation.z));
+                        center_point_x = x_gate_ned + (0.45 * cos(this->gate.pose.orientation.z));
+                        center_point_y = y_gate_ned + (0.45 * sin(this->gate.pose.orientation.z));
                         break;
                     case LEFT:
                     default:
@@ -202,22 +202,25 @@ namespace GateMission
                                           pow(_pose->position.y - _waypoints->waypoint_list_y[_waypoints->waypoint_list_length-1], 2), 
                                           0.5);
 
-                if (abs(_euc_distance) < 0.35)
+                switch(this->prev_state)
                 {
-                    switch(this->prev_state)
-                    {
-                        case ADVANCE:
+                    case ADVANCE:
+                        if (abs(_euc_distance) < 0.35)
+                        {       
                             this->state_machine = INIT;
-                            break;
-                        case CALCULATE:
+                        }
+                        break;
+                    case CALCULATE:
+                        if (abs(_euc_distance) < 0.35)
+                        {
                             this->state_machine = DONE; 
-                            break;
-                        case SWEEP:
-                            this->state_machine = ADVANCE;
-                            break;
-                        default:
-                            break;
-                    }
+                        }
+                        break;
+                    case SWEEP:
+                        this->state_machine = ADVANCE;
+                        break;
+                    default:
+                        break;
                 }
                 break;
             }

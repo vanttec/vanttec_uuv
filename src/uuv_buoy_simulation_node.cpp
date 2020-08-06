@@ -80,7 +80,7 @@ class ObstacleSimulator
         {
             case 0:
                 // Primera Boya
-                this->lista_objetos[0].objeto         = 'b';
+                this->lista_objetos[0].objeto         = 'a';
                 this->lista_objetos[0].x              = 5.0; 
                 this->lista_objetos[0].y              = -1.0; 
                 this->lista_objetos[0].z              = -2.2; 
@@ -314,8 +314,8 @@ class ObstacleSimulator
             marker.scale.z = 0.254;
             marker.color.a = 1.0;
             marker.color.r = 0.0;
-            marker.color.g = 1.0;
-            marker.color.b = 0.0;
+            marker.color.g = 0.0;
+            marker.color.b = 1.0;
             marker.id = 1;
             
             marker_array.markers.push_back(marker);
