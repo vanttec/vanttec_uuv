@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 const float SAMPLE_TIME_S       = 0.01;
-const float DEFAULT_SPEED_MPS   = 0.2;
+const float DEFAULT_SPEED_MPS   = 0.75;
 
 int main(int argc, char **argv)
 {

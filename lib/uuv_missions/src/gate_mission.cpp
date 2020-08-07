@@ -10,7 +10,6 @@
 
 #include "gate_mission.hpp"
 
-#include <eigen3/Eigen/Dense>
 #include <iostream>
 
 using namespace uuv_common;
@@ -30,6 +29,29 @@ namespace GateMission
     }
 
     GateMission::~GateMission(){}
+
+    Eigen::Vector2d GateMission::BodyToNED(float* _u, float _angle, float* _offset)
+    {
+        Eigen::Vector2d u;
+
+        u << _u[0],
+             _u[1];
+        
+        Eigen::Matrix2d J;
+
+        J  << cos(_angle), -1*sin(_angle),
+              sin(_angle), cos(_angle); 
+
+        Eigen::MatrixXd rot = (J * u);
+        Eigen::Vector2d ned;
+        std::cout << "AA" << std::endl;
+        ned << (rot.coeff(0,0) + _offset[0]),
+               (rot.coeff(1,0) + _offset[1]);
+        std::cout << "BB" << std::endl;
+        
+        return ned;
+    }
+
 
     void GateMission::UpdateStateMachine(Side_E* _side, 
                                          vanttec_uuv::DetectedObstacles* _obstacles, 
@@ -145,7 +167,7 @@ namespace GateMission
             case CALCULATE:
             {
                 this->search_counter = 0;
-
+                /*
                 float x_gate_body = this->gate.pose.position.x;
                 float y_gate_body = this->gate.pose.position.y;   
                 float z_gate_ned  = this->gate.pose.position.z;
@@ -172,7 +194,7 @@ namespace GateMission
                 std::cout << "XGNED "<< x_gate_ned << " YGNED " << y_gate_ned << std::endl;
 
                 std::cout << *_side << std::endl;
-
+                
                 switch((Side_E)*_side)
                 {
                     case RIGHT:
@@ -190,8 +212,44 @@ namespace GateMission
                 float x_wp_back = center_point_x + (3 * cos(this->gate.pose.orientation.z - PI/2.0));
                 float y_wp_front = center_point_y - (2.5 * sin(this->gate.pose.orientation.z - PI/2.0));
                 float y_wp_back = center_point_y + (3 * sin(this->gate.pose.orientation.z - PI/2.0));
+                */
 
-                std::cout << center_point_x << " " << center_point_y << std::endl;
+                float center_point[]  = {0, 0};
+                float pose_offset[]   = {_pose->position.x, _pose->position.y};
+                float psi = _pose->orientation.z;
+                float alpha = -psi + this->gate.pose.orientation.z;
+
+                std::cout << alpha << std::endl;
+
+                switch((Side_E)*_side)
+                {
+                    case RIGHT:
+                        center_point[0] = this->gate.pose.position.x + ((alpha / std::abs(alpha)) * (0.45 * cos(alpha)));
+                        center_point[1] = this->gate.pose.position.y + ((alpha / std::abs(alpha)) * (0.45 * sin(alpha)));
+                        break;
+                    case LEFT:
+                    default:
+                        center_point[0] = this->gate.pose.position.x - ((alpha / std::abs(alpha)) * (0.5 * cos(alpha)));
+                        center_point[1] = this->gate.pose.position.y - ((alpha / std::abs(alpha)) * (0.5 * sin(alpha)));
+                        break;
+                }
+                
+                float wp_front[]  = {center_point[0] + ((alpha / std::abs(alpha)) * (2.5 * cos(alpha + M_PI_2))), 
+                                     center_point[1] + ((alpha / std::abs(alpha)) * (2.5 * sin(alpha + M_PI_2)))};
+                float wp_back[]   = {center_point[0] - ((alpha / std::abs(alpha)) * (3 * cos(alpha + M_PI_2))),
+                                     center_point[1] - ((alpha / std::abs(alpha)) * (3 * sin(alpha + M_PI_2)))};
+                
+                std::cout << wp_front[0] << ", " << wp_front[1] << std::endl;
+                std::cout << center_point[0] << ", " << center_point[1] << std::endl;
+                std::cout << wp_back[0] << ", " << wp_back[1] << std::endl;
+
+                Eigen::Vector2d ned_front = this->BodyToNED(wp_front, _pose->orientation.z, pose_offset);
+                Eigen::Vector2d ned_center = this->BodyToNED(center_point, _pose->orientation.z, pose_offset);
+                Eigen::Vector2d ned_back = this->BodyToNED(wp_back, _pose->orientation.z, pose_offset);
+
+                std::cout << ned_front[0] << ", " << ned_front[1] << std::endl;
+                std::cout << ned_center[0] << ", " << ned_center[1] << std::endl;
+                std::cout << ned_back[0] << ", " << ned_back[1] << std::endl;
 
                 _waypoints->waypoint_list_x.clear();
                 _waypoints->waypoint_list_y.clear();
@@ -199,12 +257,21 @@ namespace GateMission
 
                 _waypoints->guidance_law = 1;
                 _waypoints->waypoint_list_length = 4;
-                _waypoints->waypoint_list_x = {_pose->position.x, x_wp_front, center_point_x, x_wp_back};
-                _waypoints->waypoint_list_y = {_pose->position.y, y_wp_front, center_point_y, y_wp_back};
-                _waypoints->waypoint_list_z = {this->gate.pose.position.z - 0.35,
-                                              this->gate.pose.position.z - 0.35, 
-                                              this->gate.pose.position.z - 0.35, 
-                                              this->gate.pose.position.z - 0.35};
+                _waypoints->waypoint_list_x = {_pose->position.x, 
+                                               (float)ned_front[0], 
+                                               (float)ned_center[0], 
+                                               (float)ned_back[0]};
+                std::cout << "G" << std::endl;
+
+                _waypoints->waypoint_list_y = {_pose->position.y, 
+                                               (float)ned_front[1], 
+                                               (float)ned_center[1], 
+                                               (float)ned_back[1]};
+
+                _waypoints->waypoint_list_z = {this->gate.pose.position.z,
+                                               this->gate.pose.position.z, 
+                                               this->gate.pose.position.z, 
+                                               this->gate.pose.position.z};
 
                 this->prev_state = CALCULATE;
                 this->state_machine = PUBLISH;

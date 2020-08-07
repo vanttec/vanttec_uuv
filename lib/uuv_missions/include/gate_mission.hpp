@@ -20,6 +20,7 @@
 #include <vanttec_uuv/Obstacle.h>
 #include <geometry_msgs/Pose.h>
 
+#include <eigen3/Eigen/Dense>
 
 namespace GateMission
 {
@@ -54,6 +55,8 @@ namespace GateMission
                                     vanttec_uuv::DetectedObstacles* _obstacles,
                                     geometry_msgs::Pose* _pose,
                                     vanttec_uuv::GuidanceWaypoints* _waypoints);
+            
+            Eigen::Vector2d BodyToNED(float* _u, float _angle, float* _offset);
         
         private:
             
