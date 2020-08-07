@@ -2,7 +2,6 @@
 <launch>
     <!-- ROS Nodes -->
     <node name="uuv_master_node"             pkg="vanttec_uuv"           type="uuv_master_node" />
-    <node name="uuv_waypoint_publisher_node" pkg="vanttec_uuv"           type="uuv_waypoint_publisher_node" />
     <node name="uuv_guidance_node"           pkg="vanttec_uuv"           type="uuv_guidance_node" />
     <node name="uuv_control_node"            pkg="vanttec_uuv"           type="uuv_control_node" />
     <node name="uuv_tf_broadcast_node"       pkg="vanttec_uuv"           type="uuv_tf_broadcast_node" />
