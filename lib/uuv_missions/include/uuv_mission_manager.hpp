@@ -14,6 +14,7 @@
 #include "gate_mission.hpp"
 #include "buoy_mission.hpp"
 #include "shootout_mission.hpp"
+#include "bin_mission.hpp"
 
 #include <vanttec_uuv/DetectedObstacles.h>
 #include <vanttec_uuv/GuidanceWaypoints.h>
@@ -30,8 +31,9 @@ typedef enum MissionType_E
     GATE = 1,
     BUOY = 2,
     TORPEDOES = 3,
-    LOS_NAV_TEST = 4,
-    ORBIT_NAV_TEST = 5,
+    BIN = 4,
+    LOS_NAV_TEST = 5,
+    ORBIT_NAV_TEST = 6,
 } MissionType_E;
 
 typedef enum Mode_E
@@ -61,6 +63,7 @@ class MissionManager
         GateMission::GateMission*           gate_mission;
         BuoyMission::BuoyMission*           buoy_mission;
         ShootOutMission::ShootOutMission*   shootout_mission;
+        BinMission::BinMission*             bin_mission;
 
         MissionManager();
         ~MissionManager();

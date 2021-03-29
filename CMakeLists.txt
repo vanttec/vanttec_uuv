@@ -85,6 +85,11 @@ add_executable(uuv_shootout_simulation_node
 add_dependencies(uuv_shootout_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_shootout_simulation_node ${catkin_LIBRARIES})
 
+add_executable(uuv_bin_simulation_node 
+    src/uuv_bin_simulation_node.cpp) 
+add_dependencies(uuv_bin_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_bin_simulation_node ${catkin_LIBRARIES})
+
 add_executable(uuv_tf_broadcast_node 
     src/uuv_tf_broadcast_node.cpp 
     lib/uuv_simulation/src/tf_broadcaster.cpp)
@@ -118,6 +123,7 @@ add_executable(uuv_mission_manager_node
     lib/uuv_missions/src/buoy_mission.cpp
     lib/uuv_missions/src/shootout_mission.cpp
     lib/uuv_common/src/uuv_common.cpp
+    lib/uuv_missions/src/bin_mission.cpp
 )
 add_dependencies(uuv_mission_manager_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_mission_manager_node ${catkin_LIBRARIES})

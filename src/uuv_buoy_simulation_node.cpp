@@ -210,7 +210,7 @@ class ObstacleSimulator
         visualization_msgs::Marker marker_fov;
         visualization_msgs::MarkerArray marker_array_fov;
         
-                // FOV Cone
+        // FOV Cone
         marker_fov.header.frame_id  = "/uuv";
         marker_fov.lifetime = ros::Duration(0.1);
 

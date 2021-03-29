@@ -85,11 +85,19 @@ int main(int argc, char **argv)
                 waypoints.publish(manager.desired_waypoints);   
             }
         }
+        if (manager.bin_mission != nullptr)
+        {
+            if (manager.bin_mission->state_machine != BinMission::NAVIGATE && 
+                manager.mission_status.current_mission != 0 )
+            {   
+                waypoints.publish(manager.desired_waypoints);   
+            }
+        }
         status.publish(manager.mission_status);
         
         /* Sleep for 10ms */
         cycle_rate.sleep();
     }
 
-    return 0;
+    return 0; 
 }

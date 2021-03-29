@@ -31,7 +31,7 @@ namespace ShootOutMission
         this->alignment_position[0] = 0;
         this->alignment_position[1] = 0;
     }
-
+ 
     ShootOutMission::~ShootOutMission(){}
 
     void ShootOutMission::UpdateStateMachine(Side_E* _side, 

@@ -122,7 +122,11 @@ void GuidanceController::UpdateStateMachines()
         */
 
         case LOS_GUIDANCE_LAW:
-
+            ROS_WARN("HOLI2");
+            ROS_WARN(this->current_positions_ned.position.x);
+            ROS_WARN(this->current_positions_ned.position.y);
+            ROS_WARN(this->los_state_machine.current_waypoint);
+            ROS_WARN(this->los_state_machine.current_waypoint+1);
             switch(this->los_state_machine.state_machine)
             {
                 case LOS_LAW_STANDBY:

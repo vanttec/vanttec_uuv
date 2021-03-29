@@ -90,7 +90,7 @@ namespace BuoyMission
                         {
                             switch(this->buoy_found)
                             {
-                                case -1:
+                                case -1: 
                                 {
                                     this->first_buoy = _obstacles->obstacles[i];
 

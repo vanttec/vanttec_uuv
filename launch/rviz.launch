@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <!-- upload urdf -->
-    <param name="robot_description" textfile="$(find vanttec_uuv)/models/uuv_gamma.urdf" />
-
+    <param name="robot_description" textfile="$(find vanttec_uuv)/models/uuv_gamma.urdf" /> 
     <!-- joint state publisher with gui -->
     <param name="use_gui" value="true" />    
     <node name="rviz" pkg="rviz" type="rviz"/>
