@@ -49,9 +49,9 @@ GuidanceController::~GuidanceController(){}
 void GuidanceController::OnCurrentPositionReception(const geometry_msgs::Pose& _pose)
 {
     /* Store the current position in NED coordinates */
-    // this->current_positions_ned.position.x      = _pose.position.x;
-    // this->current_positions_ned.position.y      = _pose.position.y;
-    // this->current_positions_ned.position.z      = _pose.position.z;
+    this->current_positions_ned.position.x      = _pose.position.x;
+    this->current_positions_ned.position.y      = _pose.position.y;
+    this->current_positions_ned.position.z      = _pose.position.z;
 
     // double w = _pose.orientation.w; 
     // double x = _pose.orientation.x; 
