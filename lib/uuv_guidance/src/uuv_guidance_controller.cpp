@@ -49,9 +49,25 @@ GuidanceController::~GuidanceController(){}
 void GuidanceController::OnCurrentPositionReception(const geometry_msgs::Pose& _pose)
 {
     /* Store the current position in NED coordinates */
-    this->current_positions_ned.position.x      = _pose.position.x;
-    this->current_positions_ned.position.y      = _pose.position.y;
-    this->current_positions_ned.position.z      = _pose.position.z;
+    // this->current_positions_ned.position.x      = _pose.position.x;
+    // this->current_positions_ned.position.y      = _pose.position.y;
+    // this->current_positions_ned.position.z      = _pose.position.z;
+
+    // double w = _pose.orientation.w; 
+    // double x = _pose.orientation.x; 
+    // double y = _pose.orientation.y; 
+    // double z = _pose.orientation.z; 
+    // double C_11 = pow(w,2)+pow(x,2)-pow(y,2)-pow(z,2);
+    // double C_12 = 2*(x*y + w*z);
+    // double C_13 = 2*(x*z - w*y);
+    // double C_23 = 2*(y*z + w*x);
+    // double C_33 = pow(w,2)-pow(x,2)-pow(y,2)+pow(z,2);
+    // //3-2-1 convention
+    // double yaw = atan2(C_12,C_11);
+    // double pitch = -asin(C_13);
+    // double roll = atan2(C_23,C_33);
+    
+    // this->current_positions_ned.orientation.z   = yaw;
     this->current_positions_ned.orientation.z   = _pose.orientation.z;
 }
 
