@@ -5,7 +5,6 @@
  * @email: sebas.martp@gmail.com
  * 
  * @brief: Publishes UUV pose to gazebo set_model_state topic.
- *         There are problems when trying to kill the node.
  * -----------------------------------------------------------------------------
  **/
 
@@ -27,9 +26,10 @@ private:
     tf2::Quaternion q_rot;
     gazebo_msgs::ModelState model_msg;
     geometry_msgs::Pose initPose;
-    double roll;
-    double pitch;
-    double yaw;
+    //From NED to ENU
+    double roll = 0;
+    double pitch = M_PI;
+    double yaw = -M_PI/2;
     bool foundFlag = false;
 
 public:
@@ -41,10 +41,6 @@ void SetState::stateCallback(const geometry_msgs::Pose::ConstPtr& msg){
     // https://wiki.ros.org/action/show/geometry2/RotationMethods?action=show&redirect=geometry%2FRotationMethods
     model_msg.model_name = "vtec_u3";
 
-    //From NED to ENU
-    roll = 0;
-    pitch = M_PI;
-    yaw = -M_PI/2;
     q_rot.setRPY(roll, pitch, yaw);
 
     q.setRPY(0, 0, msg->orientation.z); // roll, pitch, yaw
@@ -78,11 +74,6 @@ void SetState::gazStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg){
 int main(int argc, char **argv){
     ros::init(argc,argv, "gazebo_interface");
     SetState state;
-    ros::Rate rate(100);
-
-    while (ros::ok){
-        ros::spinOnce(); // will call all the callbacks waiting to be called at that point in time
-        rate.sleep(); // wait 10 Hz
-    }
+    ros::spin();
     return 0;
 }
