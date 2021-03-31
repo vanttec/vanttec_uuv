@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     message_generation
     std_msgs
+    gazebo_msgs
     geometry_msgs
     nav_msgs
     tf2
@@ -34,7 +35,7 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs
+  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs vehicle_user_control
   DEPENDS ${LIBS}
 )
 
@@ -47,7 +48,7 @@ include_directories(
     lib/uuv_motion_planning/include
     lib/uuv_simulation/include
     lib/uuv_missions/include
-    ${catkin_INCLUDE_DIRS}
+    include ${catkin_INCLUDE_DIRS}
 )
 
 add_executable(uuv_odometry_node 
@@ -121,4 +122,7 @@ add_executable(uuv_mission_manager_node
 )
 add_dependencies(uuv_mission_manager_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_mission_manager_node ${catkin_LIBRARIES})
+
+add_executable(gazebo_interface src/gazebo_interface.cpp)
+target_link_libraries(gazebo_interface ${catkin_LIBRARIES})
 
