@@ -33,7 +33,7 @@ class GateMission:
         self.waypoints = GuidanceWaypoints()
         self.uuv_path = Path()
         self.heading_threshold = 0.01
-        self.depth_threshold = 0.01
+        self.depth_threshold = 0.
         
        
         #Waypoint test instead of perception node
@@ -82,19 +82,39 @@ class GateMission:
             self.waypoints.waypoint_list_y = [self.ned_y, 0]
             self.waypoints.waypoint_list_z = [0,0]
             self.desired(self.waypoints)
-        if(self.state == 2):
+        elif(self.state == 2):
             rospy.logwarn(self.waypoints.heading_setpoint)
             if (self.waypoints.heading_setpoint >= math.pi/4):
-                self.waypoints.guidance_law = 0
-                self.waypoints.heading_setpoint = 0
-                self.state = 6
+                self.state = 2.1
             else:
                 self.waypoints.guidance_law = 0
                 self.waypoints.heading_setpoint += math.pi/400.0
-            self.waypoints.waypoint_list_x = [self.ned_x, 0]
-            self.waypoints.waypoint_list_y = [self.ned_y, 0]
-            self.waypoints.waypoint_list_z = [0,0]
-            self.desired(self.waypoints)
+                self.waypoints.waypoint_list_x = [self.ned_x, 0]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [0,0]
+                self.desired(self.waypoints)
+        elif(self.state == 2.1):
+            rospy.logwarn(self.waypoints.heading_setpoint)
+            if (self.waypoints.heading_setpoint <= 0):
+                self.state = 3
+            else:
+                self.waypoints.guidance_law = 0
+                self.waypoints.heading_setpoint -= math.pi/400.0
+                self.waypoints.waypoint_list_x = [self.ned_x, 0]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [0,0]
+                self.desired(self.waypoints)
+        elif(self.state == 3):
+            self.waypoints.guidance_law = 1
+            _euc_distance = pow(pow(self.ned_x-7,2)+pow(self.ned_y-0.5,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 6
+                self.waypoints.guidance_law = 0
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x,7]
+                self.waypoints.waypoint_list_y = [self.ned_y,0.5]
+                self.waypoints.waypoint_list_z = [0,0]   
+                self.desired(self.waypoints)
 
 
     def results(self):
