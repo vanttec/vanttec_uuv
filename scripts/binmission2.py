@@ -13,7 +13,7 @@ from usv_perception.msg import obj_detected, obj_detected_list
 from nav_msgs.msg import Path
 
 # Class Definition
-class BuoyMission:
+class BinMission:
     def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
@@ -102,7 +102,7 @@ class BuoyMission:
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
                 self.desired(self.waypoints)                            
-    def buoymission(self):
+    def binmission(self):
         self.waypoints.waypoint_list_length = 2
         self.waypoints.guidance_law = 0
         #self.waypoints.depth_setpoint = 4
@@ -112,42 +112,42 @@ class BuoyMission:
             self.sweep(2)
         elif(self.state == 2):
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-9.5,2)+pow(self.ned_y-3,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-14,2)+pow(self.ned_y-3,2),0.5)
             if(_euc_distance <0.35):
-                self.state = 3
+                self.state = 3.1
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x,9.5]
-                self.waypoints.waypoint_list_y = [self.ned_y,3]
-                self.waypoints.waypoint_list_z = [0,0]   
-                self.desired(self.waypoints)      
-        elif(self.state == 3):
-            self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-8.5,2)+pow(self.ned_y-3,2),0.5)
-            if(_euc_distance <0.35):
-                self.state = 4
-            else:
-                self.waypoints.waypoint_list_x = [self.ned_x,8.5]
+                self.waypoints.waypoint_list_x = [self.ned_x,14]
                 self.waypoints.waypoint_list_y = [self.ned_y,3]
                 self.waypoints.waypoint_list_z = [0,0]   
                 self.desired(self.waypoints)    
-        elif(self.state == 4):
+        elif(self.state == 3.1):
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-8.5,2)+pow(self.ned_y-4,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-14,2)+pow(self.ned_z-1,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 3.2
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 14]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [self.ned_z,1]   
+                self.desired(self.waypoints)
+        elif(self.state == 3.2):
+            self.waypoints.guidance_law = 1
+            _euc_distance = pow(pow(self.ned_x-14,2)+pow(self.ned_z,2),0.5)
             if(_euc_distance <0.35):
                 self.state = 5
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x,8.5]
-                self.waypoints.waypoint_list_y = [self.ned_y,4]
-                self.waypoints.waypoint_list_z = [0,0]   
-                self.desired(self.waypoints)    
+                self.waypoints.waypoint_list_x = [self.ned_x, 14]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [self.ned_z,0]   
+                self.desired(self.waypoints)     
         elif(self.state ==5): 
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-12,2)+pow(self.ned_y-4,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-15,2)+pow(self.ned_y-4,2),0.5)
             if(_euc_distance <0.35):
                 self.state = 6
                 self.waypoints.guidance_law = 0
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x,12]
+                self.waypoints.waypoint_list_x = [self.ned_x,15]
                 self.waypoints.waypoint_list_y = [self.ned_y,4]
                 self.waypoints.waypoint_list_z = [0,0]   
                 self.desired(self.waypoints)
@@ -176,16 +176,16 @@ class BuoyMission:
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
 def main():
-    rospy.init_node("buoy_mission", anonymous=False)
+    rospy.init_node("bin_mission", anonymous=False)
     rate = rospy.Rate(20)
-    autoNav = BuoyMission()
+    autoNav = BinMission()
     last_detection = []
     while not rospy.is_shutdown() and autoNav.activated:
         rospy.loginfo(autoNav.state )
         rospy.logwarn(autoNav.sweepstate)  
         if(autoNav.state != 6):
-            rospy.loginfo("Buoymission is activated")
-            autoNav.buoymission()
+            rospy.loginfo("Binmission is activated")
+            autoNav.binmission()
         else:
             autoNav.results()
         rate.sleep()
