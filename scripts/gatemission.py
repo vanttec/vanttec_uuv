@@ -139,6 +139,16 @@ class GateMission:
             pose.pose.position.z    = path.waypoint_list_z[index]
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
+    def activate(self):
+        rate = rospy.Rate(20)
+        while not rospy.is_shutdown() and self.activated:
+            rospy.loginfo(self.state ) 
+            if(self.state != 6):
+                rospy.loginfo("Gatemission is activated")
+                self.gatemission()
+            else:
+                self.activated = False
+            rate.sleep()
 def main():
     rospy.init_node("gate_mission", anonymous=False)
     rate = rospy.Rate(20)

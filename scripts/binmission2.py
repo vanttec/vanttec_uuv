@@ -112,43 +112,43 @@ class BinMission:
             self.sweep(2)
         elif(self.state == 2):
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-14,2)+pow(self.ned_y-3,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-15,2)+pow(self.ned_y-4.5,2),0.5)
             if(_euc_distance <0.35):
                 self.state = 3.1
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x,14]
-                self.waypoints.waypoint_list_y = [self.ned_y,3]
+                self.waypoints.waypoint_list_x = [self.ned_x,15]
+                self.waypoints.waypoint_list_y = [self.ned_y,4.5]
                 self.waypoints.waypoint_list_z = [0,0]   
                 self.desired(self.waypoints)    
         elif(self.state == 3.1):
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-14,2)+pow(self.ned_z-1,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-15,2)+pow(self.ned_z-0.5,2),0.5)
             if(_euc_distance <0.35):
                 self.state = 3.2
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x, 14]
+                self.waypoints.waypoint_list_x = [self.ned_x, 15]
                 self.waypoints.waypoint_list_y = [self.ned_y, 0]
-                self.waypoints.waypoint_list_z = [self.ned_z,1]   
+                self.waypoints.waypoint_list_z = [self.ned_z,0.5]   
                 self.desired(self.waypoints)
         elif(self.state == 3.2):
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-14,2)+pow(self.ned_z,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-15,2)+pow(self.ned_z,2),0.5)
             if(_euc_distance <0.35):
                 self.state = 5
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x, 14]
+                self.waypoints.waypoint_list_x = [self.ned_x, 15]
                 self.waypoints.waypoint_list_y = [self.ned_y, 0]
                 self.waypoints.waypoint_list_z = [self.ned_z,0]   
                 self.desired(self.waypoints)     
         elif(self.state ==5): 
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-15,2)+pow(self.ned_y-4,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-17,2)+pow(self.ned_y-4.5,2),0.5)
             if(_euc_distance <0.35):
                 self.state = 6
                 self.waypoints.guidance_law = 0
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x,15]
-                self.waypoints.waypoint_list_y = [self.ned_y,4]
+                self.waypoints.waypoint_list_x = [self.ned_x,17]
+                self.waypoints.waypoint_list_y = [self.ned_y,4.5]
                 self.waypoints.waypoint_list_z = [0,0]   
                 self.desired(self.waypoints)
         
@@ -175,6 +175,16 @@ class BinMission:
             pose.pose.position.z    = path.waypoint_list_z[index]
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
+    def activate(self):
+        rate = rospy.Rate(20)
+        while not rospy.is_shutdown() and self.activated:
+            rospy.loginfo(self.state ) 
+            if(self.state != 6):
+                rospy.loginfo("Binmission is activated")
+                self.binmission()
+            else:
+                self.activated = False
+            rate.sleep()
 def main():
     rospy.init_node("bin_mission", anonymous=False)
     rate = rospy.Rate(20)

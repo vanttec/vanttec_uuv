@@ -121,22 +121,14 @@ class BuoyMission:
                 self.waypoints.waypoint_list_z = [0,0]   
                 self.desired(self.waypoints)      
         elif(self.state == 3):
-            self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-8.5,2)+pow(self.ned_y-3,2),0.5)
-            if(_euc_distance <0.35):
-                self.state = 4
-            else:
-                self.waypoints.waypoint_list_x = [self.ned_x,8.5]
-                self.waypoints.waypoint_list_y = [self.ned_y,3]
-                self.waypoints.waypoint_list_z = [0,0]   
-                self.desired(self.waypoints)    
+            self.sweep(4)    
         elif(self.state == 4):
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-8.5,2)+pow(self.ned_y-4,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-9.5,2)+pow(self.ned_y-4,2),0.5)
             if(_euc_distance <0.35):
                 self.state = 5
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x,8.5]
+                self.waypoints.waypoint_list_x = [self.ned_x,9.5]
                 self.waypoints.waypoint_list_y = [self.ned_y,4]
                 self.waypoints.waypoint_list_z = [0,0]   
                 self.desired(self.waypoints)    
@@ -175,6 +167,16 @@ class BuoyMission:
             pose.pose.position.z    = path.waypoint_list_z[index]
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
+    def activate(self):
+        rate = rospy.Rate(20)
+        while not rospy.is_shutdown() and self.activated:
+            rospy.loginfo(self.state ) 
+            if(self.state != 6):
+                rospy.loginfo("Buoymission is activated")
+                self.buoymission()
+            else:
+                self.activated = False
+            rate.sleep()  
 def main():
     rospy.init_node("buoy_mission", anonymous=False)
     rate = rospy.Rate(20)
