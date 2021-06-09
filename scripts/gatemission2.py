@@ -33,12 +33,16 @@ class GateMission:
         self.uuv_path = Path()
         self.heading_threshold = 0.01
         self.depth_threshold = 0.
-        self.findimage = False
+        #findimage works as a counter however with vision input once it identifies the target it should set this variable to True
+        self.findimage = 0
         self.searchx = 0.0
         self.searchy = 0.0
         self.searchz = 0.0
         self.sweepstate = -1
-       
+        self.foundstate = -1
+        self.enterwaypoint = 0.0
+        self.leavewaypoint = 0.0
+        self.ylabel = 0.0
         #Waypoint test instead of perception node
 
 
@@ -55,15 +59,12 @@ class GateMission:
         self.test = rospy.Publisher("/mission/state", Int32, queue_size=10)
 
         #Waypoint test instead of perception node
-
-        self.objects_list = [
-            {
-                'X': 7,
-                'Y': -4,
-                'Z': 0
+        #This array shall be modified with zed inputs of distance 
+        self.foundimage = {
+                'X': 4.0,
+                'Y': 1.5,
+                'Z': 0.0
             }        
-        ] 
-    
     def ins_pose_callback(self,pose):
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
@@ -109,12 +110,14 @@ class GateMission:
            
     def search(self):
         #look subscriber of image distance
-        if(self.findimage == False):
+        if(self.findimage <= 1):
+            rospy.logwarn("Searching image")
             if self.searchstate == -1:
                 #sweep to find 
                 self.sweep(0)
             elif self.searchstate ==0:
-                #move 1 meter
+                self.waypoints.guidance_law = 1
+                #move 2 meter
                 _euc_distance = pow(pow(self.ned_x-self.searchx,2)+pow(self.ned_y-self.searchy,2),0.5)
                 if(_euc_distance <0.35):
                     self.searchstate = -1
@@ -122,8 +125,40 @@ class GateMission:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.searchx]
                     self.waypoints.waypoint_list_y = [self.ned_y,self.searchy]
                     self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+                self.findimage += 1  
+        else:
+            rospy.logwarn("Found image")
+            if(self.foundstate == -1):
+                rospy.logwarn("a")
+                self.enterwaypoint = self.ned_x+self.foundimage['X']-1
+                self.leavewaypoint = self.ned_x+self.foundimage['X']+2
+                self.ylabel = self.ned_y + self.foundimage['Y']
+                self.foundstate = 0
+            elif(self.foundstate == 0):
+                rospy.logwarn("b")
+                self.waypoints.guidance_law = 1
+                #move to enter waypoint
+                _euc_distance = pow(pow(self.ned_x-self.enterwaypoint,2)+pow(self.ned_y-self.ylabel,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 1
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.enterwaypoint]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.ylabel]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)
+            elif(self.foundstate == 1):
+                rospy.logwarn("c")
+               #move to leave waypoint
+                _euc_distance = pow(pow(self.ned_x-self.leavewaypoint,2)+pow(self.ned_y-self.ylabel,2),0.5)
+                if(_euc_distance <0.35):
+                    self.state = 6
+                    self.waypoints.guidance_law = 0
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypoint]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.ylabel]
+                    self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)     
-        
 
 
     def gatemission(self):
