@@ -11,7 +11,7 @@ from vanttec_uuv.msg import GuidanceWaypoints
 from nav_msgs.msg import Path
 
 # Class Definition
-class GateMission:
+class TorpedosMission:
     def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
@@ -41,7 +41,7 @@ class GateMission:
         self.sweepstate = -1
         self.foundstate = -1
         self.enterwaypoint = 0.0
-        self.leavewaypoint = 0.0
+        self.staywaypoint = 0.0
         self.ylabel = 0.0
         #Waypoint test instead of perception node
 
@@ -61,7 +61,7 @@ class GateMission:
         #Waypoint test instead of perception node
         #This array shall be modified with zed inputs of distance 
         self.foundimage = {
-                'X': 4.0,
+                'X': 3.0,
                 'Y': 1.5,
                 'Z': 0.0
             }        
@@ -72,8 +72,6 @@ class GateMission:
         self.yaw = pose.orientation.z      
     def sweep(self,nextmission):
         self.waypoints.guidance_law = 0
-        #self.waypoints.depth_setpoint = 4
-        #depth_error = self.ned_z - self.waypoints.depth_setpoint
         if(self.sweepstate == -1):
             if (self.waypoints.heading_setpoint <=  -math.pi/4):
                 self.sweepstate = 2
@@ -110,7 +108,7 @@ class GateMission:
            
     def search(self):
         #look subscriber of image distance
-        if(self.findimage <= 2):
+        if(self.findimage <= 0):
             rospy.logwarn("Searching image")
             if self.searchstate == -1:
                 #sweep to find 
@@ -129,36 +127,134 @@ class GateMission:
                     self.desired(self.waypoints)   
         else:
             rospy.logwarn("Found image")
+            rospy.logwarn(self.foundstate)
             if(self.foundstate == -1):
-                self.enterwaypoint = self.ned_x+self.foundimage['X']-1
-                self.leavewaypoint = self.ned_x+self.foundimage['X']+2
-                self.ylabel = self.ned_y + self.foundimage['Y']
+                self.southx = self.ned_x + self.foundimage['X']-2
+                self.southy = self.ned_y + self.foundimage['Y']
+                self.eastx = self.ned_x + self.foundimage['X']
+                self.easty = self.ned_y + self.foundimage['Y']+2
+                self.northx = self.ned_x + self.foundimage['X']+2
+                self.northy = self.ned_y + self.foundimage['Y']
+                self.westx = self.ned_x + self.foundimage['X']
+                self.westy = self.ned_y + self.foundimage['Y']-2
+                self.leavewaypoint1x = self.ned_x+self.foundimage['X']-1
+                self.leavewaypoint1y = self.ned_y+self.foundimage['Y']+1
+                self.leavewaypoint2x = self.ned_x+self.foundimage['X']+2
+                self.leavewaypoint2y = self.leavewaypoint1y 
+                self.leavewaypoint3y = self.ned_y + self.foundimage['Y']
+                self.leavewaypoint3x = self.leavewaypoint2x
+                self.leavewaypoint4y = self.leavewaypoint3y
+                self.leavewaypoint4x = self.leavewaypoint3x+2
                 self.foundstate = 0
+            #Orbit around
             elif(self.foundstate == 0):
-                self.waypoints.guidance_law = 1
-                #move to enter waypoint
-                _euc_distance = pow(pow(self.ned_x-self.enterwaypoint,2)+pow(self.ned_y-self.ylabel,2),0.5)
+                self.waypoints.guidance_law = 2
+                #move to south
+                _euc_distance = pow(pow(self.ned_x-self.southx,2)+pow(self.ned_y-self.southy,2),0.5)
                 if(_euc_distance <0.35):
                     self.foundstate = 1
                 else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.enterwaypoint]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.ylabel]
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.southx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.southy]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)
             elif(self.foundstate == 1):
-               #move to leave waypoint
-                _euc_distance = pow(pow(self.ned_x-self.leavewaypoint,2)+pow(self.ned_y-self.ylabel,2),0.5)
+                self.waypoints.guidance_law = 2
+               #move to east
+                _euc_distance = pow(pow(self.ned_x-self.eastx,2)+pow(self.ned_y-self.easty,2),0.5)
                 if(_euc_distance <0.35):
-                    self.state = 6
+                    self.foundstate = 2
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.eastx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.easty]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+            elif(self.foundstate == 2):
+                self.waypoints.guidance_law = 2
+               #move to north
+                _euc_distance = pow(pow(self.ned_x-self.northx,2)+pow(self.ned_y-self.northy,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 3
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.northx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.northy]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+            elif(self.foundstate == 3):
+                self.waypoints.guidance_law = 2
+               #move to west
+                _euc_distance = pow(pow(self.ned_x-self.westx,2)+pow(self.ned_y-self.westy,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 4
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.westx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.westy]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)
+            elif(self.foundstate == 4):
+                self.waypoints.guidance_law = 2
+               #move to west
+                _euc_distance = pow(pow(self.ned_x-self.southx,2)+pow(self.ned_y-self.southy,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 5
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.southx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.southy]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)    
+            #Leave
+            elif(self.foundstate == 5):
+                self.waypoints.guidance_law = 1
+                rospy.logwarn("leave1")
+               #move to leave waypoint1
+                _euc_distance = pow(pow(self.ned_x-self.leavewaypoint1x,2)+pow(self.ned_y-self.leavewaypoint1y,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 6
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypoint1x]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.leavewaypoint1y]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+            elif(self.foundstate == 6):
+                self.waypoints.guidance_law = 1
+                rospy.logwarn("leave2")
+               #move to leave waypoint2
+                _euc_distance = pow(pow(self.ned_x-self.leavewaypoint2x,2)+pow(self.ned_y-self.leavewaypoint2y,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 7
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypoint2x]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.leavewaypoint2y]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+            elif(self.foundstate == 7):
+                self.waypoints.guidance_law = 1
+               #move to leave waypoint3
+                rospy.logwarn("leave3")
+                _euc_distance = pow(pow(self.ned_x-self.leavewaypoint3x,2)+pow(self.ned_y-self.leavewaypoint3y,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 8
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypoint3x]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.leavewaypoint3y]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+            elif(self.foundstate == 8):
+                self.waypoints.guidance_law = 1
+                rospy.logwarn("leave4")
+               #move to leave waypoint4
+                _euc_distance = pow(pow(self.ned_x-self.leavewaypoint4x,2)+pow(self.ned_y-self.leavewaypoint4y,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 9
                     self.waypoints.guidance_law = 0
                 else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypoint]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.ylabel]
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypoint4x]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.leavewaypoint4y]
                     self.waypoints.waypoint_list_z = [0,0]   
-                    self.desired(self.waypoints)     
+                    self.desired(self.waypoints)   
 
 
-    def gatemission(self):
+    def torpedosmission(self):
         self.waypoints.waypoint_list_length = 2
         self.waypoints.guidance_law = 1
         #self.waypoints.depth_setpoint = 4
@@ -193,24 +289,23 @@ class GateMission:
     def activate(self):
         rate = rospy.Rate(20)
         while not rospy.is_shutdown() and self.activated:
-            rospy.loginfo(self.state ) 
             if(self.state != 6):
-                rospy.loginfo("Gatemission is activated")
-                self.gatemission()
+                rospy.loginfo("Torpedosmission is activated")
+                self.torpedosmission()
             else:
                 self.activated = False
             rate.sleep()
 def main():
-    rospy.init_node("gate_mission", anonymous=False)
+    rospy.init_node("torpedos_mission", anonymous=False)
     rate = rospy.Rate(20)
-    gate_mission = GateMission()
+    torpedos_mission = TorpedosMission()
     last_detection = []
-    while not rospy.is_shutdown() and gate_mission.activated:
-        if(gate_mission.state != 6):
-            rospy.loginfo("Gatemission is activated")
-            gate_mission.gatemission()
+    while not rospy.is_shutdown() and torpedos_mission.activated:
+        if(torpedos_mission.state != 9):
+            rospy.loginfo("Torpedosmission is activated")
+            torpedos_mission.torpedosmission()
         else:
-            gate_mission.results()
+            torpedos_mission.results()
         rate.sleep()
     rospy.spin()
 
