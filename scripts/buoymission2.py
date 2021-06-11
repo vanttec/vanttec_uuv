@@ -61,8 +61,8 @@ class BuoyMission:
         #Waypoint test instead of perception node
         #This array shall be modified with zed inputs of distance 
         self.foundimage = {
-                'X': 3.0,
-                'Y': 1.5,
+                'X': 2.0,
+                'Y': 1,
                 'Z': 0.0
             }        
     def ins_pose_callback(self,pose):
@@ -94,6 +94,44 @@ class BuoyMission:
             if (self.waypoints.heading_setpoint <= 0):
                 self.waypoints.guidance_law = 0
                 self.searchstate = nextmission
+                self.searchx = self.ned_x + 2.5
+                self.searchy = self.ned_y + 4
+                self.sweepstate = -1
+                self.findimage += 1  
+                self.desired(self.waypoints)
+            else:
+                self.waypoints.guidance_law = 0
+                self.waypoints.heading_setpoint -= math.pi/400.0
+                self.waypoints.waypoint_list_x = [0, 0]
+                self.waypoints.waypoint_list_y = [0, 0]
+                self.waypoints.waypoint_list_z = [0,0]
+                self.desired(self.waypoints) 
+    def touch_buoy(self,nextmission):
+        self.waypoints.guidance_law = 0
+        #self.waypoints.depth_setpoint = 4
+        #depth_error = self.ned_z - self.waypoints.depth_setpoint
+        if(self.sweepstate == -1):
+            if (self.waypoints.heading_setpoint <=  -math.pi/8):
+                self.sweepstate = 2
+            self.waypoints.heading_setpoint -= math.pi/400.0
+            self.waypoints.waypoint_list_x = [0, 0]
+            self.waypoints.waypoint_list_y = [0, 0]
+            self.waypoints.waypoint_list_z = [0,0]
+            self.desired(self.waypoints)
+        elif(self.sweepstate == 2): 
+            if (self.waypoints.heading_setpoint >= math.pi/8):
+                self.sweepstate = 2.1
+            else:
+                self.waypoints.guidance_law = 0
+                self.waypoints.heading_setpoint += math.pi/400.0
+                self.waypoints.waypoint_list_x = [0 ,0]
+                self.waypoints.waypoint_list_y = [0, 0]
+                self.waypoints.waypoint_list_z = [0,0]
+                self.desired(self.waypoints)
+        elif(self.sweepstate == 2.1): 
+            if (self.waypoints.heading_setpoint <= 0):
+                self.waypoints.guidance_law = 0
+                self.foundstate = nextmission
                 self.searchx = self.ned_x + 3
                 self.searchy = self.ned_y
                 self.sweepstate = -1
@@ -104,27 +142,26 @@ class BuoyMission:
                 self.waypoints.waypoint_list_x = [0, 0]
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints) 
-           
+                self.desired(self.waypoints)             
     def search(self):
         #look subscriber of image distance
-        if(self.findimage <= 0):
+        if(self.findimage <= 1):
             rospy.logwarn("Searching image")
             if self.searchstate == -1:
                 #sweep to find 
                 self.sweep(0)
             elif self.searchstate ==0:
                 self.waypoints.guidance_law = 1
-                #move 2 meter
+                #move 3 meter
                 _euc_distance = pow(pow(self.ned_x-self.searchx,2)+pow(self.ned_y-self.searchy,2),0.5)
                 if(_euc_distance <0.35):
-                    self.findimage += 1  
                     self.searchstate = -1
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.searchx]
                     self.waypoints.waypoint_list_y = [self.ned_y,self.searchy]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)   
+            
         else:
             rospy.logwarn("Found image")
             if(self.foundstate == -1):
@@ -135,7 +172,7 @@ class BuoyMission:
                 self.leavewaypoint1y = self.ned_y+self.foundimage['Y']+1
                 self.leavewaypoint2x = self.ned_x+self.foundimage['X']+2
                 self.leavewaypoint2y = self.leavewaypoint1y 
-                self.leavewaypoint3y = self.ned_y + self.foundimage['Y']
+                self.leavewaypoint3y = self.ned_y + self.foundimage['Y']-1
                 self.leavewaypoint3x = self.leavewaypoint2x
                 self.leavewaypoint4y = self.leavewaypoint3y
                 self.leavewaypoint4x = self.leavewaypoint3x+2
@@ -164,12 +201,10 @@ class BuoyMission:
                     self.desired(self.waypoints)     
             elif(self.foundstate == 2):
                #stay until bouymission is completed
-               rospy.logwarn("Sleeping")
-               rospy.sleep(3)
-               self.foundstate = 3
-               self.waypoints.guidance_law = 1
+               rospy.logwarn("Looking the best position to touch buoy") 
+               self.touch_buoy(3)
             elif(self.foundstate == 3):
-
+                self.waypoints.guidance_law = 1
                 rospy.logwarn("leave1")
                #move to leave waypoint1
                 _euc_distance = pow(pow(self.ned_x-self.leavewaypoint1x,2)+pow(self.ned_y-self.leavewaypoint1y,2),0.5)

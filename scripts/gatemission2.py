@@ -133,6 +133,8 @@ class GateMission:
                 self.enterwaypoint = self.ned_x+self.foundimage['X']-1
                 self.leavewaypoint = self.ned_x+self.foundimage['X']+2
                 self.ylabel = self.ned_y + self.foundimage['Y']
+                self.leavewaypointx2 = self.ned_x+self.foundimage['X']+5
+                self.leavewaypointy2 = self.ned_y + self.foundimage['Y']-1
                 self.foundstate = 0
             elif(self.foundstate == 0):
                 self.waypoints.guidance_law = 1
@@ -146,17 +148,28 @@ class GateMission:
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)
             elif(self.foundstate == 1):
-               #move to leave waypoint
+                self.waypoints.guidance_law = 1
+               #move to leave waypoint1
                 _euc_distance = pow(pow(self.ned_x-self.leavewaypoint,2)+pow(self.ned_y-self.ylabel,2),0.5)
                 if(_euc_distance <0.35):
-                    self.state = 6
-                    self.waypoints.guidance_law = 0
+                    self.foundstate = 2
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypoint]
                     self.waypoints.waypoint_list_y = [self.ned_y,self.ylabel]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)     
-
+            elif(self.foundstate == 2):
+                self.waypoints.guidance_law = 1
+               #move to leave waypoint2
+                _euc_distance = pow(pow(self.ned_x-self.leavewaypointx2,2)+pow(self.ned_y-self.leavewaypointy2,2),0.5)
+                if(_euc_distance <0.35):
+                    self.state = 6
+                    self.waypoints.guidance_law = 0
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypointx2]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.leavewaypointy2]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)  
 
     def gatemission(self):
         self.waypoints.waypoint_list_length = 2
