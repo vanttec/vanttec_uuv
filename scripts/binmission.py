@@ -90,8 +90,8 @@ class BinMission:
             if (self.waypoints.heading_setpoint <= 0):
                 self.waypoints.guidance_law = 0
                 self.searchstate = nextmission
-                self.searchx = self.ned_x + 3
-                self.searchy = self.ned_y
+                self.searchx = self.ned_x + 2.35
+                self.searchy = self.ned_y + 1.3
                 self.sweepstate = -1
                 self.desired(self.waypoints)
             else:
@@ -140,7 +140,7 @@ class BinMission:
                 self.desired(self.waypoints)       
     def search(self):
         #look subscriber of image distance
-        if(self.findimage <= 0):
+        if(self.findimage <= 1):
             rospy.logwarn("Searching image")
             if self.searchstate == -1:
                 #sweep to find 
@@ -164,7 +164,7 @@ class BinMission:
             if(self.foundstate == -1):
                 self.samex = self.ned_x
                 self.righty = self.ned_y+2
-                self.lefty = self.ned_y-2
+                self.lefty = self.ned_y-2.5
                 self.downz = self.ned_z+1
                 self.upz = self.ned_z
                 self.leavewaypointxcenter = self.ned_x+2
@@ -172,18 +172,7 @@ class BinMission:
                 self.leavewaypointx = self.ned_x+2
                 self.leavewaypointy = self.ned_y 
                 self.foundstate = 0
-            elif(self.foundstate == 0):
-                self.waypoints.guidance_law = 1
-                #move to enter waypoint
-                _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_y-self.righty,2),0.5)
-                if(_euc_distance <0.35):
-                    self.foundstate = 1
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.righty]
-                    self.waypoints.waypoint_list_z = [0,0]   
-                    self.desired(self.waypoints)
-            elif(self.foundstate == 1):
+            if(self.foundstate == 0):
                #stay find the best position to grab bin
                rospy.logwarn("Looking the best position to grab bin") 
                self.grab_bin(1.1)
