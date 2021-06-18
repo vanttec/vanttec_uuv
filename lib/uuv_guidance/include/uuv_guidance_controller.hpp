@@ -21,9 +21,11 @@
 #include <vanttec_uuv/GuidanceWaypoints.h>
 #include <vanttec_uuv/MasterStatus.h>
 
+#include "asmc_guidance_4dof.hpp"
+
 /********** Helper Constants ***********/
 
-const float     PI                      = 3.14159;
+// const float     PI                      = 3.14159;
 const uint8_t   LOS_WAYPOINT_OFFSET     = 2;
 
 /********** Guidance Laws ***********/
@@ -33,6 +35,7 @@ typedef enum GuidanceLaws_E
     NONE = 0,
     LOS_GUIDANCE_LAW = 1,
     ORBIT_GUIDANCE_LAW = 2,
+    ASMC_GUIDANCE_LAW = 3
 } GuidanceLaws_E;
 
 
@@ -72,33 +75,58 @@ typedef struct OrbitLawStateMachine_S
     int                 current_waypoint;      
 } OrbitLawStateMachine_S;
 
+/***************** ASMC ******************/
+
+typedef enum ASMCLawStates_E
+{
+    ASMC_LAW_STANDBY = 0,
+    ASMC_LAW_DEPTH_NAV = 1,
+    ASMC_LAW_WAYPOINT_NAV = 2,
+} ASMCLawStates_E;
+
+
+/* ASMC Guidance Law Struct */
+
+typedef struct ASMCLawStateMachine_S
+{
+    ASMCLawStates_E    state_machine;
+    int                current_waypoint;      
+} ASMCLawStateMachine_S;
+
+
 /********** Guidance Controller ***********/
 
 class GuidanceController
 {
     public:
-        
         GuidanceLaws_E          current_guidance_law;
         LOSLawStateMachine_S    los_state_machine;
         OrbitLawStateMachine_S  orbit_state_machine;
+        ASMCLawStateMachine_S   asmc_state_machine;
         
         geometry_msgs::Pose                 current_positions_ned;
         geometry_msgs::Twist                desired_setpoints;
         vanttec_uuv::GuidanceWaypoints      current_waypoint_list;
         vanttec_uuv::MasterStatus           uuv_status;
 
-        GuidanceController();
+        GuidanceController(const float SAMPLE_TIME_S);
         ~GuidanceController();
         
         void OnCurrentPositionReception(const geometry_msgs::Pose& _pose);
         void OnWaypointReception(const vanttec_uuv::GuidanceWaypoints& _waypoints);
         void OnEmergencyStop(const std_msgs::Empty& _msg);
         void OnMasterStatus(const vanttec_uuv::MasterStatus& _status);
-
         void UpdateStateMachines();
 
     private:
+        ASMC_GUIDANCE_4DOF ASMC_Guidance;
         
+        /* ASMC Parameters */        
+        // float asmc_guid_depth_error_threshold;
+        float asmc_guid_position_error_threshold;
+        float asmc_guid_speed_gain;
+        float asmc_guid_euclidean_distance;
+
         /* LOS Parameters */        
         float los_depth_error_threshold;
         float los_position_error_threshold;

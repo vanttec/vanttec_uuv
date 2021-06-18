@@ -108,7 +108,10 @@ target_link_libraries(uuv_waypoint_publisher_node ${catkin_LIBRARIES})
 
 add_executable(uuv_guidance_node 
     src/uuv_guidance_node.cpp 
-    lib/uuv_guidance/src/uuv_guidance_controller.cpp)
+    lib/uuv_guidance/src/uuv_guidance_controller.cpp
+    lib/uuv_control/src/asmc.cpp
+    lib/uuv_guidance/src/asmc_guidance.cpp
+    lib/uuv_guidance/src/asmc_guidance_4dof.cpp)
 add_dependencies(uuv_guidance_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_guidance_node ${catkin_LIBRARIES})
 
