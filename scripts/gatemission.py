@@ -6,7 +6,7 @@ import time
 import numpy as np
 import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
-from geometry_msgs.msg import Pose, PoseStamped
+from geometry_msgs.msg import Pose, PoseStamped, Point
 from vanttec_uuv.msg import GuidanceWaypoints
 from nav_msgs.msg import Path
 
@@ -39,15 +39,25 @@ class GateMission:
         self.searchy = 0.0
         self.searchz = 0.0
         self.sweepstate = -1
-        self.foundstate = -1
+        self.foundstate = -2
         self.enterwaypoint = 0.0
         self.leavewaypoint = 0.0
         self.ylabel = 0.0
+        self.gateposition = Point()
+        self.finalgateposition = Point()
+        self.gateposition.z = 0.0
+        self.timewait=0.0
+        self.analizegatex = 0.0
+        self.analizegatey = 0.0
+        self.cameraoffsetx = 0.8
+        #self.cameraoffsety = 0.0
+        self.cameraoffsetz = -0.1
         #Waypoint test instead of perception node
 
 
         # ROS Subscribers
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
+        rospy.Subscriber("gate_left_waypoint",Point,self.gate_vision_callback)
         '''
         rospy.Subscriber("/usv_perception/yolo_zed/objects_detected", obj_detected_list, self.objs_callback)
         '''
@@ -59,12 +69,12 @@ class GateMission:
         self.test = rospy.Publisher("/mission/state", Int32, queue_size=10)
 
         #Waypoint test instead of perception node
-        #This array shall be modified with zed inputs of distance 
-        self.foundimage = {
-                'X': 4.0,
-                'Y': 1.5,
-                'Z': 0.0
-            }        
+        #This array shall be modified with zed inputs of distance     
+    def gate_vision_callback(self,msg):
+        self.gateposition.x = msg.x + self.cameraoffsetx
+        self.gateposition.y = msg.y #+ self.cameraoffsety
+        self.gateposition.z = msg.z + self.cameraoffsetz
+        
     def ins_pose_callback(self,pose):
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
@@ -106,11 +116,26 @@ class GateMission:
                 self.waypoints.waypoint_list_x = [0, 0]
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints) 
+                self.desired(self.waypoints)
+    def wait(self,nextmission):
+        self.waypoints.guidance_law = 0
+        self.waypoints.heading_setpoint = 0
+        timeduration = rospy.get_time()-self.timewait
+        #rospy.logwarn("Camera position")
+        #rospy.logwarn(self.gateposition.x)
+        #rospy.logwarn(self.gateposition.y)
+        #rospy.logwarn(self.gateposition.z)
+        self.finalgateposition.x = self.gateposition.z
+        self.finalgateposition.y = self.gateposition.x
+        self.finalgateposition.z = self.gateposition.y
+        if(timeduration >= 2):
+            self.timewait = 0
+            self.foundstate = nextmission
            
     def search(self):
         #look subscriber of image distance
-        if(self.findimage <= 2):
+        #if(self.findimage <= 2):
+        if(self.gateposition.z ==0.0):
             rospy.logwarn("Searching image")
             if self.searchstate == -1:
                 #sweep to find 
@@ -120,7 +145,7 @@ class GateMission:
                 #move 2 meter
                 _euc_distance = pow(pow(self.ned_x-self.searchx,2)+pow(self.ned_y-self.searchy,2),0.5)
                 if(_euc_distance <0.35):
-                    self.findimage += 1  
+                    #self.findimage += 1  
                     self.searchstate = -1
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.searchx]
@@ -128,13 +153,17 @@ class GateMission:
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)   
         else:
-            rospy.logwarn("Found image")
-            if(self.foundstate == -1):
-                self.enterwaypoint = self.ned_x+self.foundimage['X']-1
-                self.leavewaypoint = self.ned_x+self.foundimage['X']+2
-                self.ylabel = self.ned_y + self.foundimage['Y']
-                self.leavewaypointx2 = self.ned_x+self.foundimage['X']+5
-                self.leavewaypointy2 = self.ned_y + self.foundimage['Y']-1
+            if(self.foundstate == -2):
+                #Analize the image to choose side
+                rospy.logwarn("Analizing the image to choose side")
+                self.wait(-1)
+            elif(self.foundstate == -1):
+                rospy.logwarn("Chose right side")
+                self.enterwaypoint = self.ned_x+self.finalgateposition.x-1
+                self.leavewaypoint = self.ned_x+self.finalgateposition.x+2
+                self.ylabel = self.ned_y + self.finalgateposition.y 
+                self.leavewaypointx2 = self.ned_x+self.finalgateposition.x+5
+                self.leavewaypointy2 = self.ned_y + self.finalgateposition.y-1
                 self.foundstate = 0
             elif(self.foundstate == 0):
                 self.waypoints.guidance_law = 1
@@ -195,11 +224,7 @@ class GateMission:
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
     def results(self):
-        rospy.logwarn("Inicial ned")
-        rospy.logwarn(self.ned_x)
-        rospy.logwarn(self.ned_y)
-        rospy.logwarn(self.ned_z)     
-        rospy.logwarn(self.yaw)         
+        rospy.loginfo("Gate mission finished");   
 
 
 
@@ -208,7 +233,7 @@ class GateMission:
         while not rospy.is_shutdown() and self.activated:
             rospy.loginfo(self.state ) 
             if(self.state != 6):
-                rospy.loginfo("Gatemission is activated")
+                #rospy.loginfo("Gatemission is activated")
                 self.gatemission()
             else:
                 self.activated = False
@@ -220,7 +245,7 @@ def main():
     last_detection = []
     while not rospy.is_shutdown() and gate_mission.activated:
         if(gate_mission.state != 6):
-            rospy.loginfo("Gatemission is activated")
+            #rospy.loginfo("Gatemission is activated")
             gate_mission.gatemission()
         else:
             gate_mission.results()

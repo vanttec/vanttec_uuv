@@ -6,7 +6,7 @@ import time
 import numpy as np
 import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
-from geometry_msgs.msg import Pose, PoseStamped
+from geometry_msgs.msg import Pose, PoseStamped,Point
 from vanttec_uuv.msg import GuidanceWaypoints
 from nav_msgs.msg import Path
 
@@ -39,15 +39,28 @@ class BuoyMission:
         self.searchy = 0.0
         self.searchz = 0.0
         self.sweepstate = -1
-        self.foundstate = -1
+        self.foundstate = -2
         self.enterwaypoint = 0.0
         self.staywaypoint = 0.0
         self.ylabel = 0.0
+        self.timewait=0.0
+        self.bouy1 = Point()
+        self.bouy2 = Point()
+        self.bouy1.x = 0.0
+        self.bouy1.y = 0.0
+        self.bouy1.z = 0.0
+        self.bouy2.x = 0.0
+        self.bouy2.y = 0.0
+        self.bouy2.z = 0.0
+        self.foundimage = {}
+        self.side = "RIGHT"
         #Waypoint test instead of perception node
 
 
         # ROS Subscribers
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
+        rospy.Subscriber("buoy_1_pos_pub",Point,self.bouy1_callback)
+        rospy.Subscriber("buoy_2_pos_pub",Point,self.bouy2_callback)
         '''
         rospy.Subscriber("/usv_perception/yolo_zed/objects_detected", obj_detected_list, self.objs_callback)
         '''
@@ -57,21 +70,35 @@ class BuoyMission:
         self.uuv_path_pub = rospy.Publisher("/uuv_planning/motion_planning/desired_path", Path, queue_size=10)
         self.status_pub = rospy.Publisher("/mission/status", Int32, queue_size=10)
         self.test = rospy.Publisher("/mission/state", Int32, queue_size=10)
+        #rospy.Subscriber("buoy_1_pos_pub",Point,self.buoy_vision_callback)
 
         #Waypoint test instead of perception node
-        #This array shall be modified with zed inputs of distance 
-        self.foundimage = {
-                'X': 2.0,
-                'Y': 1,
-                'Z': 0.0
-            }        
+        #This array shall be modified with zed inputs of distance    
+    def bouy1_callback(self, msg):
+        self.bouy1 = msg
+    def bouy2_callback(self, msg):
+        self.bouy2 = msg
     def ins_pose_callback(self,pose):
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
         self.ned_z = pose.position.z
-        self.yaw = pose.orientation.z      
+        self.yaw = pose.orientation.z     
+         
     def sweep(self,nextmission):
         self.waypoints.guidance_law = 0
+        if(self.bouy1.x!=0.0 and self.bouy2.x !=0.0):
+            if(self.side == "RIGHT"):
+                self.foundimage = {
+                'X': self.bouy2.z,
+                'Y': self.bouy2.x,
+                'Z': self.bouy2.y
+                } 
+            else:
+                self.foundimage = {
+                'X': self.bouy1.z,
+                'Y': self.bouy1.x,
+                'Z': self.bouy1.y
+                } 
         if(self.sweepstate == -1):
             if (self.waypoints.heading_setpoint <=  -math.pi/4):
                 self.sweepstate = 2
@@ -142,7 +169,15 @@ class BuoyMission:
                 self.waypoints.waypoint_list_x = [0, 0]
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)             
+                self.desired(self.waypoints)  
+    def wait(self,nextmission):
+        self.waypoints.guidance_law = 0
+        self.waypoints.heading_setpoint = 0
+        timeduration = rospy.get_time()-self.timewait
+        if(timeduration >= 2):
+            self.timewait = 0
+            rospy.logwarn("Found image")
+            self.foundstate = nextmission           
     def search(self):
         #look subscriber of image distance
         if(self.findimage <= 1):
@@ -163,8 +198,10 @@ class BuoyMission:
                     self.desired(self.waypoints)   
             
         else:
-            rospy.logwarn("Found image")
-            if(self.foundstate == -1):
+            if(self.foundstate== -2):
+                rospy.logwarn("Analizing the image to choose side")
+                self.wait(-1)
+            elif(self.foundstate == -1):
                 self.enterwaypoint = self.ned_x+self.foundimage['X']-1
                 self.staywaypoint = self.ned_x+self.foundimage['X']-0.3
                 self.ylabel = self.ned_y + self.foundimage['Y']
@@ -275,11 +312,8 @@ class BuoyMission:
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
     def results(self):
-        rospy.logwarn("Inicial ned")
-        rospy.logwarn(self.ned_x)
-        rospy.logwarn(self.ned_y)
-        rospy.logwarn(self.ned_z)     
-        rospy.logwarn(self.yaw)         
+        rospy.logwarn("Buoy mission finished")
+      
 
 
 
@@ -287,7 +321,7 @@ class BuoyMission:
         rate = rospy.Rate(20)
         while not rospy.is_shutdown() and self.activated:
             if(self.state != 6):
-                rospy.loginfo("Buoymission is activated")
+                #rospy.loginfo("Buoymission is activated")
                 self.buoymission()
             else:
                 self.activated = False
@@ -299,7 +333,7 @@ def main():
     last_detection = []
     while not rospy.is_shutdown() and buoy_mission.activated:
         if(buoy_mission.state != 7):
-            rospy.loginfo("Buoymission is activated")
+            #rospy.loginfo("Buoymission is activated")
             buoy_mission.buoymission()
         else:
             buoy_mission.results()
