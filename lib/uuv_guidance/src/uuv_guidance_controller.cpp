@@ -26,10 +26,11 @@ GuidanceController::GuidanceController(const float SAMPLE_TIME_S) : ASMC_Guidanc
 
     /* ASMC Parameter Init */
     this->asmc_state_machine.current_waypoint = 0;
-    // this->asmc_guid_depth_error_threshold = 0.01;
-    this->asmc_guid_position_error_threshold = 0.1;
-    this->asmc_guid_euclidean_distance = 0;
-    this->asmc_guid_speed_gain = 100;
+    this->asmc_guidance_position_error_threshold = 0.1;
+    this->asmc_guidance_radial_error_threshold = 0.02;
+    this->asmc_guidance_euclidean_distance = 0;
+    this->asmc_guidance_radial_distance = 0;
+    this->asmc_guidance_speed_gain = 100;
 
     /* LOS Parameter Init */
     this->los_state_machine.current_waypoint = 0;
@@ -51,7 +52,7 @@ GuidanceController::GuidanceController(const float SAMPLE_TIME_S) : ASMC_Guidanc
     this->orbit_euclidean_distance = 0;
     this->orbit_speed_gain = 100;
 
-    ASMC_Guidance.asmc_guidance_yaw.asmc.Kalpha = 0.1;
+    ASMC_Guidance.asmc_guidance_yaw.Kalpha = 0.1;
 }
 
 GuidanceController::~GuidanceController(){}
@@ -156,9 +157,6 @@ void GuidanceController::UpdateStateMachines()
                     this->desired_setpoints.linear.y = 0;
                     this->asmc_state_machine.current_waypoint = 0;
                     break;
-                case ASMC_LAW_DEPTH_NAV:
-
-                    break;
                 case ASMC_LAW_WAYPOINT_NAV:
                     float waypoint_x = this->current_waypoint_list.waypoint_list_x[this->asmc_state_machine.current_waypoint];
                     float uuv_x = this->current_positions_ned.position.x;
@@ -169,7 +167,7 @@ void GuidanceController::UpdateStateMachines()
                     set_points[0] = waypoint_x;
                     set_points[1] = waypoint_y;
                     set_points[2] = current_waypoint_list.waypoint_list_z[asmc_state_machine.current_waypoint];
-                    set_points[3] = std::atan2((waypoint_y - uuv_y),(waypoint_x - uuv_x));
+                    set_points[3] = _waypoints.heading_setpoint;//std::atan2((waypoint_y - uuv_y),(waypoint_x - uuv_x));
                     ASMC_Guidance.SetSetpoints(set_points);
                     ASMC_Guidance.CalculateManipulation(current_positions_ned);
 
@@ -178,24 +176,33 @@ void GuidanceController::UpdateStateMachines()
                     this->desired_setpoints.linear.z = ASMC_Guidance.U(2);
                     this->desired_setpoints.angular.z = ASMC_Guidance.U(3);
 
-                    this->asmc_guid_euclidean_distance = std::sqrt(std::pow((waypoint_x - uuv_x), 2) + std::pow((waypoint_y - uuv_y), 2));
+                    this->asmc_guidance_euclidean_distance = std::sqrt(std::pow((waypoint_x - uuv_x), 2) 
+                                                                 + std::pow((waypoint_y - uuv_y), 2)
+                                                                 + std::pow((waypoint_z - uuv_z), 2));
 
-                    if (this->asmc_guid_euclidean_distance <= this->asmc_guid_position_error_threshold)
+
+                    if (this->asmc_guidance_euclidean_distance <= this->asmc_guidance_position_error_threshold)
                     {
                         this->desired_setpoints.linear.x = 0;
                         this->desired_setpoints.linear.y = 0;
-                        this->asmc_guid_euclidean_distance = 0;
+                        this->desired_setpoints.linear.z = 0;
+                        this->asmc_guidance_euclidean_distance = 0;
                         
-                        if ((this->asmc_state_machine.current_waypoint + 1) < this->current_waypoint_list.waypoint_list_length)
+                        if (this->asmc_guidance_radial_distance <= this->asmc_guidance_radial_error_threshold)
                         {
-                            this->asmc_state_machine.current_waypoint ++;
-                            this->asmc_state_machine.state_machine = ASMC_LAW_DEPTH_NAV;
-                        }
-                        else
-                        {
-                            this->asmc_state_machine.state_machine = ASMC_LAW_STANDBY;
-                            this->asmc_state_machine.current_waypoint = 0;
-                            this->current_guidance_law = NONE;
+                            this->desired_setpoints.angular.z = 0;
+                            this->asmc_guidance_radial_distance = 0;
+
+                            if ((this->asmc_state_machine.current_waypoint + 1) < this->current_waypoint_list.waypoint_list_length)
+                            {
+                                this->asmc_state_machine.current_waypoint ++;
+                            }
+                            else
+                            {
+                                this->asmc_state_machine.state_machine = ASMC_LAW_STANDBY;
+                                this->asmc_state_machine.current_waypoint = 0;
+                                this->current_guidance_law = NONE;
+                            }
                         }
                     }
                     break;

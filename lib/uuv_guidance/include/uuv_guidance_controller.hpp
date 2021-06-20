@@ -80,8 +80,7 @@ typedef struct OrbitLawStateMachine_S
 typedef enum ASMCLawStates_E
 {
     ASMC_LAW_STANDBY = 0,
-    ASMC_LAW_DEPTH_NAV = 1,
-    ASMC_LAW_WAYPOINT_NAV = 2,
+    ASMC_LAW_WAYPOINT_NAV = 1,
 } ASMCLawStates_E;
 
 
@@ -122,10 +121,11 @@ class GuidanceController
         ASMC_GUIDANCE_4DOF ASMC_Guidance;
         
         /* ASMC Parameters */        
-        // float asmc_guid_depth_error_threshold;
-        float asmc_guid_position_error_threshold;
-        float asmc_guid_speed_gain;
-        float asmc_guid_euclidean_distance;
+        float asmc_guidance_position_error_threshold;
+        float asmc_guidance_radial_error_threshold;
+        float asmc_guidance_speed_gain;
+        float asmc_guidance_euclidean_distance;
+        float asmc_guidance_radial_distance;
 
         /* LOS Parameters */        
         float los_depth_error_threshold;

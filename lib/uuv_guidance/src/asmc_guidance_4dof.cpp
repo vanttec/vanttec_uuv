@@ -10,10 +10,10 @@ ASMC_GUIDANCE_4DOF::~ASMC_GUIDANCE_4DOF(){}
 
 void ASMC_GUIDANCE_4DOF::SetSetpoints(const float set_points[4])
 {
-    asmc_guidance_surge.asmc.set_point = set_points[0];
-    asmc_guidance_sway.asmc.set_point  = set_points[1];
-    asmc_guidance_heave.asmc.set_point = set_points[2];
-    asmc_guidance_yaw.asmc.set_point   = set_points[3];
+    asmc_guidance_surge.set_point = set_points[0];
+    asmc_guidance_sway.set_point  = set_points[1];
+    asmc_guidance_heave.set_point = set_points[2];
+    asmc_guidance_yaw.set_point   = set_points[3];
 }
 
 void ASMC_GUIDANCE_4DOF::CalculateManipulation(const geometry_msgs::Pose& _pose)
@@ -24,15 +24,15 @@ void ASMC_GUIDANCE_4DOF::CalculateManipulation(const geometry_msgs::Pose& _pose)
          0, 0, 1, 0,
          0, 0, 0, 1;
 
-    asmc_guidance_surge.CalculateAuxiliaryControl(_pose.position.x);
-    asmc_guidance_sway.CalculateAuxiliaryControl(_pose.position.y);
-    asmc_guidance_heave.CalculateAuxiliaryControl(_pose.position.z);
-    asmc_guidance_yaw.CalculateAuxiliaryControl(_pose.orientation.z);
+    asmc_guidance_surge.Manipulation(_pose.position.x);
+    asmc_guidance_sway.Manipulation(_pose.position.y);
+    asmc_guidance_heave.Manipulation(_pose.position.z);
+    asmc_guidance_yaw.Manipulation(_pose.orientation.z);
 
-    aux <<  asmc_guidance_surge.Uax - asmc_guidance_surge.desired_dot_error -  asmc_guidance_surge.Ka*asmc_guidance_surge.asmc.error,
-            asmc_guidance_sway.Uax  - asmc_guidance_sway.desired_dot_error  -  asmc_guidance_sway.Ka*asmc_guidance_sway.asmc.error,
-            asmc_guidance_heave.Uax - asmc_guidance_heave.desired_dot_error -  asmc_guidance_heave.Ka*asmc_guidance_heave.asmc.error,
-            asmc_guidance_yaw.Uax   - asmc_guidance_yaw.desired_dot_error   -  asmc_guidance_yaw.Ka*asmc_guidance_yaw.asmc.error;
+    aux <<  asmc_guidance_surge.Uax - asmc_guidance_surge.desired_dot_error -  asmc_guidance_surge.Ka*asmc_guidance_surge.error,
+            asmc_guidance_sway.Uax  - asmc_guidance_sway.desired_dot_error  -  asmc_guidance_sway.Ka*asmc_guidance_sway.error,
+            asmc_guidance_heave.Uax - asmc_guidance_heave.desired_dot_error -  asmc_guidance_heave.Ka*asmc_guidance_heave.error,
+            asmc_guidance_yaw.Uax   - asmc_guidance_yaw.desired_dot_error   -  asmc_guidance_yaw.Ka*asmc_guidance_yaw.error;
             
     U = -G.inverse()*aux;
 }

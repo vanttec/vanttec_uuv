@@ -37,6 +37,8 @@ class ASMC
         double sigma;           //Sliding surface
 
         double K1;
+        double dot_K1;
+        double prev_dot_K1;
         double K2;
         double Kmin;
         double Kalpha;

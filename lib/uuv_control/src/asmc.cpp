@@ -14,6 +14,7 @@ ASMC::ASMC(double _sample_time_s, const double _K2, const double _Kalpha, const 
 {
     sample_time_s = _sample_time_s;
     K1 = 0;
+    dot_K1 = 0;
     K2 = _K2;
     Kalpha = _Kalpha;
     Kmin = _Kmin;
@@ -21,6 +22,7 @@ ASMC::ASMC(double _sample_time_s, const double _K2, const double _Kalpha, const 
     controller_type = _type;
     error = 0.0;
     dot_error = 0.0;
+    manipulation = 0.0;
 }
 
 ASMC::~ASMC(){}
@@ -34,10 +36,14 @@ void ASMC::SetAdaptiveParams(const double _Kmin, const double _Kalpha, const dou
 
 void ASMC::Manipulation(double _current)
 {
+    double sign = 0.0;
+    set_point = _set_point;
     prev_error = error;
     prev_dot_error = dot_error;
+    prev_dot_K1 = dot_K1;
+
     error = set_point - _current;
-    dot_error = error/sample_time_s;
+    dot_error = (error - prev_error)/sample_time_s;
 
     if (controller_type == ANGULAR_DOF)
     {
@@ -52,10 +58,8 @@ void ASMC::Manipulation(double _current)
     }
 
     sigma = dot_error + lambda*error;
-
-    double sign = (std::abs(sigma) - miu) / (std::abs(sigma) - miu);
-    double dot_K1 = K1>Kmin ?  Kalpha*sign:Kmin;
-    K1 += dot_K1*sample_time_s;
-
+    sign = (std::abs(sigma) - miu) / (std::abs(sigma) - miu);
+    dot_K1 = K1>Kmin ?  Kalpha*sign:Kmin;
+    K1 += (dot_K1+prev_dot_K1)/2*sample_time_s;
     manipulation = K1*sign + K2*sigma;
 }

@@ -5,7 +5,7 @@
 #include <eigen3/Eigen/Dense>
 #include <geometry_msgs/Pose.h>
 
-class ASMC_GUIDANCE_4DOF //: public ASMC_GUIDANCE
+class ASMC_GUIDANCE_4DOF
 {      
     public:
         Eigen::Vector4d U;
