@@ -33,7 +33,7 @@ void ASMC_GUIDANCE::Manipulation(double _current)
 
     error = set_point - _current;
     dot_error = (error - prev_error)/sample_time_s;
-    error_i += error*sample_time_s;
+    error_i += (error+prev_error)/2*sample_time_s;
 
     if (controller_type == ANGULAR_DOF)
     {
@@ -48,8 +48,22 @@ void ASMC_GUIDANCE::Manipulation(double _current)
     }
 
     sigma = error + Ka*error_i;
-    sign = (std::abs(sigma) - miu) / (std::abs(sigma) - miu);
+    if (std::abs(sigma) - miu != 0)
+    {
+        sign = (sigma - miu) / (std::abs(sigma) - miu);
+    } else
+    {
+        sign = 0;
+    }
     dot_K1 = K1>Kmin ?  Kalpha*sign:Kmin;
     K1 += (dot_K1+prev_dot_K1)/2*sample_time_s;
+
+    if (sigma != 0)
+    {
+        sign = sigma / std::abs(sigma);
+    } else
+    {
+        sign = 0;
+    }
     Uax = -K1*std::sqrt(std::abs(sigma))*sign - K2*sigma;
 }
