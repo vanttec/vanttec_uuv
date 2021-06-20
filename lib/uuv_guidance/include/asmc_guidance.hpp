@@ -1,11 +1,11 @@
 /** ----------------------------------------------------------------------------
  * @file: asmc_guidance.hpp
- * @date: July 20, 2021
+ * @date: June 20, 2021
  * @author: Carlos Medina
  * @author: Sebas Mtz
  * @email: sebas.martp@gmail.com
  * 
- * @brief: ASMC Guidance Class
+ * @brief: ASMC Waypoint Guidance Class
  * -----------------------------------------------------------------------------
  * */
 

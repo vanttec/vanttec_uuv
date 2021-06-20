@@ -1,6 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+'''
+/** ----------------------------------------------------------------------------
+ * @file: asmc_guidance_unit_test.cpp
+ * @date: June 20, 2021
+ * @author: Sebas Mtz
+ * @email: sebas.martp@gmail.com
+ * 
+ * @brief: ASMC Waypoint Guidance Law in guidance node test. Not finished.
+ * -----------------------------------------------------------------------------
+ * */
+'''
+
 import math
 import time
 import numpy as np
