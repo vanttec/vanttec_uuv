@@ -1,17 +1,20 @@
 /** ----------------------------------------------------------------------------
- * @file: uuv_guidance_controller.cpp
+ * @file: uuv_guidance_controller.hpp
  * @date: July 30, 2020
+ * @modified: June 20, 2021
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
+ * @author: Sebas Mtz
+ * @email: sebas.martp@gmail.com
  * 
  * @brief: Guidance controller, which manages the different guidance laws 
  *         available to the UUV.
  * -----------------------------------------------------------------------------
- **/
+ * */
 
 #include <uuv_guidance_controller.hpp>
 
-GuidanceController::GuidanceController()
+GuidanceController::GuidanceController(const float SAMPLE_TIME_S) : ASMC_Guidance((double) SAMPLE_TIME_S, 0.001, 0.01, 0.01, 0.01, 0.1)
 {
     /* Desired speed output initalization */
     this->desired_setpoints.linear.x = 0;
@@ -22,6 +25,15 @@ GuidanceController::GuidanceController()
     /* State Machines Initialization */
     this->current_guidance_law = NONE;
     this->los_state_machine.state_machine = LOS_LAW_STANDBY;
+    this->asmc_state_machine.state_machine = ASMC_LAW_STANDBY;
+
+    /* ASMC Parameter Init */
+    this->asmc_state_machine.current_waypoint = 0;
+    this->asmc_guidance_position_error_threshold = 0.1;
+    this->asmc_guidance_radial_error_threshold = 0.02;
+    this->asmc_guidance_euclidean_distance = 0;
+    this->asmc_guidance_radial_distance = 0;
+    this->asmc_guidance_speed_gain = 100;
 
     /* LOS Parameter Init */
     this->los_state_machine.current_waypoint = 0;
@@ -42,6 +54,8 @@ GuidanceController::GuidanceController()
     this->orbit_position_error_threshold = 0.4;
     this->orbit_euclidean_distance = 0;
     this->orbit_speed_gain = 100;
+
+    ASMC_Guidance.asmc_guidance_yaw.Kalpha = 0.1;
 }
 
 GuidanceController::~GuidanceController(){}
@@ -79,13 +93,20 @@ void GuidanceController::OnWaypointReception(const vanttec_uuv::GuidanceWaypoint
     /* Trigger the appropriate guidance law state machine */
     switch((GuidanceLaws_E)_waypoints.guidance_law)
     {
+        case ASMC_GUIDANCE_LAW:
+            this->asmc_state_machine.state_machine = ASMC_LAW_DEPTH_NAV;
+            this->los_state_machine.state_machine = LOS_LAW_STANDBY;
+            this->orbit_state_machine.state_machine = ORBIT_LAW_STANDBY;
+            break;
         case LOS_GUIDANCE_LAW:
             this->los_state_machine.state_machine = LOS_LAW_DEPTH_NAV;
             this->orbit_state_machine.state_machine = ORBIT_LAW_STANDBY;
+            this->asmc_state_machine.state_machine = ASMC_LAW_STANDBY;
             break;
         case ORBIT_GUIDANCE_LAW:
             this->orbit_state_machine.state_machine = ORBIT_LAW_DEPTH_NAV;
             this->los_state_machine.state_machine = LOS_LAW_STANDBY;
+            this->asmc_state_machine.state_machine = ASMC_LAW_STANDBY;
             break;
         case NONE:
             this->desired_setpoints.linear.x = _waypoints.waypoint_list_x[0];
@@ -99,6 +120,7 @@ void GuidanceController::OnWaypointReception(const vanttec_uuv::GuidanceWaypoint
 
     this->los_state_machine.current_waypoint = 0;
     this->orbit_state_machine.current_waypoint = 0;
+    this->asmc_state_machine.current_waypoint = 0;
 
     /* Update the current guidance law selection and the internal waypoint list */
     this->current_guidance_law = (GuidanceLaws_E) _waypoints.guidance_law;
@@ -115,6 +137,7 @@ void GuidanceController::OnEmergencyStop(const std_msgs::Empty& _msg)
     /* Reset the guidance law and the state machines */
     this->current_guidance_law = NONE;
     this->los_state_machine.state_machine = LOS_LAW_STANDBY;
+    this->asmc_state_machine.state_machine = ASMC_LAW_STANDBY;
 }
 
 void GuidanceController::OnMasterStatus(const vanttec_uuv::MasterStatus& _status)
@@ -129,6 +152,66 @@ void GuidanceController::UpdateStateMachines()
     /* Enter a specific state machine according to the selected guidance law. */
     switch(this->current_guidance_law)
     {
+        case ASMC_GUIDANCE_LAW:
+            switch(this->asmc_state_machine.state_machine)
+            {
+                case ASMC_LAW_STANDBY:
+                    this->desired_setpoints.linear.x = 0;
+                    this->desired_setpoints.linear.y = 0;
+                    this->asmc_state_machine.current_waypoint = 0;
+                    break;
+                case ASMC_LAW_WAYPOINT_NAV:
+                    float waypoint_x = this->current_waypoint_list.waypoint_list_x[this->asmc_state_machine.current_waypoint];
+                    float uuv_x = this->current_positions_ned.position.x;
+                    float waypoint_y = this->current_waypoint_list.waypoint_list_y[this->asmc_state_machine.current_waypoint];
+                    float uuv_y = this->current_positions_ned.position.y;
+                    float set_points[4];
+
+                    set_points[0] = waypoint_x;
+                    set_points[1] = waypoint_y;
+                    set_points[2] = current_waypoint_list.waypoint_list_z[asmc_state_machine.current_waypoint];
+                    set_points[3] = _waypoints.heading_setpoint;//std::atan2((waypoint_y - uuv_y),(waypoint_x - uuv_x));
+                    ASMC_Guidance.SetSetpoints(set_points);
+                    ASMC_Guidance.CalculateManipulation(current_positions_ned);
+
+                    this->desired_setpoints.linear.x = ASMC_Guidance.U(0);
+                    this->desired_setpoints.linear.y = ASMC_Guidance.U(1);
+                    this->desired_setpoints.linear.z = ASMC_Guidance.U(2);
+                    this->desired_setpoints.angular.z = ASMC_Guidance.U(3);
+
+                    this->asmc_guidance_euclidean_distance = std::sqrt(std::pow((waypoint_x - uuv_x), 2) 
+                                                                 + std::pow((waypoint_y - uuv_y), 2)
+                                                                 + std::pow((waypoint_z - uuv_z), 2));
+
+
+                    if (this->asmc_guidance_euclidean_distance <= this->asmc_guidance_position_error_threshold)
+                    {
+                        this->desired_setpoints.linear.x = 0;
+                        this->desired_setpoints.linear.y = 0;
+                        this->desired_setpoints.linear.z = 0;
+                        this->asmc_guidance_euclidean_distance = 0;
+                        
+                        if (this->asmc_guidance_radial_distance <= this->asmc_guidance_radial_error_threshold)
+                        {
+                            this->desired_setpoints.angular.z = 0;
+                            this->asmc_guidance_radial_distance = 0;
+
+                            if ((this->asmc_state_machine.current_waypoint + 1) < this->current_waypoint_list.waypoint_list_length)
+                            {
+                                this->asmc_state_machine.current_waypoint ++;
+                            }
+                            else
+                            {
+                                this->asmc_state_machine.state_machine = ASMC_LAW_STANDBY;
+                                this->asmc_state_machine.current_waypoint = 0;
+                                this->current_guidance_law = NONE;
+                            }
+                        }
+                    }
+                    break;
+            }
+            break;
+
         /* Line-Of-Sight Guidance Law 
            Strategy:
                 - Navigate to the specified waypoint depth so that 2D LOS can be used.
@@ -346,7 +429,6 @@ void GuidanceController::UpdateStateMachines()
                 }
             }
             break;
-
         /* If no guidance law is being executed, keep desired speeds at 0 and maintain current depth and heading. */
         case NONE:
         default:
