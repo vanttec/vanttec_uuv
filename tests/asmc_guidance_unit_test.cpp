@@ -12,7 +12,7 @@
 #include <ros/ros.h>
 #include <stdio.h>
 
-const float SAMPLE_TIME_S = 0.05;
+const float SAMPLE_TIME_S = 0.01;
 
 geometry_msgs::Pose pose;
 
@@ -31,8 +31,9 @@ int main(int argc, char **argv)
 
     geometry_msgs::Twist desired_velocities;
 
-    float setpoints[4];
-    float distance = 0;
+    float setpoints[4][4];
+    float distance2waypoint = 5;
+    int id = 0;
     ros::init(argc, argv, "uuv_guidance_node");
     ros::NodeHandle nh;
     ros::Rate               cycle_rate(int(1 / SAMPLE_TIME_S));
@@ -48,19 +49,33 @@ int main(int argc, char **argv)
     //                                                             &GuidanceController::OnWaypointReception,
     //                                                             &guidance_controller);
 
-    uint32_t counter = 0;
-    setpoints[0] = 5;
-    setpoints[1] = 5;
-    setpoints[2] = 10;
-    setpoints[3] = 0;//std::atan2(setpoints[1],setpoints[0]);
+    setpoints[0][0] = 0;
+    setpoints[0][1] = 5;
+    setpoints[0][2] = 0.5;
+    setpoints[0][3] = std::atan2(setpoints[id][1]-pose.position.y,setpoints[id][0]-pose.position.x);
 
-    distance = std::sqrt( std::pow(setpoints[0] - pose.position.x,2) + std::pow(setpoints[1] - pose.position.y,2) );
-    while(ros::ok())
+    setpoints[1][0] = 5;
+    setpoints[1][1] = 5;
+    setpoints[1][2] = 1;
+    
+    setpoints[2][0] = 5;
+    setpoints[2][1] = 0;
+    setpoints[2][2] = 0.5;
+    
+    setpoints[3][0] = 0;
+    setpoints[3][1] = 0;
+    setpoints[3][2] = 0;
+
+    while(ros::ok() && id < 4)
     {
-        guidance_law.SetSetpoints(setpoints);
+        if(distance2waypoint < 0.1 && id < 4)
+        {
+            id++;
+            setpoints[id][3] = std::atan2(setpoints[id][1]-pose.position.y,setpoints[id][0]-pose.position.x);
+        }
+        // std::cout<<distance2waypoint<<std::endl;
 
-        /* Run Queued Callbacks */
-        ros::spinOnce();
+        guidance_law.SetSetpoints(setpoints[id]);
         guidance_law.CalculateManipulation(pose);
 
         desired_velocities.linear.x = guidance_law.U(0);
@@ -73,14 +88,18 @@ int main(int argc, char **argv)
         std::cout<<guidance_law.U(2)<<std::endl;
         std::cout<<guidance_law.U(3)<<std::endl;
 
-        /* Publish Odometry */
         uuv_desired_setpoints.publish(desired_velocities);
 
-        if(setpoints[3] < 3)
-        {
-            setpoints[3] += 0.1;
-        }
-        /* Slee for 10ms */
+        // if(setpoints[3] < 3)
+        // {
+        //     setpoints[3] += 0.1;
+        // }
+
+        distance2waypoint = std::sqrt( std::pow(setpoints[id][0] - pose.position.x,2) 
+                                     + std::pow(setpoints[id][1] - pose.position.y,2) );
+                                    //  + std::pow(setpoints[id][2] - pose.position.z,2));
+                            
+        ros::spinOnce();
         cycle_rate.sleep();
     }
 
