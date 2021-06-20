@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: asmc_guidance_4dof.cpp
+ * @date: July 20, 2021
+ * @author: Carlos Medina
+ * @author: Sebas Mtz
+ * @email: sebas.martp@gmail.com
+ * 
+ * @brief: 4DOF ASMC Guidance Class
+ * -----------------------------------------------------------------------------
+ * */
+
 #include "asmc_guidance_4dof.hpp"
 
 ASMC_GUIDANCE_4DOF::ASMC_GUIDANCE_4DOF(double _sample_time_s, const double _Ka,  const double _K2, const double _Kalpha, const double _Kmin, const double _miu)

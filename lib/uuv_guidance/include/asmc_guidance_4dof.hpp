@@ -1,3 +1,14 @@
+/** ----------------------------------------------------------------------------
+ * @file: asmc_guidance_4dof.cpp
+ * @date: July 20, 2021
+ * @author: Carlos Medina
+ * @author: Sebas Mtz
+ * @email: sebas.martp@gmail.com
+ * 
+ * @brief: 4DOF ASMC Guidance Class
+ * -----------------------------------------------------------------------------
+ * */
+
 #ifndef __UUV_ASMC_GUIDANCE_4DOF_H__
 #define __UUV_ASMC_GUIDANCE_4DOF_H__
 

@@ -1,8 +1,11 @@
 /** ----------------------------------------------------------------------------
  * @file: uuv_guidance_controller.hpp
  * @date: July 30, 2020
+ * @modified: June 20, 2021
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
+ * @author: Sebas Mtz
+ * @email: sebas.martp@gmail.com
  * 
  * @brief: Guidance controller, which manages the different guidance laws 
  *         available to the UUV.
