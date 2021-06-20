@@ -37,7 +37,6 @@ void ASMC::SetAdaptiveParams(const double _Kmin, const double _Kalpha, const dou
 void ASMC::Manipulation(double _current)
 {
     double sign = 0.0;
-    set_point = _set_point;
     prev_error = error;
     prev_dot_error = dot_error;
     prev_dot_K1 = dot_K1;
@@ -58,8 +57,14 @@ void ASMC::Manipulation(double _current)
     }
 
     sigma = dot_error + lambda*error;
-    sign = (std::abs(sigma) - miu) / (std::abs(sigma) - miu);
+    if (std::abs(sigma) - miu != 0)
+    {
+        sign = (std::abs(sigma) - miu) / (std::abs(sigma) - miu);
+    } else
+    {
+        sign = 0;
+    }
     dot_K1 = K1>Kmin ?  Kalpha*sign:Kmin;
     K1 += (dot_K1+prev_dot_K1)/2*sample_time_s;
-    manipulation = K1*sign + K2*sigma;
+    manipulation = K1*sign + K2*sigma; // Checar sign
 }
