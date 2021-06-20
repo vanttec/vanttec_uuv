@@ -66,16 +66,18 @@ int main(int argc, char **argv)
     setpoints[3][1] = 0;
     setpoints[3][2] = 0;
 
+    guidance_law.SetSetpoints(setpoints[id]);
+    
     while(ros::ok() && id < 4)
     {
         if(distance2waypoint < 0.1 && id < 4)
         {
             id++;
             setpoints[id][3] = std::atan2(setpoints[id][1]-pose.position.y,setpoints[id][0]-pose.position.x);
+            guidance_law.SetSetpoints(setpoints[id]);
         }
         // std::cout<<distance2waypoint<<std::endl;
 
-        guidance_law.SetSetpoints(setpoints[id]);
         guidance_law.CalculateManipulation(pose);
 
         desired_velocities.linear.x = guidance_law.U(0);

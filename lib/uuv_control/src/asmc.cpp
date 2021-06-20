@@ -27,6 +27,15 @@ ASMC::ASMC(double _sample_time_s, const double _K2, const double _Kalpha, const 
 
 ASMC::~ASMC(){}
 
+void ASMC::Reset()
+{
+    error = 0.0;
+    prev_error = 0.0;
+    dot_error = 0.0;
+    prev_dot_error = 0.0;
+    manipulation = 0.0;
+}
+
 void ASMC::SetAdaptiveParams(const double _Kmin, const double _Kalpha, const double _miu)
 {
     Kalpha = _Kalpha;

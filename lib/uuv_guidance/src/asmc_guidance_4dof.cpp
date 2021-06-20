@@ -25,6 +25,10 @@ void ASMC_GUIDANCE_4DOF::SetSetpoints(const float set_points[4])
     asmc_guidance_sway.set_point  = set_points[1];
     asmc_guidance_heave.set_point = set_points[2];
     asmc_guidance_yaw.set_point   = set_points[3];
+    asmc_guidance_surge.Reset();
+    asmc_guidance_sway.Reset();
+    asmc_guidance_heave.Reset();
+    asmc_guidance_yaw.Reset();
 }
 
 void ASMC_GUIDANCE_4DOF::CalculateManipulation(const geometry_msgs::Pose& _pose)

@@ -23,6 +23,17 @@ ASMC_GUIDANCE::ASMC_GUIDANCE(double _sample_time_s, const double _Ka,  const dou
 
 ASMC_GUIDANCE::~ASMC_GUIDANCE(){}
 
+void ASMC_GUIDANCE::Reset()
+{
+    error = 0.0;
+    prev_error = 0.0;
+    dot_error = 0.0;
+    prev_dot_error = 0.0;
+    error_i = 0.0;
+    prev_error_i = 0.0;
+    Uax = 0.0;
+}
+
 void ASMC_GUIDANCE::Manipulation(double _current)
 {
     double sign = 0.0;

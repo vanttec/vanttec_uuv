@@ -52,6 +52,7 @@ class ASMC
         // Destructor
         ~ASMC();
 
+        void Reset();
         void SetAdaptiveParams(const double _Kmin, const double _Kalpha, const double _miu);
         void Manipulation(double);
 };
