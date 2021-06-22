@@ -11,7 +11,7 @@ from vanttec_uuv.msg import GuidanceWaypoints
 from nav_msgs.msg import Path
 
 # Class Definition
-class BinMission:
+class OctagonMission:
     def _init_(self):
         self.ned_x = 0
         self.ned_y = 0
@@ -40,7 +40,10 @@ class BinMission:
         self.searchz = 0.0
         self.sweepstate = -1
         self.foundstate = -1
-
+        self.enterwaypoint = 0.0
+        self.leavewaypoint = 0.0
+        self.ylabel = 0.0
+        self.prevstate ="RIGHT"
         #Waypoint test instead of perception node
 
 
@@ -57,8 +60,7 @@ class BinMission:
         self.test = rospy.Publisher("/mission/state", Int32, queue_size=10)
 
         #Waypoint test instead of perception node
-        #This variable shall be modified with zed inputs of distance 
-        # find image(bool)   
+        #This array shall be modified with zed inputs of distance    
     def ins_pose_callback(self,pose):
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
@@ -90,8 +92,8 @@ class BinMission:
             if (self.waypoints.heading_setpoint <= 0):
                 self.waypoints.guidance_law = 0
                 self.searchstate = nextmission
-                self.searchx = self.ned_x + 2.8
-                self.searchy = self.ned_y + 1.3
+                self.searchx = self.ned_x + 2
+                self.searchy = self.ned_y
                 self.sweepstate = -1
                 self.desired(self.waypoints)
             else:
@@ -101,7 +103,8 @@ class BinMission:
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
                 self.desired(self.waypoints) 
-    def grab_bin(self,nextmission):
+           
+    def grab_bottle(self,nextmission):
         self.waypoints.guidance_law = 0
         #self.waypoints.depth_setpoint = 4
         #depth_error = self.ned_z - self.waypoints.depth_setpoint
@@ -127,7 +130,7 @@ class BinMission:
             if (self.waypoints.heading_setpoint <= 0):
                 self.waypoints.guidance_law = 0
                 self.foundstate = nextmission
-                self.searchx = self.ned_x + 3.5
+                self.searchx = self.ned_x + 3
                 self.searchy = self.ned_y
                 self.sweepstate = -1
                 self.desired(self.waypoints)
@@ -163,31 +166,22 @@ class BinMission:
             rospy.logwarn(self.foundstate)
             if(self.foundstate == -1):
                 self.samex = self.ned_x
-                self.righty = self.ned_y+1.0
-                self.lefty = self.ned_y-1.0
-                self.downz = self.ned_z+1.5
+                self.righty = self.ned_y+2.5
+                self.lefty = self.ned_y-2.5
+                self.downz = self.ned_z+1
                 self.upz = self.ned_z
                 self.leavewaypointxcenter = self.ned_x+2
                 self.leavewaypointycenter = self.ned_y 
                 self.leavewaypointx = self.ned_x+2
                 self.leavewaypointy = self.ned_y 
                 self.foundstate = 0
-            elif(self.foundstate == 0):
-               #move to right bin
-                _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_y-self.righty,2),0.5)
-                if(_euc_distance <0.35):
-                    self.foundstate = 0.1
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.righty]
-                    self.waypoints.waypoint_list_z = [0,0]   
-                    self.desired(self.waypoints)   
-            elif(self.foundstate == 0.1):
-               #stay find the best position to grab bin
-               rospy.logwarn("Looking the best position to grab bin") 
-               self.grab_bin(1.1)
+            if(self.foundstate == 0):
+               #stay find the best position to grab bottle
+               rospy.logwarn("Looking the best position to grab bottle") 
+               self.grab_bottle(1.1)
+            #Grab bottle from dollar table
             elif(self.foundstate == 1.1):
-               #descend
+               #descend to grab bottle
                 self.waypoints.guidance_law = 1
                 _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_z-self.downz,2),0.5)
                 if(_euc_distance <0.35):
@@ -200,10 +194,14 @@ class BinMission:
                     self.desired(self.waypoints)   
             elif(self.foundstate == 1.2):
                 self.waypoints.guidance_law = 1
-               #ascend
+               #surge with bottle
                 _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_z-self.upz,2),0.5)
                 if(_euc_distance <0.35):
-                    self.foundstate = 2
+                    #It will move to left or right depending on initial decisition
+                    if(self.prevstate =="LEFT"):
+                        self.foundstate = 2
+                    else:
+                        self.foundstate = 2.1
                     self.waypoints.guidance_law = 1
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
@@ -211,44 +209,53 @@ class BinMission:
                     self.waypoints.waypoint_list_z = [self.ned_z,self.upz] 
                     self.desired(self.waypoints)   
             elif(self.foundstate == 2):
-               #move to left bin
+               #move to dollar sign LEFT
                 _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_y-self.lefty,2),0.5)
                 if(_euc_distance <0.35):
-                    self.foundstate = 2.1
+                    self.foundstate = 3
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
                     self.waypoints.waypoint_list_y = [self.ned_y,self.lefty]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)   
             elif(self.foundstate == 2.1):
-               #stay find the best position to grab bin
-               rospy.logwarn("Looking the best position to grab bin") 
-               self.grab_bin(2.2) 
-            elif(self.foundstate == 2.2):
+               #move to axe sign RIGHT
+                _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_y-self.righty,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 3
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.righty]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+            elif(self.foundstate == 3):
+               rospy.logwarn("Looking the best position to grab bottle") 
+               self.grab_bottle(3.1) 
+            elif(self.foundstate == 3.1):
                 self.waypoints.guidance_law = 1
-               #descend
+               #descend to put bottle
                 _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_z-self.downz,2),0.5)
                 if(_euc_distance <0.35):
-                    self.foundstate = 2.3
+                    self.foundstate = 3.2
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
                     self.waypoints.waypoint_list_y = [self.ned_y,0]
                     self.waypoints.waypoint_list_z = [self.ned_z,self.downz]   
                     self.desired(self.waypoints)   
-            elif(self.foundstate == 2.3):
+            elif(self.foundstate == 3.2):
                 self.waypoints.guidance_law = 1
-                #ascend
+                #surge without bottle
                 _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_z-self.upz,2),0.5)
                 if(_euc_distance <0.35):
-                    self.foundstate = 3
+                    self.foundstate = 3.3
                     self.waypoints.guidance_law = 1
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
                     self.waypoints.waypoint_list_y = [self.ned_y,0]
                     self.waypoints.waypoint_list_z = [self.ned_z,self.upz] 
-                    self.desired(self.waypoints)   
-            elif(self.foundstate == 3):
-               #move to leave waypoint1
+                    self.desired(self.waypoints)                   
+            elif(self.foundstate == 3.3):
+               #move to leave waypoint
                 _euc_distance = pow(pow(self.ned_x-self.leavewaypointxcenter,2)+pow(self.ned_y-self.leavewaypointycenter,2),0.5)
                 if(_euc_distance <0.35):
                     self.foundstate = 4
@@ -259,7 +266,7 @@ class BinMission:
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)     
             elif(self.foundstate == 4):
-               #move to leave waypoint2
+               #move to leave waypoint
                 _euc_distance = pow(pow(self.ned_x-self.leavewaypointx,2)+pow(self.ned_y-self.leavewaypointy,2),0.5)
                 if(_euc_distance <0.35):
                     self.state = 6
@@ -270,8 +277,9 @@ class BinMission:
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)  
 
-    def binmission(self):
+    def octagonmission(self):
         self.waypoints.waypoint_list_length = 2
+        self.waypoints.guidance_law = 1
         #self.waypoints.depth_setpoint = 4
         #depth_error = self.ned_z - self.waypoints.depth_setpoint
         
@@ -306,22 +314,22 @@ class BinMission:
         while not rospy.is_shutdown() and self.activated:
             rospy.loginfo(self.state ) 
             if(self.state != 6):
-                rospy.loginfo("Binmission is activated")
-                self.binmission()
+                rospy.loginfo("Octagonmission is activated")
+                self.octagonmission()
             else:
                 self.activated = False
             rate.sleep()
 def main():
-    rospy.init_node("gate_mission", anonymous=False)
+    rospy.init_node("octagon_mission", anonymous=False)
     rate = rospy.Rate(20)
-    gate_mission = BinMission()
+    octagon_mission = OctagonMission()
     last_detection = []
-    while not rospy.is_shutdown() and gate_mission.activated:
-        if(gate_mission.state != 6):
-            rospy.loginfo("Binmission is activated")
-            gate_mission.binmission()
+    while not rospy.is_shutdown() and octagon_mission.activated:
+        if(octagon_mission.state != 6):
+            rospy.loginfo("Octagonmission is activated")
+            octagon_mission.octagonmission()
         else:
-            gate_mission.results()
+            octagon_mission.results()
         rate.sleep()
     rospy.spin()
 

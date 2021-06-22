@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     
     ros::Rate               cycle_rate(int(1 / SAMPLE_TIME_S));
-    GuidanceController      guidance_controller;
+    GuidanceController      guidance_controller(SAMPLE_TIME_S);
     
     ros::Publisher  uuv_desired_setpoints       = nh.advertise<geometry_msgs::Twist>("/uuv_control/uuv_control_node/setpoint", 1000);
 
