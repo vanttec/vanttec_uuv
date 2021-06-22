@@ -20,8 +20,6 @@
 #include <geometry_msgs/Twist.h>
 #include <eigen3/Eigen/Dense>
 
-#include <ros/ros.h>
-#include <std_msgs/String.h>
 
 class UUV4DOFController
 {
@@ -50,8 +48,6 @@ class UUV4DOFController
         
         void UpdateControlLaw();
         void UpdateThrustOutput();
-
-        void PublishAccel();
     
     private:
 
@@ -63,9 +59,6 @@ class UUV4DOFController
         Eigen::Matrix4f D_lin;
         Eigen::Matrix4f D_qua;
         Eigen::Vector4f G_eta;
-
-        ros::NodeHandle handle;
-        ros::Publisher v_dot_pub = handle.advertise<geometry_msgs::Twist>("/uuv_accel",1000);
 };
 
 #endif

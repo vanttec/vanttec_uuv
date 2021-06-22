@@ -13,7 +13,7 @@ from usv_perception.msg import obj_detected, obj_detected_list
 from nav_msgs.msg import Path
 
 # Class Definition
-class GateMission:
+class BinMission:
     def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
@@ -33,7 +33,8 @@ class GateMission:
         self.waypoints = GuidanceWaypoints()
         self.uuv_path = Path()
         self.heading_threshold = 0.01
-        self.depth_threshold = 0.
+        self.depth_threshold = 0.0
+        self.sweepstate =-1
         
        
         #Waypoint test instead of perception node
@@ -65,64 +66,99 @@ class GateMission:
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
         self.ned_z = pose.position.z
-        self.yaw = pose.orientation.z                                   
-    def gatemission(self):
+        self.yaw = pose.orientation.z            
+    def sweep(self,nextmission):
+        self.waypoints.guidance_law = 0
+        #self.waypoints.depth_setpoint = 4
+        #depth_error = self.ned_z - self.waypoints.depth_setpoint
+        if(self.sweepstate == -1):
+            if (self.waypoints.heading_setpoint <=  -math.pi/4):
+                self.sweepstate = 2
+            self.waypoints.heading_setpoint -= math.pi/400.0
+            self.waypoints.waypoint_list_x = [0, 0]
+            self.waypoints.waypoint_list_y = [0, 0]
+            self.waypoints.waypoint_list_z = [0,0]
+            self.desired(self.waypoints)
+        elif(self.sweepstate == 2): 
+            if (self.waypoints.heading_setpoint >= math.pi/4):
+                self.sweepstate = 2.1
+            else:
+                self.waypoints.guidance_law = 0
+                self.waypoints.heading_setpoint += math.pi/400.0
+                self.waypoints.waypoint_list_x = [0 ,0]
+                self.waypoints.waypoint_list_y = [0, 0]
+                self.waypoints.waypoint_list_z = [0,0]
+                self.desired(self.waypoints)
+        elif(self.sweepstate == 2.1): 
+            if (self.waypoints.heading_setpoint <= 0):
+                self.waypoints.guidance_law = 0
+                self.state = nextmission
+                self.sweepstate = -1
+                self.desired(self.waypoints)
+            else:
+                self.waypoints.guidance_law = 0
+                self.waypoints.heading_setpoint -= math.pi/400.0
+                self.waypoints.waypoint_list_x = [0, 0]
+                self.waypoints.waypoint_list_y = [0, 0]
+                self.waypoints.waypoint_list_z = [0,0]
+                self.desired(self.waypoints)                            
+    def binmission(self):
         self.waypoints.waypoint_list_length = 2
         self.waypoints.guidance_law = 0
         #self.waypoints.depth_setpoint = 4
         #depth_error = self.ned_z - self.waypoints.depth_setpoint
         
         if(self.state == -1):
-            self.waypoints.heading_setpoint = -math.pi/4
-            heading_error = self.yaw - self.waypoints.heading_setpoint
-            rospy.logwarn(heading_error)
-            if (heading_error < self.heading_threshold):
-                self.state = 2
-            self.waypoints.waypoint_list_x = [self.ned_x, 0]
-            self.waypoints.waypoint_list_y = [self.ned_y, 0]
-            self.waypoints.waypoint_list_z = [0,0]
-            self.desired(self.waypoints)
+            self.sweep(2)
         elif(self.state == 2):
-            rospy.logwarn(self.waypoints.heading_setpoint)
-            if (self.waypoints.heading_setpoint >= math.pi/4):
-                self.state = 2.1
-            else:
-                self.waypoints.guidance_law = 0
-                self.waypoints.heading_setpoint += math.pi/400.0
-                self.waypoints.waypoint_list_x = [self.ned_x, 0]
-                self.waypoints.waypoint_list_y = [self.ned_y, 0]
-                self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)
-        elif(self.state == 2.1):
-            rospy.logwarn(self.waypoints.heading_setpoint)
-            if (self.waypoints.heading_setpoint <= 0):
-                self.state = 3
-            else:
-                self.waypoints.guidance_law = 0
-                self.waypoints.heading_setpoint -= math.pi/400.0
-                self.waypoints.waypoint_list_x = [self.ned_x, 0]
-                self.waypoints.waypoint_list_y = [self.ned_y, 0]
-                self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)
-        elif(self.state == 3):
             self.waypoints.guidance_law = 1
-            _euc_distance = pow(pow(self.ned_x-7,2)+pow(self.ned_y-0.5,2),0.5)
+            _euc_distance = pow(pow(self.ned_x-15,2)+pow(self.ned_y-4.5,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 3.1
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x,15]
+                self.waypoints.waypoint_list_y = [self.ned_y,4.5]
+                self.waypoints.waypoint_list_z = [0,0]   
+                self.desired(self.waypoints)    
+        elif(self.state == 3.1):
+            self.waypoints.guidance_law = 1
+            _euc_distance = pow(pow(self.ned_x-15,2)+pow(self.ned_z-0.5,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 3.2
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 15]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [self.ned_z,0.5]   
+                self.desired(self.waypoints)
+        elif(self.state == 3.2):
+            self.waypoints.guidance_law = 1
+            _euc_distance = pow(pow(self.ned_x-15,2)+pow(self.ned_z,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 5
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 15]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [self.ned_z,0]   
+                self.desired(self.waypoints)     
+        elif(self.state ==5): 
+            self.waypoints.guidance_law = 1
+            _euc_distance = pow(pow(self.ned_x-17,2)+pow(self.ned_y-4.5,2),0.5)
             if(_euc_distance <0.35):
                 self.state = 6
                 self.waypoints.guidance_law = 0
             else:
-                self.waypoints.waypoint_list_x = [self.ned_x,7]
-                self.waypoints.waypoint_list_y = [self.ned_y,0.5]
+                self.waypoints.waypoint_list_x = [self.ned_x,17]
+                self.waypoints.waypoint_list_y = [self.ned_y,4.5]
                 self.waypoints.waypoint_list_z = [0,0]   
                 self.desired(self.waypoints)
-
+        
 
     def results(self):
         rospy.logwarn("Inicial ned")
         rospy.logwarn(self.ned_x)
         rospy.logwarn(self.ned_y)
         rospy.logwarn(self.ned_z)     
-        rospy.logwarn(self.yaw)         
+        rospy.logwarn(self.yaw)       
 
 
     def desired(self, path):
@@ -144,21 +180,22 @@ class GateMission:
         while not rospy.is_shutdown() and self.activated:
             rospy.loginfo(self.state ) 
             if(self.state != 6):
-                rospy.loginfo("Gatemission is activated")
-                self.gatemission()
+                rospy.loginfo("Binmission is activated")
+                self.binmission()
             else:
                 self.activated = False
             rate.sleep()
 def main():
-    rospy.init_node("gate_mission", anonymous=False)
+    rospy.init_node("bin_mission", anonymous=False)
     rate = rospy.Rate(20)
-    autoNav = GateMission()
+    autoNav = BinMission()
     last_detection = []
     while not rospy.is_shutdown() and autoNav.activated:
         rospy.loginfo(autoNav.state )
+        rospy.logwarn(autoNav.sweepstate)  
         if(autoNav.state != 6):
-            rospy.loginfo("Gatemission is activated")
-            autoNav.gatemission()
+            rospy.loginfo("Binmission is activated")
+            autoNav.binmission()
         else:
             autoNav.results()
         rate.sleep()

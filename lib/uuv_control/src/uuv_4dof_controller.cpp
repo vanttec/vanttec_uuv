@@ -35,24 +35,6 @@ UUV4DOFController::UUV4DOFController(float _sample_time_s, const float _kpid_u[3
 
 UUV4DOFController::~UUV4DOFController(){}
 
-void UUV4DOFController::PublishAccel(){
-    // ros::Rate loop_rate(10);
-
-    geometry_msgs::Twist v_dot_msg;
-    v_dot_msg.linear.x =  this->f_x(0); 
-    v_dot_msg.linear.y =  this->f_x(1); 
-    v_dot_msg.linear.z =  this->f_x(2); 
-    v_dot_msg.angular.x =  0; 
-    v_dot_msg.angular.y =  0; 
-    v_dot_msg.angular.z =  this->f_x(3); 
-
-    // while (ros::ok())
-    // {
-    v_dot_pub.publish(v_dot_msg);
-    //     loop_rate.sleep();
-    // }
-}
-
 void UUV4DOFController::UpdatePose(const geometry_msgs::Pose& _pose)
 {
     this->local_pose.position.x     = _pose.position.x;

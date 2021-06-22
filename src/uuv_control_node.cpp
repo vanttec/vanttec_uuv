@@ -51,7 +51,6 @@ int main(int argc, char **argv)
         system_controller.UpdateControlLaw();
         system_controller.UpdateThrustOutput();
         
-        system_controller.PublishAccel();
         /*
         if (counter % 10 == 0)
         {

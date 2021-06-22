@@ -3,11 +3,13 @@
 
 import math
 import time
+import matplotlib.pyplot as plt
 import numpy as np
 import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
 from geometry_msgs.msg import Pose, PoseStamped
 from vanttec_uuv.msg import GuidanceWaypoints
+from usv_perception.msg import obj_detected, obj_detected_list
 from nav_msgs.msg import Path
 
 # Class Definition
@@ -20,7 +22,6 @@ class BinMission:
         self.objects_list = []
         self.activated = True
         self.state = -1
-        self.searchstate = -1
         self.distance = 0
         self.InitTime = rospy.Time.now().secs
         self.offset = .55 #camera to ins offset
@@ -31,16 +32,7 @@ class BinMission:
         self.distance_away = 5
         self.waypoints = GuidanceWaypoints()
         self.uuv_path = Path()
-        self.heading_threshold = 0.01
-        self.depth_threshold = 0.
-        #findimage works as a counter however with vision input once it identifies the target it should set this variable to True
-        self.findimage = 0
-        self.searchx = 0.0
-        self.searchy = 0.0
-        self.searchz = 0.0
-        self.sweepstate = -1
-        self.foundstate = -1
-
+       
         #Waypoint test instead of perception node
 
 
@@ -57,219 +49,376 @@ class BinMission:
         self.test = rospy.Publisher("/mission/state", Int32, queue_size=10)
 
         #Waypoint test instead of perception node
-        #This variable shall be modified with zed inputs of distance 
-        # find image(bool)   
+
+        self.objects_list = [
+            {
+                'X': 7,
+                'Y': -4,
+                'Z': 0
+            },
+            {
+                'X': 7,
+                'Y': 0,
+                'Z': 0
+            },
+            {
+                'X': 7,
+                'Y': 4,
+                'Z': 0                
+            }            
+        ]
+    
     def ins_pose_callback(self,pose):
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
         self.ned_z = pose.position.z
-        self.yaw = pose.orientation.z      
-    def sweep(self,nextmission):
-        self.waypoints.guidance_law = 0
-        #self.waypoints.depth_setpoint = 4
-        #depth_error = self.ned_z - self.waypoints.depth_setpoint
-        if(self.sweepstate == -1):
-            if (self.waypoints.heading_setpoint <=  -math.pi/4):
-                self.sweepstate = 2
-            self.waypoints.heading_setpoint -= math.pi/400.0
-            self.waypoints.waypoint_list_x = [0, 0]
-            self.waypoints.waypoint_list_y = [0, 0]
-            self.waypoints.waypoint_list_z = [0,0]
-            self.desired(self.waypoints)
-        elif(self.sweepstate == 2): 
-            if (self.waypoints.heading_setpoint >= math.pi/4):
-                self.sweepstate = 2.1
-            else:
-                self.waypoints.guidance_law = 0
-                self.waypoints.heading_setpoint += math.pi/400.0
-                self.waypoints.waypoint_list_x = [0 ,0]
-                self.waypoints.waypoint_list_y = [0, 0]
-                self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)
-        elif(self.sweepstate == 2.1): 
-            if (self.waypoints.heading_setpoint <= 0):
-                self.waypoints.guidance_law = 0
-                self.searchstate = nextmission
-                self.searchx = self.ned_x + 2.35
-                self.searchy = self.ned_y + 1.3
-                self.sweepstate = -1
-                self.desired(self.waypoints)
-            else:
-                self.waypoints.guidance_law = 0
-                self.waypoints.heading_setpoint -= math.pi/400.0
-                self.waypoints.waypoint_list_x = [0, 0]
-                self.waypoints.waypoint_list_y = [0, 0]
-                self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints) 
-    def grab_bin(self,nextmission):
-        self.waypoints.guidance_law = 0
-        #self.waypoints.depth_setpoint = 4
-        #depth_error = self.ned_z - self.waypoints.depth_setpoint
-        if(self.sweepstate == -1):
-            if (self.waypoints.heading_setpoint <=  -math.pi/8):
-                self.sweepstate = 2
-            self.waypoints.heading_setpoint -= math.pi/400.0
-            self.waypoints.waypoint_list_x = [0, 0]
-            self.waypoints.waypoint_list_y = [0, 0]
-            self.waypoints.waypoint_list_z = [0,0]
-            self.desired(self.waypoints)
-        elif(self.sweepstate == 2): 
-            if (self.waypoints.heading_setpoint >= math.pi/8):
-                self.sweepstate = 2.1
-            else:
-                self.waypoints.guidance_law = 0
-                self.waypoints.heading_setpoint += math.pi/400.0
-                self.waypoints.waypoint_list_x = [0 ,0]
-                self.waypoints.waypoint_list_y = [0, 0]
-                self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)
-        elif(self.sweepstate == 2.1): 
-            if (self.waypoints.heading_setpoint <= 0):
-                self.waypoints.guidance_law = 0
-                self.foundstate = nextmission
-                self.searchx = self.ned_x + 3
-                self.searchy = self.ned_y
-                self.sweepstate = -1
-                self.desired(self.waypoints)
-            else:
-                self.waypoints.guidance_law = 0
-                self.waypoints.heading_setpoint -= math.pi/400.0
-                self.waypoints.waypoint_list_x = [0, 0]
-                self.waypoints.waypoint_list_y = [0, 0]
-                self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)       
-    def search(self):
-        #look subscriber of image distance
-        if(self.findimage <= 1):
-            rospy.logwarn("Searching image")
-            if self.searchstate == -1:
-                #sweep to find 
-                rospy.logwarn("still searching")
-                self.sweep(0)
-            elif self.searchstate ==0:
-                self.waypoints.guidance_law = 1
-                #move 2 meter
-                _euc_distance = pow(pow(self.ned_x-self.searchx,2)+pow(self.ned_y-self.searchy,2),0.5)
-                if(_euc_distance <0.35):
-                    self.findimage += 1  
-                    self.searchstate = -1
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.searchx]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.searchy]
-                    self.waypoints.waypoint_list_z = [0,0]   
-                    self.desired(self.waypoints)   
-        else:
-            rospy.logwarn("Found image")
-            rospy.logwarn(self.foundstate)
-            if(self.foundstate == -1):
-                self.samex = self.ned_x
-                self.righty = self.ned_y+2
-                self.lefty = self.ned_y-2.5
-                self.downz = self.ned_z+1.5
-                self.upz = self.ned_z
-                self.leavewaypointxcenter = self.ned_x+2
-                self.leavewaypointycenter = self.ned_y 
-                self.leavewaypointx = self.ned_x+2
-                self.leavewaypointy = self.ned_y 
-                self.foundstate = 0
-            if(self.foundstate == 0):
-               #stay find the best position to grab bin
-               rospy.logwarn("Looking the best position to grab bin") 
-               self.grab_bin(1.1)
-            elif(self.foundstate == 1.1):
-               #move to leave waypoint
-                self.waypoints.guidance_law = 1
-                _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_z-self.downz,2),0.5)
-                if(_euc_distance <0.35):
-                    self.foundstate = 1.2
-                    self.waypoints.guidance_law = 0
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
-                    self.waypoints.waypoint_list_y = [self.ned_y,0]
-                    self.waypoints.waypoint_list_z = [self.ned_z,self.downz]   
-                    self.desired(self.waypoints)   
-            elif(self.foundstate == 1.2):
-                self.waypoints.guidance_law = 1
-               #move to leave waypoint
-                _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_z-self.upz,2),0.5)
-                if(_euc_distance <0.35):
-                    self.foundstate = 2
-                    self.waypoints.guidance_law = 1
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
-                    self.waypoints.waypoint_list_y = [self.ned_y,0]
-                    self.waypoints.waypoint_list_z = [self.ned_z,self.upz] 
-                    self.desired(self.waypoints)   
-            elif(self.foundstate == 2):
-               #move to leave waypoint
-                _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_y-self.lefty,2),0.5)
-                if(_euc_distance <0.35):
-                    self.foundstate = 2.1
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.lefty]
-                    self.waypoints.waypoint_list_z = [0,0]   
-                    self.desired(self.waypoints)   
-            elif(self.foundstate == 2.1):
-               #stay find the best position to grab bin
-               rospy.logwarn("Looking the best position to grab bin") 
-               self.grab_bin(2.2) 
-            elif(self.foundstate == 2.2):
-                self.waypoints.guidance_law = 1
-               #move to leave waypoint
-                _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_z-self.downz,2),0.5)
-                if(_euc_distance <0.35):
-                    self.foundstate = 2.3
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
-                    self.waypoints.waypoint_list_y = [self.ned_y,0]
-                    self.waypoints.waypoint_list_z = [self.ned_z,self.downz]   
-                    self.desired(self.waypoints)   
-            elif(self.foundstate == 2.3):
-                self.waypoints.guidance_law = 1
-                #move to leave waypoint
-                _euc_distance = pow(pow(self.ned_x-self.samex,2)+pow(self.ned_z-self.upz,2),0.5)
-                if(_euc_distance <0.35):
-                    self.foundstate = 3
-                    self.waypoints.guidance_law = 1
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.samex]
-                    self.waypoints.waypoint_list_y = [self.ned_y,0]
-                    self.waypoints.waypoint_list_z = [self.ned_z,self.upz] 
-                    self.desired(self.waypoints)   
-            elif(self.foundstate == 3):
-               #move to leave waypoint
-                _euc_distance = pow(pow(self.ned_x-self.leavewaypointxcenter,2)+pow(self.ned_y-self.leavewaypointycenter,2),0.5)
-                if(_euc_distance <0.35):
-                    self.foundstate = 4
-                    self.waypoints.guidance_law = 1
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypointxcenter]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.leavewaypointycenter]
-                    self.waypoints.waypoint_list_z = [0,0]   
-                    self.desired(self.waypoints)     
-            elif(self.foundstate == 4):
-               #move to leave waypoint
-                _euc_distance = pow(pow(self.ned_x-self.leavewaypointx,2)+pow(self.ned_y-self.leavewaypointy,2),0.5)
-                if(_euc_distance <0.35):
-                    self.state = 6
-                    self.waypoints.guidance_law = 0
-                else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.leavewaypointx]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.leavewaypointy]
-                    self.waypoints.waypoint_list_z = [0,0]   
-                    self.desired(self.waypoints)  
+        self.yaw = pose.orientation.z
+    '''
+    def objs_callback(self,data):
+        self.objects_list = []
+        for i in range(data.len):
+            if str(data.objects[i].clase) == 'bouy':
+                self.objects_list.append({'X' : data.objects[i].X + self.offset, 
+                                      'Y' : data.objects[i].Y, 
+                                      'color' : data.objects[i].color, 
+                                      'class' : data.objects[i].clase})
+    '''                                      
 
-    def binmission(self):
-        self.waypoints.waypoint_list_length = 2
-        #self.waypoints.depth_setpoint = 4
-        #depth_error = self.ned_z - self.waypoints.depth_setpoint
+    def center_point(self):
+        '''
+        @name: center_point
+        @brief: Returns two waypoints as desired positions. The first waypoint is
+          between the middle of the gate and it right or left post, and the second a distance to the front 
+        @param: --
+        @return: --
+        '''
+        x_list = []
+        y_list = []
+        distance_list = []
+
+        for i in range(len(self.objects_list)):
+            x_list.append(self.objects_list[i]['X'])
+            y_list.append(self.objects_list[i]['Y'])
+            distance_list.append(math.pow(x_list[i]**2 + y_list[i]**2, 0.5))
+
+        ind_g1 = np.argsort(distance_list)[0]
+        ind_g2 = np.argsort(distance_list)[1]
+        ind_g2 = np.argsort(distance_list)[2]
+
+        x1 = x_list[ind_g1]
+        y1 = -1*y_list[ind_g1]
+        x2 = x_list[ind_g2]
+        y2 = -1*y_list[ind_g2]
+        x3 = x_list[ind_g2]
+        y3 = -1*y_list[ind_g2]
+        if (self.choose_side == 'left'):
+            rospy.logwarn("Sum")
+            rospy.logwarn("Sum")
+            xc = min([x1,x2]) + abs(x1 - x2)/2 - self.distance_away
+            yc = min([y1,y2]) + abs(y1 - y2)/2
+            if y1 < y2:
+                yl = y1
+                xl = x1
+                yr = y2
+                xr = x2
+            else:
+                yl = y2
+                xl = x2
+                yr = y1
+                xr = x1
+        else:
+            xc = min([x2,x3]) + abs(x2 - x3)/2 - self.distance_away
+            yc = min([y2,y3]) + abs(y2 - y3)/2
+            if y2 < y3:
+                yl = y2
+                xl = x2
+                yr = y3
+                xr = x3
+            else:
+                yl = y3
+                xl = x3
+                yr = y2
+                xr = x2
+
+        yd = yl - yr
+        xd = xl - xr
+
+        alpha = math.atan2(yd,xd) + math.pi/2
+        if (abs(alpha) > (math.pi)):
+            alpha = (alpha/abs(alpha))*(abs(alpha) - 2*math.pi)
+
+        self.ned_alpha = alpha + self.yaw
+        if (abs(self.ned_alpha) > (math.pi)):
+            self.ned_alpha = (self.ned_alpha/abs(self.ned_alpha))*(abs(self.ned_alpha) - 2*math.pi)
+
+        xm, ym = self.gate_to_body(3,0,alpha,xc,yc)
+
+        self.target_x, self.target_y = self.body_to_ned(xm, ym)
         
+        #path_array = Float32MultiArray()
+        #path_array.layout.data_offset = 5
+        #path_array.data = [xc, yc, xm, ym, 2]
+
+        #self.desired(path_array)
+        rospy.logwarn("Inicial ned")
+        rospy.logwarn(self.ned_x)
+        rospy.logwarn(self.ned_y)
+        rospy.logwarn(self.ned_z)
+        rospy.logwarn("puntomedio-gatetobody" )
+        rospy.logwarn(x1)
+        rospy.logwarn(x2)
+        rospy.logwarn(y1)
+        rospy.logwarn(y2)
+        rospy.logwarn(xc)
+        rospy.logwarn(yc)
+        rospy.logwarn(xm)
+        rospy.logwarn(ym)
+
+        self.waypoints.guidance_law = 2
+        self.waypoints.waypoint_list_length = 2
+        _euc_distance = pow(pow(self.ned_x-1,2)+pow(self.ned_y-4,2),0.5)
+        if(_euc_distance <0.35):
+            self.state = 5
+        else:
+            self.waypoints.waypoint_list_x = [self.ned_x, 1]
+            self.waypoints.waypoint_list_y = [self.ned_y, 4]
+            self.waypoints.waypoint_list_z = [0,0]   
+            self.desired(self.waypoints)
+    def binmission(self):
+        self.waypoints.guidance_law = 1
+        self.waypoints.waypoint_list_length = 2
         if(self.state == -1):
-            self.search()
+            _euc_distance = pow(pow(self.ned_x-3,2)+pow(self.ned_y,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 2
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 3]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [0,0]   
+                self.desired(self.waypoints)
+        elif(self.state == 2):
+            _euc_distance = pow(pow(self.ned_x-3,2)+pow(self.ned_y-4,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 2.1
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 3]
+                self.waypoints.waypoint_list_y = [self.ned_y, 4]
+                self.waypoints.waypoint_list_z = [0,0]   
+                self.desired(self.waypoints)
+        elif(self.state == 2.1):
+            _euc_distance = pow(pow(self.ned_x-3,2)+pow(self.ned_z-1,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 2.2
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 3]
+                self.waypoints.waypoint_list_y = [self.ned_y, 4]
+                self.waypoints.waypoint_list_z = [self.ned_z,1]   
+                self.desired(self.waypoints)
+        elif(self.state == 2.2):
+            _euc_distance = pow(pow(self.ned_x-3,2)+pow(self.ned_z,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 3
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 3]
+                self.waypoints.waypoint_list_y = [self.ned_y, 4]
+                self.waypoints.waypoint_list_z = [self.ned_z,0]   
+                self.desired(self.waypoints)
+        elif(self.state == 3):
+            _euc_distance = pow(pow(self.ned_x-3,2)+pow(self.ned_y+4,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 3.1
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 3]
+                self.waypoints.waypoint_list_y = [self.ned_y, -4]
+                self.waypoints.waypoint_list_z = [0,0]   
+                self.desired(self.waypoints)
+        elif(self.state == 3.1):
+            _euc_distance = pow(pow(self.ned_x-3,2)+pow(self.ned_z-1,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 3.2
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 3]
+                self.waypoints.waypoint_list_y = [self.ned_y, -4]
+                self.waypoints.waypoint_list_z = [self.ned_z,1]   
+                self.desired(self.waypoints)
+        elif(self.state == 3.2):
+            _euc_distance = pow(pow(self.ned_x-3,2)+pow(self.ned_z,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 4
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 3]
+                self.waypoints.waypoint_list_y = [self.ned_y, -4]
+                self.waypoints.waypoint_list_z = [self.ned_z,0]   
+                self.desired(self.waypoints)
+        elif(self.state == 4):
+            _euc_distance = pow(pow(self.ned_x-3,2)+pow(self.ned_y,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 5
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 3]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [self.ned_z,0]   
+                self.desired(self.waypoints)
+        elif(self.state == 5):
+            _euc_distance = pow(pow(self.ned_x-6,2)+pow(self.ned_y,2),0.5)
+            if(_euc_distance <0.35):
+                self.state = 6
+            else:
+                self.waypoints.waypoint_list_x = [self.ned_x, 6]
+                self.waypoints.waypoint_list_y = [self.ned_y, 0]
+                self.waypoints.waypoint_list_z = [0,0]   
+                self.desired(self.waypoints)
+    def results(self):
+        rospy.logwarn("Inicial ned")
+        rospy.logwarn(self.ned_x)
+        rospy.logwarn(self.ned_y)
+        rospy.logwarn(self.ned_z)        
+
+
+    def calculate_distance_to_sub(self):
+        '''
+        @name: calculate_distance_to_sub
+        @brief: Returns the distance from the UUV to the next gate
+        @param: --
+        @return: --
+        '''
+        x_list = []
+        y_list = []
+        distance_list = []
+        for i in range(len(self.objects_list)):
+            x_list.append(self.objects_list[i]['X'])
+            y_list.append(self.objects_list[i]['Y'])
+            distance_list.append(math.pow(x_list[i]**2 + y_list[i]**2, 0.5))
+
+        ind_g1 = np.argsort(distance_list)[0]
+        ind_g2 = np.argsort(distance_list)[1]
+
+        x1 = x_list[ind_g1]
+        y1 = -1*y_list[ind_g1]
+        x2 = x_list[ind_g2]
+        y2 = -1*y_list[ind_g2]
+        x3 = x_list[ind_g2]
+        y3 = -1*y_list[ind_g2]
+
+        if (self.choose_side == 'left'):
+            xc = min([x1,x2]) + abs(x1 - x2)/2 
+            yc = min([y1,y2]) + abs(y1 - y2)/2
+            if y1 < y2:
+                yl = y1
+                xl = x1
+                yr = y2
+                xr = x2
+            else:
+                yl = y2
+                xl = x2
+                yr = y1
+                xr = x1
+        else:
+            xc = min([x2,x3]) + abs(x2 - x3)/2
+            yc = min([y2,y3]) + abs(y2 - y3)/2
+            if y2 < y3:
+                yl = y2
+                xl = x2
+                yr = y3
+                xr = x3
+            else:
+                yl = y3
+                xl = x3
+                yr = y2
+                xr = x2
+
+        self.distance = math.pow(xc*xc + yc*yc, 0.5)
+
+    def farther(self):
+        '''
+        @name: farther
+        @brief: Returns a waypoint farther to the front of the vehicle in the NED
+          reference frame to avoid perturbations.
+        @param: --
+        @return: --
+        '''
+        self.target_x, self.target_y = self.gate_to_ned(10, 0, 
+                                                        self.ned_alpha,
+                                                        self.target_x,
+                                                        self.target_y)
+        #path_array = Float32MultiArray()
+        #path_array.layout.data_offset = 3
+        #path_array.data = [self.target_x, self.target_y, 0]
+        #self.desired(data)
+        self.waypoints.guidance_law = 1
+        self.waypoints.waypoint_list_length = 1
+        self.waypoints.waypoint_list_x = {self.target_x}
+        self.waypoints.waypoint_list_y = { self.target_y}
+        self.waypoints.waypoint_list_z = {0}   
+        self.desired(self.waypoints)
+
+    def gate_to_body(self, gate_x2, gate_y2, alpha, body_x1, body_y1):
+        '''
+        @name: gate_to_body
+        @brief: Coordinate transformation between gate and body reference frames.
+        @param: gate_x2: target x coordinate in gate reference frame
+                gate_y2: target y coordinate in gate reference frame
+                alpha: angle between gate and body reference frames
+                body_x1: gate x coordinate in body reference frame
+                body_y1: gate y coordinate in body reference frame
+        @return: body_x2: target x coordinate in body reference frame
+                 body_y2: target y coordinate in body reference frame
+        '''
+        p = np.array([[gate_x2],[gate_y2]])
+        J = self.rotation_matrix(alpha)
+        n = J.dot(p)
+        body_x2 = n[0] + body_x1
+        body_y2 = n[1] + body_y1
+        return (body_x2, body_y2)
+
+    def body_to_ned(self, x2, y2):
+        '''
+        @name: body_to_ned
+        @brief: Coordinate transformation between body and NED reference frames.
+        @param: x2: target x coordinate in body reference frame
+                y2: target y coordinate in body reference frame
+        @return: ned_x2: target x coordinate in ned reference frame
+                 ned_y2: target y coordinate in ned reference frame
+        '''
+        p = np.array([x2, y2])
+        J = self.rotation_matrix(self.yaw)
+        n = J.dot(p)
+        ned_x2 = n[0] + self.ned_x
+        ned_y2 = n[1] + self.ned_y
+        return (ned_x2, ned_y2)
+
+    def gate_to_ned(self, gate_x2, gate_y2, alpha, ned_x1, ned_y1):
+        '''
+        @name: gate_to_ned
+        @brief: Coordinate transformation between gate and NED reference frames.
+        @param: gate_x2: target x coordinate in gate reference frame
+                gate_y2: target y coordinate in gate reference frame
+                alpha: angle between gate and ned reference frames
+                body_x1: gate x coordinate in ned reference frame
+                body_y1: gate y coordinate in ned reference frame
+        @return: body_x2: target x coordinate in ned reference frame
+                 body_y2: target y coordinate in ned reference frame
+        '''
+        p = np.array([[gate_x2],[gate_y2]])
+        J = self.rotation_matrix(alpha)
+        n = J.dot(p)
+        ned_x2 = n[0] + ned_x1
+        ned_y2 = n[1] + ned_y1
+        return (ned_x2, ned_y2)
+
+    def rotation_matrix(self, angle):
+        '''
+        @name: rotation_matrix
+        @brief: Transformation matrix template.
+        @param: angle: angle of rotation
+        @return: J: transformation matrix
+        '''
+        J = np.array([[math.cos(angle), -1*math.sin(angle)],
+                      [math.sin(angle), math.cos(angle)]])
+        return (J)
 
     def desired(self, path):
-        self.uuv_waypoints.publish(path)
+    	self.uuv_waypoints.publish(path)
         self.uuv_path.header.stamp = rospy.Time.now()
         self.uuv_path.header.frame_id = "world"
         del self.uuv_path.poses[:]
@@ -282,36 +431,103 @@ class BinMission:
             pose.pose.position.z    = path.waypoint_list_z[index]
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
-    def results(self):
-        rospy.logwarn("Inicial ned")
-        rospy.logwarn(self.ned_x)
-        rospy.logwarn(self.ned_y)
-        rospy.logwarn(self.ned_z)     
-        rospy.logwarn(self.yaw)         
-
-
-
-    def activate(self):
-        rate = rospy.Rate(20)
-        while not rospy.is_shutdown() and self.activated:
-            rospy.loginfo(self.state ) 
-            if(self.state != 6):
-                rospy.loginfo("Binmission is activated")
-                self.binmission()
-            else:
-                self.activated = False
-            rate.sleep()
-def main():
-    rospy.init_node("gate_mission", anonymous=False)
+def main1():
+    rospy.init_node("bin_mission", anonymous=False)
     rate = rospy.Rate(20)
-    gate_mission = BinMission()
+    autoNav = BinMission()
+    autoNav.distance = 4
     last_detection = []
-    while not rospy.is_shutdown() and gate_mission.activated:
-        if(gate_mission.state != 6):
+    while not rospy.is_shutdown() and autoNav.activated:
+        rospy.loginfo("BinMission is activated")
+        #rospy.loginfo(autoNav.objects_list)
+        rospy.loginfo(last_detection)
+        if autoNav.objects_list != last_detection:
+            rospy.loginfo("Last detection not activated")
+            if autoNav.state == -1:
+                rospy.loginfo("BinMission.state == -1")
+                while (not rospy.is_shutdown()) and (len(autoNav.objects_list) < 3):
+                    autoNav.test.publish(autoNav.state)
+                    rospy.loginfo("BinMission.state in -1")
+                    rate.sleep()
+                autoNav.state = 0
+               # last_detection = autoNav.objects_list
+
+            if autoNav.state == 0:
+                rospy.loginfo("BinMission.state == 0")
+                autoNav.test.publish(autoNav.state)
+                if len(autoNav.objects_list) >= 3:
+                    rospy.loginfo("BinMission.objects_list) >= 3")
+                    autoNav.calculate_distance_to_sub()
+                if (len(autoNav.objects_list) >= 3) and (autoNav.distance >= 2):
+                    rospy.loginfo("BinMission.objects_list) >= 3 and (autoNav.distance >= 2)")
+                    autoNav.center_point()
+                else:
+                    rospy.loginfo("No autoNav.objects_list")
+                    initTime = rospy.Time.now().secs
+                    while ((not rospy.is_shutdown()) and 
+                        (len(autoNav.objects_list) < 3 or autoNav.distance < 2)):
+                        rospy.loginfo("not rospy.is_shutdown() and  (len(autoNav.objects_list) < 3 or autoNav.distance < 2)")
+                        if rospy.Time.now().secs - initTime > 2:
+                            rospy.loginfo("rospy.Time.now().secs - initTime > 2")
+                            autoNav.state = 1
+                            rate.sleep()
+                            break
+                #last_detection = autoNav.objects_list
+
+        if autoNav.state == 1:
+            rospy.loginfo("BinMission.state == 1")
+            autoNav.test.publish(autoNav.state)
+            if len(autoNav.objects_list) >= 3:
+                autoNav.state = 2
+            else:
+                initTime = rospy.Time.now().secs
+                while ((not rospy.is_shutdown()) and 
+                    (len(autoNav.objects_list) < 3)):
+                    if rospy.Time.now().secs - initTime > 1:
+                        autoNav.farther()
+                        rate.sleep()
+                        break
+            #last_detection = autoNav.objects_list
+
+        if autoNav.objects_list != last_detection:
+            rospy.loginfo("autoNav.objects_list != last_detection:")
+            if autoNav.state == 2:
+                rospy.loginfo("BinMission.state == 2")
+                autoNav.test.publish(autoNav.state)
+                if len(autoNav.objects_list) >= 3:
+                    autoNav.calculate_distance_to_sub()
+                if len(autoNav.objects_list) >= 3 and autoNav.distance >= 2:
+                    autoNav.center_point()
+                else:
+                    initTime = rospy.Time.now().secs
+                    while ((not rospy.is_shutdown()) and 
+                        (len(autoNav.objects_list) < 3 or autoNav.distance < 2)):
+                        if rospy.Time.now().secs - initTime > 2:
+                            autoNav.state = 3
+                            rate.sleep()
+                            break
+               # last_detection = autoNav.objects_list
+
+        elif autoNav.state == 3:
+            autoNav.test.publish(autoNav.state)
+            time.sleep(1)
+            autoNav.status_pub.publish(1)
+
+        rate.sleep()
+    rospy.spin()
+def main():
+    rospy.init_node("bin_mission", anonymous=False)
+    rate = rospy.Rate(20)
+    autoNav = BinMission()
+    autoNav.distance = 4
+    last_detection = []
+    while not rospy.is_shutdown() and autoNav.activated:
+        rospy.loginfo(autoNav.state )
+        if(autoNav.state != 6):
             rospy.loginfo("Binmission is activated")
-            gate_mission.binmission()
+            autoNav.binmission()
         else:
-            gate_mission.results()
+            autoNav.results()
         rate.sleep()
     rospy.spin()
 
