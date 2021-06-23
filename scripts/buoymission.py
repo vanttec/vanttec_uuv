@@ -12,7 +12,7 @@ from nav_msgs.msg import Path
 
 # Class Definition
 class BuoyMission:
-    def _init_(self):
+    def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
         self.ned_z = 0
@@ -174,7 +174,8 @@ class BuoyMission:
         self.waypoints.guidance_law = 0
         self.waypoints.heading_setpoint = 0
         timeduration = rospy.get_time()-self.timewait
-        if(timeduration >= 2):
+        rospy.logwarn("Analyzing image with yolo neural network")
+        if(timeduration >= 3):
             self.timewait = 0
             rospy.logwarn("Found image")
             self.foundstate = nextmission           
@@ -343,8 +344,8 @@ def main():
 
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     try:
         main()
-    except rospy.ROSInterruptException:
+    except rospy.ROSInterruptException:     
         pass

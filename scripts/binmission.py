@@ -12,7 +12,7 @@ from nav_msgs.msg import Path
 
 # Class Definition
 class BinMission:
-    def _init_(self):
+    def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
         self.ned_z = 0
@@ -90,7 +90,7 @@ class BinMission:
             if (self.waypoints.heading_setpoint <= 0):
                 self.waypoints.guidance_law = 0
                 self.searchstate = nextmission
-                self.searchx = self.ned_x + 2.8
+                self.searchx = self.ned_x + 2.5
                 self.searchy = self.ned_y + 1.3
                 self.sweepstate = -1
                 self.desired(self.waypoints)
@@ -327,8 +327,8 @@ def main():
 
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     try:
         main()
-    except rospy.ROSInterruptException:
+    except rospy.ROSInterruptException:     
         pass

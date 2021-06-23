@@ -12,7 +12,7 @@ from nav_msgs.msg import Path
 
 # Class Definition
 class TorpedosMission:
-    def _init_(self):
+    def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
         self.ned_z = 0
@@ -39,7 +39,7 @@ class TorpedosMission:
         self.searchy = 0.0
         self.searchz = 0.0
         self.sweepstate = -1
-        self.foundstate = -1
+        self.foundstate = -2
         self.enterwaypoint = 0.0
         self.staywaypoint = 0.0
         self.ylabel = 0.0
@@ -48,10 +48,11 @@ class TorpedosMission:
         self.bin.y = 0.0
         self.bin.z = 0.0
         self.stopsearch = False
-        self.cameraoffsetx = 0.8
+        self.timewait = 0.0
+        self.cameraoffsetx = -0.96
         #self.cameraoffsety = 0.0
-        self.cameraoffsetz = -0.1
-        #self.foundimage = {}
+        #self.cameraoffsetz = -0.1
+        self.foundimage = {}
         #Waypoint test instead of perception node
 
 
@@ -70,11 +71,11 @@ class TorpedosMission:
 
         #Waypoint test instead of perception node
         #This array shall be modified with zed inputs of distance 
-        self.foundimage = {
+        '''self.foundimage = {
                 'X': 5.15,
                 'Y': -0.1,
                 'Z': 0.0
-            }     
+            }'''     
     def ins_pose_callback(self,pose):
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
@@ -83,17 +84,28 @@ class TorpedosMission:
     def bin_callback(self, msg):
         self.bin.x = msg.x + self.cameraoffsetx
         self.bin.y = msg.y #+ self.cameraoffsety
-        self.bin.z = msg.z + self.cameraoffsetz
-        
-    def sweep(self,nextmission):
+        self.bin.z = msg.z #+ self.cameraoffsetz
+    def wait(self,nextmission):
+        #Yolo neural network shall be included here
         self.waypoints.guidance_law = 0
-        '''if(self.bin.x!=0.0):
+        self.waypoints.heading_setpoint = 0
+        timeduration = rospy.get_time()-self.timewait
+        rospy.logwarn("Analyzing image with yolo neural network")
+        if(self.bin.x!=0.0):
             self.foundimage = {
                 'X': self.bin.z,
                 'Y': self.bin.x,
                 'Z': self.bin.y
                 }
-            self.stopsearch = True'''
+        if(timeduration >= 3):
+            self.timewait = 0
+            rospy.logwarn("Found image")
+            self.foundstate = nextmission      
+        
+    def sweep(self,nextmission):
+        self.waypoints.guidance_law = 0
+        if(self.bin.x!=0.0):
+            self.stopsearch = True
         if(self.sweepstate == -1):
             if (self.waypoints.heading_setpoint <=  -math.pi/4):
                 self.sweepstate = 2
@@ -131,8 +143,9 @@ class TorpedosMission:
            
     def search(self):
         #look subscriber of image distance
-        if(self.findimage <= 0):
+        if(self.stopsearch != True):
             rospy.logwarn("Searching image")
+            self.timewait = rospy.get_time()
             if self.searchstate == -1:
                 #sweep to find 
                 self.sweep(0)
@@ -150,7 +163,10 @@ class TorpedosMission:
         else:
             rospy.logwarn("Found image")
             rospy.logwarn(self.foundstate)
-            if(self.foundstate == -1):
+            if(self.foundstate == -2):
+                if(self.bin.x!=0.0):
+                    self.wait(-1)
+            elif(self.foundstate == -1):
                 self.southx = self.ned_x + self.foundimage['X']-3
                 self.southy = self.ned_y + self.foundimage['Y']
                 self.eastx = self.ned_x + self.foundimage['X']
@@ -196,12 +212,15 @@ class TorpedosMission:
                #move to north
                 _euc_distance = pow(pow(self.ned_x-self.northx,2)+pow(self.ned_y-self.northy,2),0.5)
                 if(_euc_distance <0.35):
-                    self.foundstate = 3
+                    self.foundstate = 2.1
+                    self.timewait = rospy.get_time()
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.northx]
                     self.waypoints.waypoint_list_y = [self.ned_y,self.northy]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)   
+            elif(self.foundstate==2.1):
+                self.wait(3)
             elif(self.foundstate == 3):
                 self.waypoints.guidance_law = 2
                #move to west
@@ -333,8 +352,8 @@ def main():
 
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     try:
         main()
-    except rospy.ROSInterruptException:
+    except rospy.ROSInterruptException:     
         pass

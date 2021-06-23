@@ -12,7 +12,7 @@ from nav_msgs.msg import Path
 
 # Class Definition
 class OctagonMission:
-    def _init_(self):
+    def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
         self.ned_z = 0
@@ -335,8 +335,8 @@ def main():
 
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     try:
         main()
-    except rospy.ROSInterruptException:
+    except rospy.ROSInterruptException:     
         pass

@@ -12,7 +12,7 @@ from nav_msgs.msg import Path
 
 # Class Definition
 class GateMission:
-    def _init_(self):
+    def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
         self.ned_z = 0
@@ -118,6 +118,8 @@ class GateMission:
                 self.waypoints.waypoint_list_z = [0,0]
                 self.desired(self.waypoints)
     def wait(self,nextmission):
+        #Yolo neural network shall be included here
+        rospy.logwarn("Analyzing image with yolo neural network")
         self.waypoints.guidance_law = 0
         self.waypoints.heading_setpoint = 0
         timeduration = rospy.get_time()-self.timewait
@@ -128,7 +130,7 @@ class GateMission:
         self.finalgateposition.x = self.gateposition.z
         self.finalgateposition.y = self.gateposition.x
         self.finalgateposition.z = self.gateposition.y
-        if(timeduration >= 2):
+        if(timeduration >= 3):
             self.timewait = 0
             self.foundstate = nextmission
            
@@ -147,6 +149,7 @@ class GateMission:
                 if(_euc_distance <0.35):
                     #self.findimage += 1  
                     self.searchstate = -1
+                    self.timewait = rospy.get_time()
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.searchx]
                     self.waypoints.waypoint_list_y = [self.ned_y,self.searchy]
@@ -243,19 +246,19 @@ def main():
     rate = rospy.Rate(20)
     gate_mission = GateMission()
     last_detection = []
+    rospy.loginfo("Gatemission is activated")
     while not rospy.is_shutdown() and gate_mission.activated:
         if(gate_mission.state != 6):
-            #rospy.loginfo("Gatemission is activated")
-            gate_mission.gatemission()
+            rospy.loginfo("Gatemission is activated")
+            gate_mission.gatemission() 
         else:
             gate_mission.results()
         rate.sleep()
     rospy.spin()
 
 
-
-if __name__ == "_main_":
+if __name__ == "__main__":
     try:
         main()
-    except rospy.ROSInterruptException:
+    except rospy.ROSInterruptException:     
         pass
