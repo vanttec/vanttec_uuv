@@ -76,7 +76,7 @@ int main(int argc, char **argv)
             setpoints[id][3] = std::atan2(setpoints[id][1]-pose.position.y,setpoints[id][0]-pose.position.x);
             guidance_law.SetSetpoints(setpoints[id]);
         }
-        // std::cout<<distance2waypoint<<std::endl;
+        std::cout<<setpoints[id][3]<<std::endl;
 
         guidance_law.CalculateManipulation(pose);
 
@@ -85,10 +85,10 @@ int main(int argc, char **argv)
         desired_velocities.linear.z = guidance_law.U(2);
         desired_velocities.angular.z = guidance_law.U(3);
 
-        std::cout<<guidance_law.U(0)<<std::endl;
-        std::cout<<guidance_law.U(1)<<std::endl;
-        std::cout<<guidance_law.U(2)<<std::endl;
-        std::cout<<guidance_law.U(3)<<std::endl;
+        // std::cout<<guidance_law.U(0)<<std::endl;
+        // std::cout<<guidance_law.U(1)<<std::endl;
+        // std::cout<<guidance_law.U(2)<<std::endl;
+        // std::cout<<guidance_law.U(3)<<std::endl;
 
         uuv_desired_setpoints.publish(desired_velocities);
 
