@@ -49,16 +49,16 @@ class TorpedosMission:
         self.bin.z = 0.0
         self.stopsearch = False
         self.timewait = 0.0
-        self.cameraoffsetx = 0.0
+        self.cameraoffsetx = -0.96
         #self.cameraoffsety = 0.0
-        self.cameraoffsetz = -0.1
+        #self.cameraoffsetz = -0.1
         self.foundimage = {}
         #Waypoint test instead of perception node
 
 
         # ROS Subscribers
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
-        rospy.Subscriber("buoy_2_pos_pub",Point,self.bin_callback)
+        rospy.Subscriber("buoy_1_pos_pub",Point,self.bin_callback)
         '''
         rospy.Subscriber("/usv_perception/yolo_zed/objects_detected", obj_detected_list, self.objs_callback)
         '''
@@ -84,7 +84,7 @@ class TorpedosMission:
     def bin_callback(self, msg):
         self.bin.x = msg.x + self.cameraoffsetx
         self.bin.y = msg.y #+ self.cameraoffsety
-        self.bin.z = msg.z + self.cameraoffsetz
+        self.bin.z = msg.z #+ self.cameraoffsetz
     def wait(self,nextmission):
         #Yolo neural network shall be included here
         self.waypoints.guidance_law = 0
@@ -99,7 +99,7 @@ class TorpedosMission:
                 }
         if(timeduration >= 3):
             self.timewait = 0
-            rospy.logwarn("Finish waiting")
+            rospy.logwarn("Found image")
             self.foundstate = nextmission      
         
     def sweep(self,nextmission):
@@ -140,30 +140,6 @@ class TorpedosMission:
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
                 self.desired(self.waypoints) 
-    def sweeptorpedo(self,nextmission,heading1, heading2):
-        self.waypoints.guidance_law = 0
-        rospy.logwarn(self.sweepstate)
-        if(self.sweepstate == -1):
-            if (self.waypoints.heading_setpoint <= heading1):
-                self.sweepstate = 2
-            self.waypoints.heading_setpoint -= math.pi/400.0
-            self.waypoints.waypoint_list_x = [0, 0]
-            self.waypoints.waypoint_list_y = [0, 0]
-            self.waypoints.waypoint_list_z = [0,0]
-            self.desired(self.waypoints)
-        elif(self.sweepstate == 2): 
-            if (self.waypoints.heading_setpoint >= heading2):
-                self.waypoints.guidance_law = 0
-                self.foundstate = nextmission
-                self.sweepstate = -1
-                self.desired(self.waypoints)
-            else:
-                self.waypoints.guidance_law = 0
-                self.waypoints.heading_setpoint += math.pi/400.0
-                self.waypoints.waypoint_list_x = [0 ,0]
-                self.waypoints.waypoint_list_y = [0, 0]
-                self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)
            
     def search(self):
         #look subscriber of image distance
@@ -186,76 +162,87 @@ class TorpedosMission:
                     self.desired(self.waypoints)   
         else:
             rospy.logwarn("Found image")
+            rospy.logwarn(self.foundstate)
             if(self.foundstate == -2):
                 if(self.bin.x!=0.0):
                     self.wait(-1)
             elif(self.foundstate == -1):
-                self.centerx = self.ned_x + self.foundimage['X']-2
-                self.centery = self.ned_y - self.foundimage['Y']
-                self.rightx = self.ned_x + self.foundimage['X']-2
-                self.righty = self.ned_y - self.foundimage['Y']+2
+                self.southx = self.ned_x + self.foundimage['X']-3
+                self.southy = self.ned_y + self.foundimage['Y']
+                self.eastx = self.ned_x + self.foundimage['X']
+                self.easty = self.ned_y + self.foundimage['Y']+3
+                self.northx = self.ned_x + self.foundimage['X']+3
+                self.northy = self.ned_y + self.foundimage['Y']
+                self.westx = self.ned_x + self.foundimage['X']
+                self.westy = self.ned_y + self.foundimage['Y']-3
                 self.leavewaypoint1x = self.ned_x+self.foundimage['X']-1
-                self.leavewaypoint1y = self.ned_y-self.foundimage['Y']+1
+                self.leavewaypoint1y = self.ned_y+self.foundimage['Y']+1
                 self.leavewaypoint2x = self.ned_x+self.foundimage['X']+2
                 self.leavewaypoint2y = self.leavewaypoint1y 
-                self.leavewaypoint3y = self.ned_y - self.foundimage['Y']
+                self.leavewaypoint3y = self.ned_y + self.foundimage['Y']
                 self.leavewaypoint3x = self.leavewaypoint2x
                 self.leavewaypoint4y = self.leavewaypoint3y
                 self.leavewaypoint4x = self.leavewaypoint3x+2
                 self.foundstate = 0
             #Orbit around
             elif(self.foundstate == 0):
-                rospy.logwarn("center")
                 self.waypoints.guidance_law = 1
-                #orbit to center
-                _euc_distance = pow(pow(self.ned_x-self.centerx,2)+pow(self.ned_y-self.centery,2),0.5)
+                #move to south
+                _euc_distance = pow(pow(self.ned_x-self.southx,2)+pow(self.ned_y-self.southy,2),0.5)
                 if(_euc_distance <0.35):
                     self.foundstate = 1
                 else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.centerx]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.centery]
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.southx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.southy]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)
             elif(self.foundstate == 1):
                 self.waypoints.guidance_law = 2
-                rospy.logwarn("right")
-               #orbit to right
-                _euc_distance = pow(pow(self.ned_x-self.rightx,2)+pow(self.ned_y-self.righty,2),0.5)
+               #move to east
+                _euc_distance = pow(pow(self.ned_x-self.eastx,2)+pow(self.ned_y-self.easty,2),0.5)
                 if(_euc_distance <0.35):
-                    self.foundstate = 1.1
+                    self.foundstate = 2
                 else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.rightx]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.righty]
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.eastx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.easty]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)   
-            elif(self.foundstate==1.1):
-                rospy.logwarn("Sweep torpedo")
-                heading2 = -math.pi/4+math.pi/8
-                heading1 = -math.pi/4
-                self.sweeptorpedo(1.2,heading1, heading2)
-                self.timewait = rospy.get_time()
-            elif(self.foundstate==1.2):
-                self.wait(2)
             elif(self.foundstate == 2):
-                rospy.logwarn("center")
-                self.waypoints.guidance_law = 1
-               #orbit to center
-                _euc_distance = pow(pow(self.ned_x-self.centerx,2)+pow(self.ned_y-self.centery,2),0.5)
+                self.waypoints.guidance_law = 2
+               #move to north
+                _euc_distance = pow(pow(self.ned_x-self.northx,2)+pow(self.ned_y-self.northy,2),0.5)
                 if(_euc_distance <0.35):
-                    self.foundstate = 2.11
+                    self.foundstate = 2.1
+                    self.timewait = rospy.get_time()
                 else:
-                    self.waypoints.waypoint_list_x = [self.ned_x,self.centerx]
-                    self.waypoints.waypoint_list_y = [self.ned_y,self.centery]
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.northx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.northy]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+            elif(self.foundstate==2.1):
+                self.wait(3)
+            elif(self.foundstate == 3):
+                self.waypoints.guidance_law = 2
+               #move to west
+                _euc_distance = pow(pow(self.ned_x-self.westx,2)+pow(self.ned_y-self.westy,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 4
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.westx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.westy]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)
+            elif(self.foundstate == 4):
+                self.waypoints.guidance_law = 2
+               #move to west
+                _euc_distance = pow(pow(self.ned_x-self.southx,2)+pow(self.ned_y-self.southy,2),0.5)
+                if(_euc_distance <0.35):
+                    self.foundstate = 5
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.southx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.southy]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)    
-            elif(self.foundstate==2.11):
-                rospy.logwarn("Sweep torpedo")
-                heading2 = -math.pi/8
-                heading1 = math.pi/8
-                self.sweeptorpedo(2.12,heading1, heading2)
-                self.timewait = rospy.get_time()
-            elif(self.foundstate==2.12):
-                self.wait(5)  
             #Leave
             elif(self.foundstate == 5):
                 self.waypoints.guidance_law = 1
