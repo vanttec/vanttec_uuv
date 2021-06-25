@@ -224,11 +224,12 @@ def main():
         #                            [imgDil,imgBlur]))
 
 
-        
+        #Magnitud de la posicion del waypoint
         waypointMagnitude = 1.0
         
+        #Suma del heading actual del submarino mas el del marker para obtener el heading deseado
 
-        
+        UUV_heading = markerAngle + UUV.yaw
 
         x_waypoint,y_waypoint,z_waypoint = waypoint(markerAngle,waypointMagnitude)
 
@@ -241,7 +242,7 @@ def main():
         Waypoint.waypoint_list_x = [UUV.ned_x,ned_waypoint[0]]
         Waypoint.waypoint_list_y = [UUV.ned_y,ned_waypoint[1]]
         Waypoint.waypoint_list_z = [UUV.ned_z,ned_waypoint[2]]
-        Waypoint.heading_setpoint = markerAngle
+        Waypoint.heading_setpoint = UUV_heading
             
         pub.publish(Waypoint)
 
