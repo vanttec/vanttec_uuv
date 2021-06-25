@@ -97,7 +97,7 @@ def getContours_and_markerAngle(img,imgContour,ned_yaw):
         #Busqueda del area y defenicion de un area minima para descartar ruido u objetos no grandes
         area = cv2.contourArea(contour)
         areaMin =  5000 #cv2.getTrackbarPos("Area", "Parameters") 
-
+        markerAngle = 0
         if area > areaMin:
             cv2.drawContours(imgContour, contour, -1, (255, 0, 255), 6)
             perimeter = cv2.arcLength(contour, True)
@@ -131,10 +131,6 @@ def getContours_and_markerAngle(img,imgContour,ned_yaw):
                 cv2.putText(imgContour,"Angle:" + str(angleDegrees) + "degrees",(x + w + 20, y + 70),cv2.FONT_HERSHEY_COMPLEX, 0.7,  (0, 0, 255), 2)
                 print(angleDegrees)
                 
-            else:
-                
-                markerAngle = ned_yaw
-                print(markerAngle)
             return(markerAngle)
 
         
@@ -165,7 +161,7 @@ def main():
     rospy.init_node('marker_detection', anonymous=True)  #Inicializa nodo
          # rospy.Subscriber('/downr200/camera/color/image_raw',Image,bottom_camera_img)
     
-    pub = rospy.Publisher("/uuv_guidance/guidance_controller/waypoints", GuidanceWaypoints, queue_size=10)
+    pub = rospy.Publisher("/markerwaypoint", Point, queue_size=10)
     # while not rospy.is_shutdown():
     #     ned = ned_waypoint
     #     pub.publish(ned_waypoint)
@@ -200,7 +196,6 @@ def main():
     #img=cv2.imread("Marker_dataset/pathmarker_80.png") #Dectecta 9 puntos, el filtro por area se baja (imagen alejada)
 
     #Copia de imagen en la que se desplegara el contorno y el bounding box
-
     #imgContour = camera.image.copy()
         UUV = utils()
         #La imagen de muestra se hace borrosa
@@ -222,29 +217,26 @@ def main():
         #Se acomoda el orden de las imagenes que organiza la funcion para el stack
         #imgStack = stackImages(0.8,([UUV.image,imgCanny],
         #                            [imgDil,imgBlur]))
-
+        markerAngle = 0.0 if markerAngle == None else markerAngle
 
         #Magnitud de la posicion del waypoint
-        waypointMagnitude = 1.0
+        waypointMagnitude = 5
         
         #Suma del heading actual del submarino mas el del marker para obtener el heading deseado
-
+        print(markerAngle)
+        
         UUV_heading = markerAngle + UUV.yaw
 
         x_waypoint,y_waypoint,z_waypoint = waypoint(markerAngle,waypointMagnitude)
 
         ned_waypoint = rotation_matrix(UUV.yaw,x_waypoint,y_waypoint,z_waypoint,UUV.ned_x,UUV.ned_y,UUV.ned_z)
 
-        Waypoint = GuidanceWaypoints()
-        Waypoint.guidance_law = 1
-        Waypoint.waypoint_list_length = 2
-
-        Waypoint.waypoint_list_x = [UUV.ned_x,ned_waypoint[0]]
-        Waypoint.waypoint_list_y = [UUV.ned_y,ned_waypoint[1]]
-        Waypoint.waypoint_list_z = [UUV.ned_z,ned_waypoint[2]]
-        Waypoint.heading_setpoint = UUV_heading
-            
-        pub.publish(Waypoint)
+        
+        waypointinfo = Point()
+        waypointinfo.x = ned_waypoint[0]
+        waypointinfo.y = ned_waypoint[1]
+        waypointinfo.z = ned_waypoint[2]            
+        pub.publish(waypointinfo)
 
     
 

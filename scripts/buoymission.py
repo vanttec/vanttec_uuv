@@ -34,7 +34,7 @@ class BuoyMission:
         self.heading_threshold = 0.01
         self.depth_threshold = 0.
         #findimage works as a counter however with vision input once it identifies the target it should set this variable to True
-        self.findimage = 0
+        self.findimage = -2
         self.searchx = 0.0
         self.searchy = 0.0
         self.searchz = 0.0
@@ -53,7 +53,10 @@ class BuoyMission:
         self.bouy2.y = 0.0
         self.bouy2.z = 0.0
         self.foundimage = {}
-        self.side = "RIGHT"
+        self.side = "LEFT"
+        self.locatemarker = False
+        self.findimage = False
+        self.movetobuoy = False
         #Waypoint test instead of perception node
 
 
@@ -61,6 +64,7 @@ class BuoyMission:
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
         rospy.Subscriber("buoy_1_pos_pub",Point,self.bouy1_callback)
         rospy.Subscriber("buoy_2_pos_pub",Point,self.bouy2_callback)
+        rospy.Subscriber("/markerwaypoint",Point,self.marker_callback)
         '''
         rospy.Subscriber("/usv_perception/yolo_zed/objects_detected", obj_detected_list, self.objs_callback)
         '''
@@ -82,23 +86,32 @@ class BuoyMission:
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
         self.ned_z = pose.position.z
-        self.yaw = pose.orientation.z     
+        self.yaw = pose.orientation.z  
+    def marker_callback(self, msg):
+        if(msg.x != 1 and msg.y != 0):
+            self.callbackmarkerx = msg.x
+            self.callbackmarkery =  msg.y
+            self.callbackmarkerz = msg.z
+            self.locatemarker = True
          
     def sweep(self,nextmission):
         self.waypoints.guidance_law = 0
-        if(self.bouy1.x!=0.0 and self.bouy2.x !=0.0):
-            if(self.side == "RIGHT"):
-                self.foundimage = {
-                'X': self.bouy2.z,
-                'Y': self.bouy2.x,
-                'Z': self.bouy2.y
-                } 
-            else:
-                self.foundimage = {
-                'X': self.bouy1.z,
-                'Y': self.bouy1.x,
-                'Z': self.bouy1.y
-                } 
+        if(self.locatemarker == True):
+            if(self.bouy1.x!=0.0 and self.bouy2.x !=0.0):
+                if(self.side == "LEFT"):
+                    self.foundimage = {
+                    'X': self.bouy2.z,
+                    'Y': self.bouy2.x,
+                    'Z': self.bouy2.y
+                    } 
+                else:
+                    self.foundimage = {
+                    'X': self.bouy1.z,
+                    'Y': self.bouy1.x,
+                    'Z': self.bouy1.y
+                    } 
+                self.movetobuoy = True
+
         if(self.sweepstate == -1):
             if (self.waypoints.heading_setpoint <=  -math.pi/4):
                 self.sweepstate = 2
@@ -121,11 +134,18 @@ class BuoyMission:
             if (self.waypoints.heading_setpoint <= 0):
                 self.waypoints.guidance_law = 0
                 self.searchstate = nextmission
-                self.searchx = self.ned_x + 2.5
-                self.searchy = self.ned_y + 4
+                if(self.locatemarker == False):
+                    self.searchx = self.ned_x + 2.5
+                    self.searchy = self.ned_y + 0
+                else:
+                    self.searchx = self.markerx + self.differencemarkerx
+                    self.searchy = self.markery + self.differencemarkery
+                    if(self.movetobuoy == True):
+                        self.findimage = True
                 self.sweepstate = -1
                 self.findimage += 1  
                 self.desired(self.waypoints)
+
             else:
                 self.waypoints.guidance_law = 0
                 self.waypoints.heading_setpoint -= math.pi/400.0
@@ -180,14 +200,13 @@ class BuoyMission:
             rospy.logwarn("Found image")
             self.foundstate = nextmission           
     def search(self):
-        #look subscriber of image distance
-        if(self.findimage <= 1):
-            rospy.logwarn("Searching image")
-            self.timewait = rospy.get_time()
+        #look subscriber of pathmarker
+        if(self.locatemarker == False):
+            rospy.logwarn("Pahtmarker is not located")
             if self.searchstate == -1:
                 #sweep to find 
                 self.sweep(0)
-            elif self.searchstate ==0:
+            elif self.searchstate == 0:
                 self.waypoints.guidance_law = 1
                 #move 3 meter
                 _euc_distance = pow(pow(self.ned_x-self.searchx,2)+pow(self.ned_y-self.searchy,2),0.5)
@@ -198,7 +217,32 @@ class BuoyMission:
                     self.waypoints.waypoint_list_y = [self.ned_y,self.searchy]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)   
-            
+        #look subscriber of image distance    
+        elif(self.findimage == False):
+            rospy.logwarn("Pahtmarker is located")
+            self.timewait = rospy.get_time()
+            if self.searchstate == -1:
+                self.markerx = self.callbackmarkerx
+                self.markery = self.callbackmarkery
+                self.markerz = self.callbackmarkerz
+                self.differencemarkerx = self.callbackmarkerx - self.ned_x
+                self.differencemarkery = self.callbackmarkery - self.ned_y
+                self.differencemarkerz = self.callbackmarkerz - self.ned_z
+                self.searchstate = 0
+            if self.searchstate == 0:
+                self.waypoints.guidance_law = 1
+                #move 3 meter
+                _euc_distance = pow(pow(self.ned_x-self.markerx,2)+pow(self.ned_y-self.markery,2),0.5)
+                if(_euc_distance <0.35):
+                    self.searchstate = 1
+                else:
+                    self.waypoints.waypoint_list_x = [self.ned_x,self.markerx]
+                    self.waypoints.waypoint_list_y = [self.ned_y,self.markery]
+                    self.waypoints.waypoint_list_z = [0,0]   
+                    self.desired(self.waypoints)   
+            elif self.searchstate ==1: 
+                #sweep to find 
+                self.sweep(0)
         else:
             if(self.foundstate== -2):
                 rospy.logwarn("Analizing the image to choose side")
@@ -288,7 +332,6 @@ class BuoyMission:
                     self.waypoints.waypoint_list_y = [self.ned_y,self.leavewaypoint4y]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)   
-
 
     def buoymission(self):
         self.waypoints.waypoint_list_length = 2

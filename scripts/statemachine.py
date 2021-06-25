@@ -12,21 +12,21 @@ from vanttec_uuv.msg import GuidanceWaypoints
 from usv_perception.msg import obj_detected, obj_detected_list
 from nav_msgs.msg import Path
 from binmission import BinMission
-from gate_mission import GateMission
+from gatemission import GateMission
 from buoymission import BuoyMission
 # Class Definition
 class StateMachine:
-    def __init__(self):
+    def __init__(self): 
         self.transition_mission = 0
         self.activated = True
         self.binmission = BinMission()
-        self.gate_mission = GateMission()
+        self.gatemission = GateMission()
         self.buoymission = BuoyMission()
         
       
     def transition(self):
         if self.transition_mission == 0 :
-            self.gate_mission.activate()
+            self.gatemission.activate()
             self.transition_mission = 1
         elif self.transition_mission == 1:
             self.buoymission.activate()
