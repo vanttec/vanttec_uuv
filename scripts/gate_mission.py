@@ -60,7 +60,7 @@ class Gate_Mission:
         rospy.Subscriber('/uuv_perception/yolo_zed/objects_detected', obj_detected_list, self.detected_objects_callback)
         # rospy.Subscriber("/uuv_perception/gate_left_waypoint",Point, self.left_gate_callback)
         # rospy.Subscriber("/uuv_perception/gate_rigth_waypoint",Point, self.right_gate_callback)
-        rospy.Subscriber("/uuv_perception/gate",Gate, self.gate_callback)
+        rospy.Subscriber("/uuv_perception/gate_position",Gate, self.gate_callback)
 
         # ROS Publishers
         self.uuv_waypoints = rospy.Publisher("/uuv_guidance/guidance_controller/waypoints", GuidanceWaypoints, queue_size=10)
@@ -257,7 +257,6 @@ class Gate_Mission:
                     self.desired(self.waypoints)
         else:
             if(self.found_state == -2):
-                # Analize the image to choose side
                 # rospy.logwarn("Analizing the image to choose side")
                 self.wait(-1)
             elif(self.found_state == -1):
