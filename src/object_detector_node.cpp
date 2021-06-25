@@ -20,6 +20,7 @@
 // #include <pcl/surface/npi
 #include <vector>
 #include <pcl/filters/passthrough.h>
+#include <vanttec_uuv/Gate.h>
 
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
 
@@ -49,10 +50,12 @@ pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> clusterer;
 //Stores individual clusters as point clouds
 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> segments;
 
-ros::Publisher gate_down_pub,
-    gate_upper_pub,
-    gate_left_waypoint,
-    gate_right_waypoint,
+ros::Publisher gate_publisher,
+    // gate_down_pub,
+    // gate_upper_pub,
+    // gate_mid_waypoint,
+    // gate_left_waypoint,
+    // gate_right_waypoint,
     buoy_1_pos_pub,
     buoy_2_pos_pub;
 
@@ -209,7 +212,14 @@ void callback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
 
         viewer->addSphere(maxright,0.05, "maxr");
         viewer->addSphere(maxleft,0.05, "maxl");
-        geometry_msgs::Point uppercorner, downcorner, leftw, rightw;
+
+        geometry_msgs::Point uppercorner, downcorner, leftw, rightw, mid;
+        vanttec_uuv::Gate gate_msg;
+
+        mid.x = gate_mid_p.x;
+        mid.y = gate_mid_p.y;
+        mid.z = gate_mid_p.z;
+
         uppercorner.x = maxleft.x;
         uppercorner.y = maxleft.y;
         uppercorner.z = maxleft.z;
@@ -227,10 +237,18 @@ void callback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
         rightw.y = right.y;
         rightw.z = right.z;
 
-        gate_left_waypoint.publish(leftw);
-        gate_right_waypoint.publish(rightw);
-        gate_down_pub.publish(downcorner);
-        gate_upper_pub.publish(uppercorner);
+        gate_msg.gate_position = mid;
+        gate_msg.left_side = leftw;
+        gate_msg.right_side = rightw;
+        gate_msg.right_side = rightw;
+        gate_msg.upper_corner = uppercorner;
+        gate_msg.lower_corner = downcorner;
+
+        gate_publisher.publish(gate_msg);
+        // gate_left_waypoint.publish(leftw);
+        // gate_right_waypoint.publish(rightw);
+        // gate_down_pub.publish(downcorner);
+        // gate_upper_pub.publish(uppercorner);
 
         pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> color_handler(
             gate,
@@ -252,18 +270,24 @@ int main(int argc, char** argv) {
     segments.reserve(10);
     ros::init(argc, argv, "point_cloud_processing");
     ros::NodeHandle handler;
-    gate_down_pub = handler.advertise<geometry_msgs::Point>
-                    ("gate_inferior_corner", 10);
-    gate_upper_pub = handler.advertise<geometry_msgs::Point>
-                     ("gate_superior_corner", 10);
+    // gate_down_pub = handler.advertise<geometry_msgs::Point>
+    //                 ("/uuv_perception/gate_inferior_corner", 10);
 
-    gate_left_waypoint = handler.advertise<geometry_msgs::Point>
-                         ("gate_left_waypoint", 10);
-    gate_right_waypoint = handler.advertise<geometry_msgs::Point>
-                          ("gate_right_waypoint", 10);
-    buoy_1_pos_pub = handler.advertise<geometry_msgs::Point> ("buoy_1_pos_pub", 10);
+    // gate_upper_pub = handler.advertise<geometry_msgs::Point>
+    //                  ("/uuv_perception/gate_superior_corner", 10);
 
-    buoy_2_pos_pub = handler.advertise<geometry_msgs::Point> ("buoy_2_pos_pub", 10);
+    gate_publisher = handler.advertise<vanttec_uuv::Gate> ("/uuv_perception/gate", 10);
+
+    // gate_left_waypoint = handler.advertise<geometry_msgs::Point> ("/uuv_perception/gate_mid_waypoint", 10);
+
+    // gate_left_waypoint = handler.advertise<geometry_msgs::Point> ("/uuv_perception/gate_left_waypoint", 10);
+
+    // gate_right_waypoint = handler.advertise<geometry_msgs::Point> ("/uuv_perception/gate_right_waypoint", 10);
+
+    buoy_1_pos_pub = handler.advertise<geometry_msgs::Point> ("/uuv_perception/buoy_1_pos_pub", 10);
+
+    buoy_2_pos_pub = handler.advertise<geometry_msgs::Point> ("/uuv_perception/buoy_2_pos_pub", 10);
+
     ros::Subscriber subscriber = handler.subscribe("frontr200/camera/depth_registered/points", 10, callback);
 
     ros::spin();

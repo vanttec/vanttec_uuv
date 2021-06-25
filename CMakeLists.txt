@@ -38,7 +38,7 @@ add_message_files(
    MissionStatus.msg
    obj_detected.msg
    obj_detected_list.msg
-   obstacles_list.msg
+   Gate.msg
 )
 
 add_service_files(
@@ -159,5 +159,5 @@ add_executable(gazebo_interface src/gazebo_interface.cpp)
 target_link_libraries(gazebo_interface ${catkin_LIBRARIES})
 
 link_directories(${PCL_LIBRARY_DIRS})
-add_executable(gate_detector_node src/gate_detector.cpp)
-target_link_libraries(gate_detector_node ${catkin_LIBRARIES})
+add_executable(object_detector_node src/object_detector_node.cpp)
+target_link_libraries(object_detector_node ${catkin_LIBRARIES})
