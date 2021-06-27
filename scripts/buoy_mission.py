@@ -7,7 +7,7 @@ import numpy as np
 import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
 from geometry_msgs.msg import Pose, PoseStamped,Point
-from vanttec_uuv.msg import GuidanceWaypoints
+from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list
 from nav_msgs.msg import Path
 
 # Class Definition
@@ -27,7 +27,7 @@ class BuoyMission:
         self.target_x = 0
         self.target_y = 0
         self.ned_alpha = 0
-        self.choose_side = 'left'
+        self.choose_side = 'police'
         self.distance_away = 5
         self.waypoints = GuidanceWaypoints()
         self.uuv_path = Path()
@@ -44,27 +44,47 @@ class BuoyMission:
         self.staywaypoint = 0.0
         self.ylabel = 0.0
         self.timewait=0.0
-        self.bouy1 = Point()
-        self.bouy2 = Point()
-        self.bouy1.x = 0.0
-        self.bouy1.y = 0.0
-        self.bouy1.z = 0.0
-        self.bouy2.x = 0.0
-        self.bouy2.y = 0.0
-        self.bouy2.z = 0.0
+        self.buoy1 = Point()
+        self.buoy2 = Point()
+        self.buoy1.x = 0.0
+        self.buoy1.y = 0.0
+        self.buoy1.z = 0.0
+        self.buoy2.x = 0.0
+        self.buoy2.y = 0.0
+        self.buoy2.z = 0.0
         self.foundimage = {}
+<<<<<<< HEAD:scripts/buoy_mission.py
+        self.side = "police"
+=======
         self.side = "LEFT"
+>>>>>>> feature/release_candidate_v1_0:scripts/buoymission.py
         self.locatemarker = False
         self.findimage = False
         self.movetobuoy = False
         #Waypoint test instead of perception node
 
+        self.gun_x_coord = 0
+        self.badge_x_coord = 0
+        self.buoy1_class_found = 0
+        self.buoy2_class_found = 0
+
+        self.camera_offset_x = 0.8
+        self.camera_offset_y = 0.0
+        self.camera_offset_z = -0.1
 
         # ROS Subscribers
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
+<<<<<<< HEAD:scripts/buoy_mission.py
+        rospy.Subscriber("/uuv_perception/buoy_1_pos_pub",Point,self.buoy1_callback)
+        rospy.Subscriber("/uuv_perception/buoy_2_pos_pub",Point,self.buoy2_callback)
+        rospy.Subscriber("/markerwaypoint",Point,self.marker_callback)
+        rospy.Subscriber('/uuv_perception/yolo_zed/objects_detected', obj_detected_list, self.detected_objects_callback)
+
+=======
         rospy.Subscriber("buoy_1_pos_pub",Point,self.bouy1_callback)
         rospy.Subscriber("buoy_2_pos_pub",Point,self.bouy2_callback)
         rospy.Subscriber("/markerwaypoint",Point,self.marker_callback)
+>>>>>>> feature/release_candidate_v1_0:scripts/buoymission.py
         '''
         rospy.Subscriber("/usv_perception/yolo_zed/objects_detected", obj_detected_list, self.objs_callback)
         '''
@@ -78,10 +98,33 @@ class BuoyMission:
 
         #Waypoint test instead of perception node
         #This array shall be modified with zed inputs of distance    
-    def bouy1_callback(self, msg):
-        self.bouy1 = msg
-    def bouy2_callback(self, msg):
-        self.bouy2 = msg
+
+    def detected_objects_callback(self, msg):
+        self.objects_list = msg
+        for object in msg.objects:
+            if   object.clase == "gun":
+                self.gun_x_coord = object.x
+                self.buoy1_class_found = 1
+            elif object.clase == "badge":
+                self.badge_x_coord = object.x
+                self.buoy2_class_found = 1
+
+    def buoy1_callback(self, msg):
+        self.buoy1 = msg
+        buoy = Point()
+        if self.buoy1.x < self.buoy2.x:
+            buoy = self.buoy2
+            self.buoy2 = self.buoy1
+            self.buoy1 = buoy
+
+    def buoy2_callback(self, msg):
+        self.buoy2 = msg
+        buoy = Point()
+        if self.buoy1.x < self.buoy2.x:
+            buoy = self.buoy2
+            self.buoy2 = self.buoy1
+            self.buoy1 = buoy
+
     def ins_pose_callback(self,pose):
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
@@ -97,6 +140,52 @@ class BuoyMission:
     def sweep(self,nextmission):
         self.waypoints.guidance_law = 0
         if(self.locatemarker == True):
+<<<<<<< HEAD:scripts/buoy_mission.py
+            if(self.buoy1.x!=0.0 and self.buoy2.x !=0.0):
+                if(self.side == "police"):
+                    if self.badge_x_coord < self.gun_x_coord:
+                        self.foundimage = {
+                        'X': self.buoy1.z - self.camera_offset_x,
+                        'Y': self.buoy1.x,
+                        'Z': self.buoy1.y - self.camera_offset_z
+                        }
+                    else:
+                        self.foundimage = {
+                        'X': self.buoy2.z - self.camera_offset_x,
+                        'Y': self.buoy2.x,
+                        'Z': self.buoy2.y - self.camera_offset_z
+                        } 
+                else:
+                    if self.badge_x_coord < self.gun_x_coord:
+                        self.foundimage = {
+                        'X': self.buoy2.z - self.camera_offset_x,
+                        'Y': self.buoy2.x,
+                        'Z': self.buoy2.y - self.camera_offset_z
+                        }
+                    else:
+                        self.foundimage = {
+                        'X': self.buoy1.z - self.camera_offset_x,
+                        'Y': self.buoy1.x,
+                        'Z': self.buoy1.y - self.camera_offset_z
+                        }
+                self.movetobuoy = True
+
+            # if self.side == "police":
+            #     if self.badge_x_coord < self.gun_x_coord:
+            #         self.buoy = self.right_buoy
+            #         self.buoy_angle_body = self.right_buoy_angle_body
+            #     else:
+            #         self.buoy = self.left_buoy
+            #         self.buoy_angle_body = self.left_buoy_angle_body
+            # else:
+            #     if self.badge_x_coord < self.gun_x_coord:
+            #         self.buoy = self.left_buoy
+            #         self.buoy_angle_body = self.left_buoy_angle_body
+            #     else:
+            #         self.buoy = self.right_buoy
+            #         self.buoy_angle_body = self.right_buoy_angle_body
+
+=======
             if(self.bouy1.x!=0.0 and self.bouy2.x !=0.0):
                 if(self.side == "LEFT"):
                     self.foundimage = {
@@ -112,6 +201,7 @@ class BuoyMission:
                     } 
                 self.movetobuoy = True
 
+>>>>>>> feature/release_candidate_v1_0:scripts/buoymission.py
         if(self.sweepstate == -1):
             if (self.waypoints.heading_setpoint <=  -math.pi/4):
                 self.sweepstate = 2
@@ -248,9 +338,9 @@ class BuoyMission:
                 rospy.logwarn("Analizing the image to choose side")
                 self.wait(-1)
             elif(self.foundstate == -1):
-                self.enterwaypoint = self.ned_x+self.foundimage['X']-1
-                self.staywaypoint = self.ned_x+self.foundimage['X']-0.3
-                self.ylabel = self.ned_y + self.foundimage['Y']
+                self.enterwaypoint = self.ned_x+self.foundimage['X']+1
+                self.staywaypoint = self.ned_x+self.foundimage['X']+0.4
+                self.ylabel = self.ned_y + self.foundimage['Y'] - 0.45
                 self.leavewaypoint1x = self.staywaypoint 
                 self.leavewaypoint1y = self.ned_y+self.foundimage['Y']+1
                 self.leavewaypoint2x = self.ned_x+self.foundimage['X']+2
@@ -283,9 +373,10 @@ class BuoyMission:
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)     
             elif(self.foundstate == 2):
-               #stay until bouymission is completed
+               #stay until buoymission is completed
                rospy.logwarn("Looking the best position to touch buoy") 
                self.touch_buoy(3)
+            #    self.foundstate = 3
             elif(self.foundstate == 3):
                 self.waypoints.guidance_law = 1
                 rospy.logwarn("leave1")

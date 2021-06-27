@@ -21,6 +21,8 @@
 #include <vector>
 #include <pcl/filters/passthrough.h>
 #include <vanttec_uuv/Gate.h>
+#include <vanttec_uuv/DetectedObstacles.h>
+#include <vanttec_uuv/Obstacle.h>
 
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
 
@@ -50,7 +52,7 @@ pcl::EuclideanClusterExtraction<pcl::PointXYZRGB> clusterer;
 //Stores individual clusters as point clouds
 std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> segments;
 
-ros::Publisher gate_publisher,
+ros::Publisher gate_publisher,// buoys_publisher,
     // gate_down_pub,
     // gate_upper_pub,
     // gate_mid_waypoint,
@@ -174,6 +176,7 @@ void callback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
 
         ++counter;
     }
+
     //BUOY PUBLISHING
     for (int i=0;i<2;i++) {
         geometry_msgs::Point holder;
@@ -198,6 +201,21 @@ void callback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
             publisher->publish(holder);
         }
     }
+
+    // vanttec_uuv::DetectedObstacles buoys_msg;
+    // vanttec_uuv::Obstacle buoy_obs[2];
+    // buoy_obs[0].type = "Buoy_1";
+    // buoy_obs[0].pose.position.x = buoys[0].second.x;
+    // buoy_obs[0].pose.position.y = buoys[0].second.y;
+    // buoy_obs[0].pose.position.z = buoys[0].second.z;
+    // buoy_obs[1].type = "Buoy_2";
+    // buoy_obs[1].pose.position.x = buoys[1].second.x;
+    // buoy_obs[1].pose.position.y = buoys[1].second.y;
+    // buoy_obs[1].pose.position.z = buoys[1].second.z;
+    // buoys_msg.obstacles.push_back(buoy_obs[0]);
+    // buoys_msg.obstacles.push_back(buoy_obs[1]);
+    // buoys_msg.len = 2;
+    // buoys_publisher.publish(buoys_msg);
 
     if (gate != nullptr) {
         pcl::PointXYZRGB left, right, center;
@@ -276,7 +294,7 @@ int main(int argc, char** argv) {
     // gate_upper_pub = handler.advertise<geometry_msgs::Point>
     //                  ("/uuv_perception/gate_superior_corner", 10);
 
-    gate_publisher = handler.advertise<vanttec_uuv::Gate> ("/uuv_perception/gate", 10);
+    gate_publisher = handler.advertise<vanttec_uuv::Gate> ("/uuv_perception/gate_position", 10);
 
     // gate_left_waypoint = handler.advertise<geometry_msgs::Point> ("/uuv_perception/gate_mid_waypoint", 10);
 
@@ -287,6 +305,8 @@ int main(int argc, char** argv) {
     buoy_1_pos_pub = handler.advertise<geometry_msgs::Point> ("/uuv_perception/buoy_1_pos_pub", 10);
 
     buoy_2_pos_pub = handler.advertise<geometry_msgs::Point> ("/uuv_perception/buoy_2_pos_pub", 10);
+    
+    // buoys_publisher = handler.advertise<vanttec_uuv::DetectedObstacles> ("/uuv_perception/buoys_position", 10);
 
     ros::Subscriber subscriber = handler.subscribe("frontr200/camera/depth_registered/points", 10, callback);
 

@@ -91,7 +91,7 @@ class utils:
 
 def getContours_and_markerAngle(img,imgContour,ned_yaw):
     #Utilizacion de findContours para buscar contornos
-    _, contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     for contour in contours:
         #Busqueda del area y defenicion de un area minima para descartar ruido u objetos no grandes
