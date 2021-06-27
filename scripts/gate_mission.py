@@ -270,7 +270,7 @@ class Gate_Mission:
                 # self.y_label = self.ned_y + self.final_gate_position.y
                 self.y_label = self.final_gate_position.y
 
-                (x,y,z) = self.gate_to_ned(3.5,0,0, self.mid_gate_position)
+                (x,y,z) = self.gate_to_ned(4,0,0, self.mid_gate_position)
                 # self.leave_waypoint_x2 = self.ned_x + self.final_gate_position.x + 5
                 # self.leave_waypoint_y2 = self.ned_y + self.final_gate_position.y - 1
                 self.leave_waypoint_x2 = x
