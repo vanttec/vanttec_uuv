@@ -53,7 +53,11 @@ class BuoyMission:
         self.buoy2.y = 0.0
         self.buoy2.z = 0.0
         self.foundimage = {}
+<<<<<<< HEAD:scripts/buoy_mission.py
         self.side = "police"
+=======
+        self.side = "LEFT"
+>>>>>>> feature/release_candidate_v1_0:scripts/buoymission.py
         self.locatemarker = False
         self.findimage = False
         self.movetobuoy = False
@@ -70,11 +74,17 @@ class BuoyMission:
 
         # ROS Subscribers
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
+<<<<<<< HEAD:scripts/buoy_mission.py
         rospy.Subscriber("/uuv_perception/buoy_1_pos_pub",Point,self.buoy1_callback)
         rospy.Subscriber("/uuv_perception/buoy_2_pos_pub",Point,self.buoy2_callback)
         rospy.Subscriber("/markerwaypoint",Point,self.marker_callback)
         rospy.Subscriber('/uuv_perception/yolo_zed/objects_detected', obj_detected_list, self.detected_objects_callback)
 
+=======
+        rospy.Subscriber("buoy_1_pos_pub",Point,self.bouy1_callback)
+        rospy.Subscriber("buoy_2_pos_pub",Point,self.bouy2_callback)
+        rospy.Subscriber("/markerwaypoint",Point,self.marker_callback)
+>>>>>>> feature/release_candidate_v1_0:scripts/buoymission.py
         '''
         rospy.Subscriber("/usv_perception/yolo_zed/objects_detected", obj_detected_list, self.objs_callback)
         '''
@@ -130,6 +140,7 @@ class BuoyMission:
     def sweep(self,nextmission):
         self.waypoints.guidance_law = 0
         if(self.locatemarker == True):
+<<<<<<< HEAD:scripts/buoy_mission.py
             if(self.buoy1.x!=0.0 and self.buoy2.x !=0.0):
                 if(self.side == "police"):
                     if self.badge_x_coord < self.gun_x_coord:
@@ -174,6 +185,23 @@ class BuoyMission:
             #         self.buoy = self.right_buoy
             #         self.buoy_angle_body = self.right_buoy_angle_body
 
+=======
+            if(self.bouy1.x!=0.0 and self.bouy2.x !=0.0):
+                if(self.side == "LEFT"):
+                    self.foundimage = {
+                    'X': self.bouy2.z,
+                    'Y': self.bouy2.x,
+                    'Z': self.bouy2.y
+                    } 
+                else:
+                    self.foundimage = {
+                    'X': self.bouy1.z,
+                    'Y': self.bouy1.x,
+                    'Z': self.bouy1.y
+                    } 
+                self.movetobuoy = True
+
+>>>>>>> feature/release_candidate_v1_0:scripts/buoymission.py
         if(self.sweepstate == -1):
             if (self.waypoints.heading_setpoint <=  -math.pi/4):
                 self.sweepstate = 2
