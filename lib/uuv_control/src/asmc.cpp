@@ -10,70 +10,69 @@
 
 #include "asmc.hpp"
 
-ASMC::ASMC(double _sample_time_s, const double _K2, const double _Kalpha, const double _Kmin, const double _miu, const DOFControllerType_E _type)
+ASMC::ASMC(const double _K2, const double _K_alpha, const double _K_min, const double _mu, const DOFControllerType_E _type)
 {
-    sample_time_s = _sample_time_s;
     K1 = 0;
     dot_K1 = 0;
     K2 = _K2;
-    Kalpha = _Kalpha;
-    Kmin = _Kmin;
-    miu = miu;
+    K_alpha = _K_alpha;
+    K_min = _K_min;
+    mu = mu;
     controller_type = _type;
-    error = 0.0;
-    dot_error = 0.0;
-    manipulation = 0.0;
+    error1 = 0.0;
+    error2 = 0.0;
+    ua = 0.0;
 }
 
 ASMC::~ASMC(){}
 
 void ASMC::Reset()
 {
-    error = 0.0;
-    prev_error = 0.0;
-    dot_error = 0.0;
-    prev_dot_error = 0.0;
-    manipulation = 0.0;
+    error1 = 0.0;
+    prev_error1 = 0.0;
+    error2 = 0.0;
+    prev_error2 = 0.0;
+    ua = 0.0;
 }
 
-void ASMC::SetAdaptiveParams(const double _Kmin, const double _Kalpha, const double _miu)
+void ASMC::SetAdaptiveParams(const double _K_min, const double _K_alpha, const double _mu)
 {
-    Kalpha = _Kalpha;
-    Kmin = _Kmin;
-    miu = miu;
+    K_alpha = _K_alpha;
+    K_min = _K_min;
+    mu = _mu;
 }
 
-void ASMC::Manipulation(double _current)
+void ASMC::CalculateAuxControl(double set_point, double _current_pos, double _current_vel)
 {
     double sign = 0.0;
-    prev_error = error;
-    prev_dot_error = dot_error;
+    prev_error1 = error1;
+    prev_error2 = error2;
     prev_dot_K1 = dot_K1;
 
-    error = set_point - _current;
-    dot_error = (error - prev_error)/sample_time_s;
+    error1 = set_point - _current_pos;
+    error2 = 0.0       - _current_vel;
 
     if (controller_type == ANGULAR_DOF)
     {
         if (std::abs(error) > PI)
         {
-            error = (error / std::abs(error)) * (std::abs(error) - 2 * PI);
+            error1 = (error / std::abs(error)) * (std::abs(error) - 2 * PI);
         }
         if (std::abs(dot_error) > PI)
         {
-            dot_error = (dot_error / std::abs(dot_error)) * (std::abs(dot_error) - 2 * PI);
+            error2 = (dot_error / std::abs(dot_error)) * (std::abs(dot_error) - 2 * PI);
         }
     }
 
-    sigma = dot_error + lambda*error;
-    if (std::abs(sigma) - miu != 0)
+    s = error2 + lambda*error1;
+    if (std::abs(s) - mu != 0.0)
     {
-        sign = (std::abs(sigma) - miu) / (std::abs(sigma) - miu);
+        sign = (s - mu) / (std::abs(s) - mu);
     } else
     {
         sign = 0;
     }
-    dot_K1 = K1>Kmin ?  Kalpha*sign:Kmin;
+    dot_K1 = K1>K_min ?  K_alpha*sign:K_min;
     K1 += (dot_K1+prev_dot_K1)/2*sample_time_s;
-    manipulation = K1*sign + K2*sigma; // Checar sign
+    ua = -K1*sign - K2*s; // Checar sign
 }

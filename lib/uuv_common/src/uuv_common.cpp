@@ -1,8 +1,10 @@
 /** ----------------------------------------------------------------------------
  * @file: uuv_common.cpp
- * @date: July 30, 2020
+ * @date: March 2, 2022
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
+ * @author: Sebas Mtz
+ * @email: sebas.martp@gmail.com
  * 
  * @brief: Common functions and constants used throughout the uuv package.
  * -----------------------------------------------------------------------------
@@ -42,5 +44,25 @@ namespace uuv_common
         _waypoints.waypoint_list_length = counter;
 
         return _waypoints;
+    }
+
+    Eigen::Matrix6f CalculateTransformation(double phi, double theta, double psi)
+    {
+        Eigen::Matrix3f R << std::cos(theta)*std::cos(psi),                                                 std::cos(theta)*std::sin(psi),                                                  -std::sin(theta),
+                             std::sin(phi)*std::sin(theta)*std::cos(psi) - std::cos(phi)*std::sin(psi),     std::sin(phi)*std::sin(theta)*std::sin(psi) + std::cos(phi)*std::cos(psi),      std::sin(phi)*std::cos(theta),
+                             std::cos(phi)*std::sin(theta)*std::cos(psi) + std::sin(phi)*std::sin(psi),     std::cos(phi)*std::sin(theta)*std::sin(psi) - std::sin(phi)*std::cos(psi),      std::cos(phi)*std::cos(theta);
+
+        Eigen::Matrix3f T << 1,     std::sin(phi)*std::tan(theta),  std::cos(phi)*std::tan(theta),
+                             0,     std::cos(phi),                  -std::sin(phi),
+                             0,     std::sin(phi)/std::cos(theta),  std::cos(phi)/std::cos(theta);
+
+        Eigen::Matrix3f zero << 0,0,0,
+                                0,0,0,
+                                0,0,0;
+
+        Eigen::Matrix6f J << R,     zero,
+                             zero,  T;
+
+        return J;
     }
 }

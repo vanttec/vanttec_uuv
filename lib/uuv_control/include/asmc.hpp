@@ -23,38 +23,36 @@ typedef enum DOFControllerType_E
 class ASMC
 {
     public:
-        float sample_time_s;
-
         double set_point;
-        double error;
-        double prev_error;
-        double dot_error;
-        double prev_dot_error;
+        double error1;
+        double prev_error1;
+        double error2;
+        double prev_error2;
 
-        double manipulation;
+        double ua;
 
         double lambda;
-        double sigma;           //Sliding surface
+        double s;           //Sliding surface
 
         double K1;
         double dot_K1;
         double prev_dot_K1;
         double K2;
-        double Kmin;
-        double Kalpha;
-        double miu;
+        double K_min;
+        double K_alpha;
+        double mu;
 
         DOFControllerType_E controller_type;
 
         // Constructor
-        ASMC(double _sample_time_s, const double _K2, const double _Kalpha, const double _Kmin, const double _miu, const DOFControllerType_E _type);
+        ASMC(const double _K2, const double _K_alpha, const double _K_min, const double _mu, const DOFControllerType_E _type);
 
         // Destructor
         ~ASMC();
 
         void Reset();
-        void SetAdaptiveParams(const double _Kmin, const double _Kalpha, const double _miu);
-        void Manipulation(double);
+        void SetAdaptiveParams(const double _K_min, const double _K_alpha, const double _mu);
+        void CalculateAuxControl(double set_point, double _current_pos, double _current_vel);
 };
 
 #endif
