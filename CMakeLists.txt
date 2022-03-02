@@ -155,9 +155,6 @@ add_executable(uuv_mission_manager_node
 add_dependencies(uuv_mission_manager_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_mission_manager_node ${catkin_LIBRARIES})
 
-add_executable(gazebo_interface src/gazebo_interface.cpp)
-target_link_libraries(gazebo_interface ${catkin_LIBRARIES})
-
 link_directories(${PCL_LIBRARY_DIRS})
 add_executable(object_detector_node src/object_detector_node.cpp)
 target_link_libraries(object_detector_node ${catkin_LIBRARIES})
