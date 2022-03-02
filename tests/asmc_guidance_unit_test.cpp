@@ -1,3 +1,12 @@
+/** ----------------------------------------------------------------------------
+ * @file: asmc_guidance_unit_test.cpp
+ * @date: June 20, 2021
+ * @author: Sebas Mtz
+ * @email: sebas.martp@gmail.com
+ * 
+ * @brief: ASMC Waypoint Guidance Law test
+ * -----------------------------------------------------------------------------
+ * */
 #include <cmath>
 
 #include <std_msgs/Empty.h>
@@ -27,7 +36,7 @@ void pose_callback(const geometry_msgs::Pose& _pose)
 int main(int argc, char **argv)
 {
     ASMC_GUIDANCE_4DOF guidance_law((double) SAMPLE_TIME_S, 0.001, 0.01, 0.01, 0.01, 0.1);
-    guidance_law.asmc_guidance_yaw.Kalpha = 0.1;
+    guidance_law.asmc_guidance_yaw.Kalpha = 0.1; // <--- IMPORTANT
 
     geometry_msgs::Twist desired_velocities;
 

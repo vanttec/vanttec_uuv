@@ -56,10 +56,10 @@ int main(int argc, char **argv)
         guidance_controller.UpdateStateMachines();
 
         /* Publish Odometry */ 
-        // if (guidance_controller.uuv_status.status == 1)
-        // {
+        if (guidance_controller.uuv_status.status == 1)
+        {
             uuv_desired_setpoints.publish(guidance_controller.desired_setpoints);
-        // }
+        }
 
         /* Slee for 10ms */
         cycle_rate.sleep();
