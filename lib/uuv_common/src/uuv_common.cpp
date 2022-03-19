@@ -46,22 +46,26 @@ namespace uuv_common
         return _waypoints;
     }
 
-    Eigen::Matrix6f CalculateTransformation(double phi, double theta, double psi)
+    Eigen::MatrixXf CalculateTransformation(double phi, double theta, double psi)
     {
-        Eigen::Matrix3f R << std::cos(theta)*std::cos(psi),                                                 std::cos(theta)*std::sin(psi),                                                  -std::sin(theta),
-                             std::sin(phi)*std::sin(theta)*std::cos(psi) - std::cos(phi)*std::sin(psi),     std::sin(phi)*std::sin(theta)*std::sin(psi) + std::cos(phi)*std::cos(psi),      std::sin(phi)*std::cos(theta),
-                             std::cos(phi)*std::sin(theta)*std::cos(psi) + std::sin(phi)*std::sin(psi),     std::cos(phi)*std::sin(theta)*std::sin(psi) - std::sin(phi)*std::cos(psi),      std::cos(phi)*std::cos(theta);
+        Eigen::Matrix3f R;
+        R << std::cos(theta)*std::cos(psi),                                                 std::cos(theta)*std::sin(psi),                                                  -std::sin(theta),
+             std::sin(phi)*std::sin(theta)*std::cos(psi) - std::cos(phi)*std::sin(psi),     std::sin(phi)*std::sin(theta)*std::sin(psi) + std::cos(phi)*std::cos(psi),      std::sin(phi)*std::cos(theta),
+             std::cos(phi)*std::sin(theta)*std::cos(psi) + std::sin(phi)*std::sin(psi),     std::cos(phi)*std::sin(theta)*std::sin(psi) - std::sin(phi)*std::cos(psi),      std::cos(phi)*std::cos(theta);
 
-        Eigen::Matrix3f T << 1,     std::sin(phi)*std::tan(theta),  std::cos(phi)*std::tan(theta),
-                             0,     std::cos(phi),                  -std::sin(phi),
-                             0,     std::sin(phi)/std::cos(theta),  std::cos(phi)/std::cos(theta);
+        Eigen::Matrix3f T;
+        T << 1,     std::sin(phi)*std::tan(theta),  std::cos(phi)*std::tan(theta),
+             0,     std::cos(phi),                  -std::sin(phi),
+             0,     std::sin(phi)/std::cos(theta),  std::cos(phi)/std::cos(theta);
 
-        Eigen::Matrix3f zero << 0,0,0,
-                                0,0,0,
-                                0,0,0;
+        Eigen::Matrix3f zero;
+        zero << 0,0,0,
+                0,0,0,
+                0,0,0;
 
-        Eigen::Matrix6f J << R,     zero,
-                             zero,  T;
+        Eigen::MatrixXf J(6,6);
+        J << R,     zero,
+             zero,  T;
 
         return J;
     }

@@ -30,7 +30,7 @@ namespace uuv_common
     
     /* Helper functions */
     vanttec_uuv::GuidanceWaypoints GenerateCircle(float _radius, float _x_center, float _y_center, float _z_center, float _angle_offset);
-    Eigen::Matrix6f                CalculateTransformation(double phi, double theta, double psi);
+    Eigen::MatrixXf                CalculateTransformation(double phi, double theta, double psi);
 }
 
 #endif

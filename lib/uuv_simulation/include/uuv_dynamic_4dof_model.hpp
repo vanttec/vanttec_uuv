@@ -42,22 +42,26 @@ class UUVDynamic4DOFModel
 
         /* Matrices */
         
-        Eigen::Vector4f tau;
-        Eigen::Vector4f body_pos;
-        Eigen::Vector4f upsilon;
-        Eigen::Vector4f upsilon_prev;
-        Eigen::Vector4f upsilon_dot;
-        Eigen::Vector4f upsilon_dot_prev;
-        Eigen::Matrix4f M_rb;
-        Eigen::Matrix4f M_a;
-        Eigen::Matrix4f C_rb;
-        Eigen::Matrix4f C_a;
-        Eigen::Matrix4f D_lin;
-        Eigen::Matrix4f D_qua;
-        Eigen::Vector4f G_eta;
-        Eigen::Matrix4f J;
-        Eigen::Vector4f eta_dot;
-        Eigen::Vector4f eta;
+        Eigen::VectorXf tau;
+        Eigen::VectorXf body_pos;
+        Eigen::VectorXf upsilon;
+        Eigen::VectorXf upsilon_prev;
+        Eigen::VectorXf upsilon_dot;
+        Eigen::VectorXf upsilon_dot_prev;
+        Eigen::MatrixXf M_rb;
+        Eigen::MatrixXf M_a;
+        Eigen::MatrixXf C_rb;
+        Eigen::MatrixXf C_a;
+        Eigen::MatrixXf D_lin;
+        Eigen::MatrixXf D_qua;
+        Eigen::VectorXf G_eta;  
+        Eigen::Matrix3f R;
+        Eigen::Matrix3f T;
+        Eigen::MatrixXf J;
+        Eigen::VectorXf eta_dot;
+        Eigen::VectorXf eta;
+        
+        Eigen::Matrix3f zero;
         // Eigen::Vector4f quat;
 };
 

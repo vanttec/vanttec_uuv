@@ -52,7 +52,7 @@ class ASMC
 
         void Reset();
         void SetAdaptiveParams(const double _K_min, const double _K_alpha, const double _mu);
-        void CalculateAuxControl(double set_point, double _current_pos, double _current_vel);
+        void CalculateAuxControl(double set_point, double _current_pos, double _current_vel, double _sample_time_s);
 };
 
 #endif

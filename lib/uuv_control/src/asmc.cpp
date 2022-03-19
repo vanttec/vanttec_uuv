@@ -42,7 +42,7 @@ void ASMC::SetAdaptiveParams(const double _K_min, const double _K_alpha, const d
     mu = _mu;
 }
 
-void ASMC::CalculateAuxControl(double set_point, double _current_pos, double _current_vel)
+void ASMC::CalculateAuxControl(double set_point, double _current_pos, double _current_vel, double _sample_time_s)
 {
     double sign = 0.0;
     prev_error1 = error1;
@@ -54,13 +54,13 @@ void ASMC::CalculateAuxControl(double set_point, double _current_pos, double _cu
 
     if (controller_type == ANGULAR_DOF)
     {
-        if (std::abs(error) > PI)
+        if (std::abs(error1) > PI)
         {
-            error1 = (error / std::abs(error)) * (std::abs(error) - 2 * PI);
+            error1 = (error1 / std::abs(error1)) * (std::abs(error1) - 2 * PI);
         }
-        if (std::abs(dot_error) > PI)
+        if (std::abs(error2) > PI)
         {
-            error2 = (dot_error / std::abs(dot_error)) * (std::abs(dot_error) - 2 * PI);
+            error2 = (error2 / std::abs(error2)) * (std::abs(error2) - 2 * PI);
         }
     }
 
@@ -74,5 +74,5 @@ void ASMC::CalculateAuxControl(double set_point, double _current_pos, double _cu
     }
     dot_K1 = K1>K_min ?  K_alpha*sign:K_min;
     K1 += (dot_K1+prev_dot_K1)/2*sample_time_s;
-    ua = -K1*sign - K2*s; // Checar sign
+    ua = -K1*sign - K2*s;
 }
