@@ -157,4 +157,4 @@ target_link_libraries(uuv_mission_manager_node ${catkin_LIBRARIES})
 
 link_directories(${PCL_LIBRARY_DIRS})
 add_executable(object_detector_node src/object_detector_node.cpp)
-target_link_libraries(object_detector_node ${catkin_LIBRARIES})
+target_link_libraries(object_detector_node ${catkin_LIBRARIES} pcl_visualization)
