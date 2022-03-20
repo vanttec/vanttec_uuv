@@ -1,10 +1,12 @@
 /** ----------------------------------------------------------------------------
- * @file: uuv_dynamic_4dof_model.cpp
- * @date: July 30, 2020
+ * @file: uuv_dynamic_6dof_model.cpp
+ * @date: March 19, 2022
+ * @author: Sebastian Martínez
+ * @email: sebas.martp@gmail.com
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
  * 
- * @brief: Implementation of the kinematic 4dof model of the UUV for simulation.
+ * @brief: Implementation of the dynamic 6dof model of the UUV for simulation.
  * -----------------------------------------------------------------------------
  **/
 
