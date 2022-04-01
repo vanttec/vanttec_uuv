@@ -12,7 +12,7 @@
 #define __UUV_6DOF_ASMC_H__
 
 #include "asmc.hpp"
-#include "vtec_u3_gamma_parameters.hpp"
+#include "vtec_u3_parameters.hpp"
 
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Twist.h>

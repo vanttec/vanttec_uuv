@@ -1,27 +1,25 @@
 /** ----------------------------------------------------------------------------
- * @file: uuv_dynamic_6dof_model.cpp
- * @date: March 19, 2022
- * @author: Sebastian Martínez
- * @email: sebas.martp@gmail.com
+ * @file: uuv_dynamic_6dof_model.hpp
+ * @date: July 30, 2020
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
  * 
- * @brief: Implementation of the dynamic 6dof model of the UUV for simulation.
+ * @brief: Implementation of the kinematic 6dof model of the UUV for simulation.
  * -----------------------------------------------------------------------------
  **/
 
-#ifndef __UUV_DYNAMIC_4DOF_MODEL_H__
-#define __UUV_DYNAMIC_4DOF_MODEL_H__
+#ifndef __UUV_DYNAMIC_6DOF_MODEL_H__
+#define __UUV_DYNAMIC_6DOF_MODEL_H__
 
 #include "vanttec_uuv/ThrustControl.h"
-#include "vtec_u3_gamma_parameters.hpp"
+#include "vtec_u4_parameters.hpp"
 
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
 #include <eigen3/Eigen/Dense>
 
-class UUVDynamic4DOFModel
+class UUVDynamic6DOFModel
 {
     public:
 
@@ -32,18 +30,16 @@ class UUVDynamic4DOFModel
         geometry_msgs::Vector3  angular_position;
 
         geometry_msgs::Twist    velocities;
-        geometry_msgs::Pose     pose;
+        geometry_msgs::point     position;
 
-        UUVDynamic4DOFModel(float _sample_time_s);
-        ~UUVDynamic4DOFModel();
+        UUVDynamic6DOFModel(float _sample_time_s);
+        ~UUVDynamic6DOFModel();
 
         void ThrustCallback(const vanttec_uuv::ThrustControl& _thrust);
         void CalculateStates();
     
     private:
-
-        /* Matrices */
-        
+    
         Eigen::VectorXf tau;
         Eigen::VectorXf body_pos;
         Eigen::VectorXf upsilon;
@@ -63,7 +59,6 @@ class UUVDynamic4DOFModel
         Eigen::VectorXf eta_dot;
         Eigen::VectorXf eta;
         
-        Eigen::Matrix3f zero;
         // Eigen::Vector4f quat;
 };
 

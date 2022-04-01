@@ -1,22 +1,20 @@
 /** ----------------------------------------------------------------------------
  * @file: uuv_dynamic_6dof_model.cpp
- * @date: March 19, 2022
- * @author: Sebastian Martínez
- * @email: sebas.martp@gmail.com
+ * @date: July 30, 2020
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
  * 
- * @brief: Implementation of the dynamic 6dof model of the UUV for simulation.
+ * @brief: Implementation of the kinematic 6dof model of the UUV for simulation.
  * -----------------------------------------------------------------------------
  **/
 
-#include "uuv_dynamic_4dof_model.hpp"
+#include "uuv_dynamic_6dof_model.hpp"
 
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
 
-UUVDynamic4DOFModel::UUVDynamic4DOFModel(float _sample_time_s)
+UUVDynamic6DOFModel::UUVDynamic6DOFModel(float _sample_time_s)
 {
     this->sample_time_s = _sample_time_s;
 
@@ -88,9 +86,9 @@ UUVDynamic4DOFModel::UUVDynamic4DOFModel(float _sample_time_s)
 
 }
 
-UUVDynamic4DOFModel::~UUVDynamic4DOFModel(){}
+UUVDynamic6DOFModel::~UUVDynamic6DOFModel(){}
 
-void UUVDynamic4DOFModel::ThrustCallback(const vanttec_uuv::ThrustControl& _thrust)
+void UUVDynamic6DOFModel::ThrustCallback(const vanttec_uuv::ThrustControl& _thrust)
 {
     this->tau << _thrust.tau_x,
                  _thrust.tau_y,
@@ -100,7 +98,7 @@ void UUVDynamic4DOFModel::ThrustCallback(const vanttec_uuv::ThrustControl& _thru
                  _thrust.tau_yaw;
 }
 
-void UUVDynamic4DOFModel::CalculateStates()
+void UUVDynamic6DOFModel::CalculateStates()
 {
     this->upsilon_dot_prev = this->upsilon_dot;
     this->upsilon_prev = this->upsilon;

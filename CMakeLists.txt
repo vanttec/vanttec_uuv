@@ -30,14 +30,15 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_message_files(
    FILES
+   EtaPose.msg
    ThrustControl.msg
    GuidanceWaypoints.msg
    MasterStatus.msg
    Obstacle.msg
    DetectedObstacles.msg
    MissionStatus.msg
-   obj_detected.msg
-   obj_detected_list.msg
+   Obj_detected.msg
+   Obj_detected_list.msg
    Gate.msg
 )
 
@@ -96,7 +97,8 @@ target_link_libraries(uuv_control_node ${catkin_LIBRARIES})
 
 add_executable(uuv_simulation_node 
     src/uuv_simulation_node.cpp 
-    lib/uuv_simulation/src/uuv_dynamic_4dof_model.cpp)
+    lib/uuv_common/src/generic_6dof_uuv_dynamic_model.cpp
+    lib/uuv_simulation/src/vtec_u4_6dof_dynamic_model.cpp)
 add_dependencies(uuv_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_simulation_node ${catkin_LIBRARIES})
 
@@ -130,8 +132,7 @@ target_link_libraries(uuv_master_node ${catkin_LIBRARIES})
 add_executable(uuv_waypoint_publisher_node 
     src/uuv_waypoint_publisher_node.cpp
     lib/uuv_motion_planning/src/waypoint_publisher.cpp
-    lib/uuv_common/src/uuv_common.cpp
-)
+    lib/uuv_common/src/uuv_common.cpp)
 add_dependencies(uuv_waypoint_publisher_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_waypoint_publisher_node ${catkin_LIBRARIES})
 

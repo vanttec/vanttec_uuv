@@ -1,5 +1,5 @@
 /** ----------------------------------------------------------------------------
- * @file: vtec_u3_gamma_parameters.hpp
+ * @file: vtec_u4__parameters.hpp
  * @date: July 30, 2020
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
@@ -8,8 +8,8 @@
  * -----------------------------------------------------------------------------
  * */
 
-#ifndef __VTEC_U3_GAMMA_PARAMETERS_H__
-#define __VTEC_U3_GAMMA_PARAMETERS_H__
+#ifndef __VTEC_U4__PARAMETERS_H__
+#define __VTEC_U4__PARAMETERS_H__
 
 /* Constants */
         

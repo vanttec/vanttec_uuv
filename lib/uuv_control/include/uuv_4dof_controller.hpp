@@ -13,7 +13,7 @@
 #define __UUV_4DOF_CONTROLLER_H__
 
 #include "pid_controller.hpp"
-#include "vtec_u3_gamma_parameters.hpp"
+#include "vtec_u3_parameters.hpp"
 #include "vanttec_uuv/ThrustControl.h"
 
 #include <geometry_msgs/Pose.h>
