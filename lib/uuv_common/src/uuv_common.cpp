@@ -21,23 +21,23 @@ namespace uuv_common
         float angle = _angle_offset;
         uint8_t counter = 0;
         
-        while (angle <= (_angle_offset + uuv_common::PI))
+        while (angle <= (_angle_offset + M_PI))
         {
             _waypoints.waypoint_list_x.push_back(_radius * std::cos(angle) + _x_center);
             _waypoints.waypoint_list_y.push_back(_radius * std::sin(angle) + _y_center);
             _waypoints.waypoint_list_z.push_back(_z_center);
-            angle += uuv_common::PI / 6;
+            angle += M_PI / 6;
             counter++;
         }
         
-        angle = _angle_offset - uuv_common::PI;
+        angle = _angle_offset - M_PI;
 
         while (angle <= _angle_offset)
         {
             _waypoints.waypoint_list_x.push_back(_radius * std::cos(angle) + _x_center);
             _waypoints.waypoint_list_y.push_back(_radius * std::sin(angle) + _y_center);
             _waypoints.waypoint_list_z.push_back(_z_center);
-            angle += uuv_common::PI / 6;
+            angle += M_PI / 6;
             counter++;
         }
         
@@ -46,27 +46,38 @@ namespace uuv_common
         return _waypoints;
     }
 
-    Eigen::MatrixXf CalculateTransformation(double phi, double theta, double psi)
+
+    Eigen::MatrixXf CalculateRotation(double phi, double theta, double psi)
     {
         Eigen::Matrix3f R;
-        R << std::cos(theta)*std::cos(psi),                                                 std::cos(theta)*std::sin(psi),                                                  -std::sin(theta),
-             std::sin(phi)*std::sin(theta)*std::cos(psi) - std::cos(phi)*std::sin(psi),     std::sin(phi)*std::sin(theta)*std::sin(psi) + std::cos(phi)*std::cos(psi),      std::sin(phi)*std::cos(theta),
-             std::cos(phi)*std::sin(theta)*std::cos(psi) + std::sin(phi)*std::sin(psi),     std::cos(phi)*std::sin(theta)*std::sin(psi) - std::sin(phi)*std::cos(psi),      std::cos(phi)*std::cos(theta);
+        R <<    std::cos(psi)*std::cos(theta),      -std::sin(psi)*std::cos(phi) + std::cos(psi)*std::sin(theta)*std::sin(phi),     std::sin(psi)*std::sin(phi) + std::cos(psi)*std::cos(phi)*std::sin(theta),
+                std::sin(psi)*std::cos(theta),       std::cos(psi)*std::cos(phi) + std::sin(phi)*std::sin(theta)*std::sin(psi),    -std::cos(psi)*std::sin(phi) + std::sin(theta)*std::sin(psi)*std::cos(phi),
+               -std::sin(theta),                     std::cos(theta)*std::sin(phi),                                                 std::cos(theta)*std::cos(phi);
 
-        Eigen::Matrix3f T;
-        T << 1,     std::sin(phi)*std::tan(theta),  std::cos(phi)*std::tan(theta),
-             0,     std::cos(phi),                  -std::sin(phi),
-             0,     std::sin(phi)/std::cos(theta),  std::cos(phi)/std::cos(theta);
-
-        Eigen::Matrix3f zero;
-        zero << 0,0,0,
-                0,0,0,
-                0,0,0;
-
-        Eigen::MatrixXf J(6,6);
-        J << R,     zero,
-             zero,  T;
-
-        return J;
+        return R;
     }
+
+    // Eigen::MatrixXf CalculateTransformation(double phi, double theta, double psi)
+    // {
+    //     Eigen::Matrix3f R;
+    //     R << std::cos(theta)*std::cos(psi),                                                 std::cos(theta)*std::sin(psi),                                                  -std::sin(theta),
+    //          std::sin(phi)*std::sin(theta)*std::cos(psi) - std::cos(phi)*std::sin(psi),     std::sin(phi)*std::sin(theta)*std::sin(psi) + std::cos(phi)*std::cos(psi),      std::sin(phi)*std::cos(theta),
+    //          std::cos(phi)*std::sin(theta)*std::cos(psi) + std::sin(phi)*std::sin(psi),     std::cos(phi)*std::sin(theta)*std::sin(psi) - std::sin(phi)*std::cos(psi),      std::cos(phi)*std::cos(theta);
+
+    //     Eigen::Matrix3f T;
+    //     T << 1,     std::sin(phi)*std::tan(theta),  std::cos(phi)*std::tan(theta),
+    //          0,     std::cos(phi),                  -std::sin(phi),
+    //          0,     std::sin(phi)/std::cos(theta),  std::cos(phi)/std::cos(theta);
+
+    //     Eigen::Matrix3f zero;
+    //     zero << 0,0,0,
+    //             0,0,0,
+    //             0,0,0;
+
+    //     Eigen::MatrixXf J(6,6);
+    //     J << R,     zero,
+    //          zero,  T;
+
+    //     return J;
+    // }
 }

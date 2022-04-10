@@ -4,7 +4,11 @@
  * @author: Sebas Mtz
  * @email: sebas.martp@gmail.com
  * 
- * @brief: Description of a generic 6dof UUV model.
+ * @brief: Description of a generic 6dof UUV model in the non-inertial frame with
+           Euler Angles.
+   @todo: Modify matrices for the true general case of non-diagonal matrices.
+          Include ALL terms. Also, include offset vector in the case the origin
+          is no the COM.
  * -----------------------------------------------------------------------------
  **/
 #ifndef __GENERIC_6DOF_UUV_DYNAMIC_MODEL__
@@ -14,105 +18,118 @@
 #include "vanttec_uuv/EtaPose.h"
 #include "uuv_common.hpp"
 
-#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/Accel.h>
 #include <geometry_msgs/Twist.h>
 #include <eigen3/Eigen/Dense>
 #include <math.h>
 
 class Generic6DOFUUVDynamicModel
 {
+    private:
+        float _sample_time_s;
+
+        /* Transformation matrix */
+
+        Eigen::MatrixXf J;
+        Eigen::Matrix3f R;
+        Eigen::Matrix3f T;
+        Eigen::Matrix3f zero = Eigen::Matrix3f::Zero(3, 3);
+
+        /* System states */
+
+        Eigen::VectorXf eta;            // x, y, z, phi, theta, psi
+        Eigen::VectorXf eta_dot;
+        Eigen::VectorXf eta_dot_prev;
+        Eigen::VectorXf nu;             // u, v, w, p, q, r
+        Eigen::VectorXf nu_dot;
+        Eigen::VectorXf nu_dot_prev;
+        Eigen::MatrixXf f;
+        Eigen::MatrixXf g;
+
+        /* System matrices */
+        
+        Eigen::MatrixXf M;
+        Eigen::MatrixXf M_rb;
+        Eigen::MatrixXf M_a;
+        Eigen::MatrixXf C;
+        Eigen::MatrixXf C_rb;
+        Eigen::MatrixXf C_a;
+        Eigen::MatrixXf D;
+        Eigen::MatrixXf D_lin;
+        Eigen::MatrixXf D_qua;
+        Eigen::VectorXf g_eta;
+
     public:
-        geometry_msgs::Vector3  linear_acceleration;
-        geometry_msgs::Twist    velocities;
+
+        /* Physical Parameters */
+
+        float m;
+        float W;
+        float volume;
+        float B;
+        float Ixx;
+        float Ixy;
+        float Ixz;
+        float Iyx;
+        float Iyy;
+        float Iyz;
+        float Izx;
+        float Izy;
+        float Izz;
+
+        /* Added Mass Parameters */
+
+        float X_u_dot;
+        float Y_v_dot;
+        float Z_w_dot;
+        float K_p_dot;
+        float M_q_dot;
+        float N_r_dot;
+
+        /* Damping Parameters */
+
+        float X_u;
+        float Y_v;
+        float Z_w;
+        float K_p;
+        float M_q;    
+        float N_r;
+
+        float X_uu;
+        float Y_vv;
+        float Z_ww;
+        float K_pp;
+        float M_qq;
+        float N_rr;
+
+        /* Distance from origin to center of mass */
+        // They are the same
+
+        /* Distance from origin to center of buoyancy  */
+
+        float rb_x;
+        float rb_y;
+        float rb_z;
+
+        /* Input forces vector */
+
+        Eigen::VectorXf tau;
+        Eigen::VectorXf u;
+
+        
+
         vanttec_uuv::EtaPose    eta_pose;
+        geometry_msgs::Twist    velocities;
+        geometry_msgs::Accel    accelerations;
 
         Generic6DOFUUVDynamicModel(float sample_time_s);
         ~Generic6DOFUUVDynamicModel();
 
+        void CalculateTransformation();
+        virtual void CalculateCoriolis();
+        virtual void CalculateDamping();
         void ThrustCallback(const vanttec_uuv::ThrustControl& _thrust);
         void CalculateStates();
-
-    private:
-        Eigen::MatrixXf J;
-
-        Eigen::VectorXf tau;
-
-        Eigen::VectorXf upsilon;
-        // Eigen::VectorXf upsilon_prev;
-        Eigen::VectorXf upsilon_dot;
-        Eigen::VectorXf upsilon_dot_prev;
-        Eigen::VectorXf eta_dot;
-        Eigen::VectorXf eta_dot_prev;
-        Eigen::VectorXf eta; // x, y, z, phi, theta, psi
-        // Eigen::Vector4f quat;
-
-        Eigen::MatrixXf M_rb;
-        Eigen::MatrixXf M_a;
-        Eigen::MatrixXf C_rb;
-        Eigen::MatrixXf C_a;
-        Eigen::MatrixXf D_lin;
-        Eigen::MatrixXf D_qua;
-        Eigen::VectorXf G_eta;
-
-        float _sample_time_s;
-
-        /* Body Parameters */
-        const float mass;
-        const float volume;
-        const float Ixx;
-        const float Ixy;
-        const float Ixz;
-        const float Iyx;
-        const float Iyy;
-        const float Iyz;
-        const float Izx;
-        const float Izy;
-        const float Izz;
-        const float weight;
-        const float buoyancy;
-        const float x_b;
-        const float y_b;
-        const float z_b;
-
-        /* Thruster angle parameters */
-        const float beta;
-        const float epsilon;
-        const float rv_y;
-        const float rh_x;
-        const float rh_y;
-        const float rh_z;
-        const float b;
-        const float l;
-
-        /* Added Mass Parameters */
-        const float X_u_dot;
-        const float Y_v_dot;
-        const float Z_w_dot;
-        const float K_p_dot;
-        const float M_q_dot;
-        const float N_r_dot;
-
-        /* Damping Parameters */
-        const float X_u;
-        const float Y_v;
-        const float Z_w;
-        const float K_p;
-        const float M_q;
-        const float N_r;
-
-        const float X_uu;
-        const float Y_vv;
-        const float Z_ww;
-        const float K_pp;
-        const float M_qq;
-        const float N_rr;
-
-        /* Max Thrust Values for different DoFs */
-        const float MAX_THRUST_PER_THRUSTER = 35;
-        const float MAX_THRUST_SURGE = 100;
-        const float MAX_THRUST_SWAY = 100;
-        const float MAX_THRUST_HEAVE = 100;
-        const float MAX_THRUST_YAW = 100;
-}
+};
 
 #endif

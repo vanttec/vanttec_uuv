@@ -82,8 +82,7 @@ target_link_libraries(uuv_odometry_node ${catkin_LIBRARIES})
 add_executable(uuv_control_node 
     src/uuv_control_node.cpp 
     lib/uuv_control/src/uuv_4dof_controller.cpp 
-    lib/uuv_control/src/pid_controller.cpp
-)
+    lib/uuv_control/src/pid_controller.cpp)
 add_dependencies(uuv_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_control_node ${catkin_LIBRARIES})
 
@@ -97,8 +96,9 @@ target_link_libraries(uuv_control_node ${catkin_LIBRARIES})
 
 add_executable(uuv_simulation_node 
     src/uuv_simulation_node.cpp 
+    lib/uuv_common/src/vtec_u4_6dof_dynamic_model.cpp
     lib/uuv_common/src/generic_6dof_uuv_dynamic_model.cpp
-    lib/uuv_simulation/src/vtec_u4_6dof_dynamic_model.cpp)
+    lib/uuv_common/src/uuv_common.cpp)
 add_dependencies(uuv_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_simulation_node ${catkin_LIBRARIES})
 

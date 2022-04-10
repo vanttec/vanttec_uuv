@@ -220,11 +220,11 @@ void UUV4DOFController::UpdateThrustOutput()
 
     if (fabs(this->heading_controller.manipulation) > MAX_THRUST_YAW)
     {
-        this->thrust.tau_yaw = (this->heading_controller.manipulation / fabs(this->heading_controller.manipulation)) * (MAX_THRUST_YAW);
+        this->thrust.tau_psi = (this->heading_controller.manipulation / fabs(this->heading_controller.manipulation)) * (MAX_THRUST_YAW);
     }
     else
     {
-        this->thrust.tau_yaw = this->heading_controller.manipulation;
+        this->thrust.tau_psi = this->heading_controller.manipulation;
     }
 }
 

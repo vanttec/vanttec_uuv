@@ -26,11 +26,13 @@ typedef enum Side_E
 namespace uuv_common
 {
     /* Helper constants */
-    const float PI = 3.1416;
+    static const float rho = 1000;
+    static const float g = 9.81;
     
     /* Helper functions */
     vanttec_uuv::GuidanceWaypoints GenerateCircle(float _radius, float _x_center, float _y_center, float _z_center, float _angle_offset);
-    Eigen::MatrixXf                CalculateTransformation(double phi, double theta, double psi);
+    // Eigen::MatrixXf                CalculateTransformation(double phi, double theta, double psi);
+    Eigen::MatrixXf CalculateRotation(double phi, double theta, double psi);
 }
 
 #endif

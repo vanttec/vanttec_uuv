@@ -17,7 +17,7 @@ using namespace uuv_common;
 namespace GateMission
 {
     const float initial_depth       = -2.0;
-    const float initial_heading     = -PI/2.0;
+    const float initial_heading     = -M_PI/2.0;
     const float depth_threshold     = 0.01;
     const float heading_threshold   = 0.01;
 
@@ -76,7 +76,7 @@ namespace GateMission
                 _waypoints->waypoint_list_y = {0,0};
                 
                 _waypoints->depth_setpoint = -2;
-                _waypoints->heading_setpoint = -5.0*PI/6.0;
+                _waypoints->heading_setpoint = -5.0*M_PI/6.0;
 
                 float depth_error = _pose->position.z - _waypoints->depth_setpoint;
                 float heading_error = _pose->orientation.z - _waypoints->heading_setpoint;
@@ -114,7 +114,7 @@ namespace GateMission
 
                 if (gate_found < 0)
                 {
-                    if (_waypoints->heading_setpoint >= 5.0*PI/6.0)
+                    if (_waypoints->heading_setpoint >= 5.0*M_PI/6.0)
                     {
                         _waypoints->guidance_law = 0;
                         _waypoints->heading_setpoint = 0;
@@ -124,7 +124,7 @@ namespace GateMission
                     else
                     {
                         _waypoints->guidance_law = 0;
-                        _waypoints->heading_setpoint += PI/400.0;
+                        _waypoints->heading_setpoint += M_PI/400.0;
                     }
                 }
                 else
@@ -208,10 +208,10 @@ namespace GateMission
                         break;
                 }
 
-                float x_wp_front = center_point_x - (2.5 * cos(this->gate.pose.orientation.z - PI/2.0));
-                float x_wp_back = center_point_x + (3 * cos(this->gate.pose.orientation.z - PI/2.0));
-                float y_wp_front = center_point_y - (2.5 * sin(this->gate.pose.orientation.z - PI/2.0));
-                float y_wp_back = center_point_y + (3 * sin(this->gate.pose.orientation.z - PI/2.0));
+                float x_wp_front = center_point_x - (2.5 * cos(this->gate.pose.orientation.z - M_PI/2.0));
+                float x_wp_back = center_point_x + (3 * cos(this->gate.pose.orientation.z - M_PI/2.0));
+                float y_wp_front = center_point_y - (2.5 * sin(this->gate.pose.orientation.z - M_PI/2.0));
+                float y_wp_back = center_point_y + (3 * sin(this->gate.pose.orientation.z - M_PI/2.0));
                 */
 
                 float center_point[]  = {0, 0};

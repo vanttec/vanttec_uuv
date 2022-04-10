@@ -1,15 +1,18 @@
 /** ----------------------------------------------------------------------------
  * @file: uuv_simulation_node.cpp
- * @date: July 30, 2020
+ * @date: April 10, 2022
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
+ * @author: Sebas Martinez
+ * @email: sebas.martp@gmail.com
  * 
  * @brief: ROS simulation node for the UUV. Uses uuv_simulation library.
+ * https://answers.ros.org/question/190920/how-can-i-subscribe-to-a-topic-using-a-parent-class-function-as-the-callback/
  * -----------------------------------------------------------------------------
  **/
 
 #include "vtec_u4_6dof_dynamic_model.hpp"
-#include "EtaPose.h"
+#include "vanttec_uuv/EtaPose.h"
 
 #include <ros/ros.h>
 #include <stdio.h>
@@ -32,8 +35,8 @@ int main(int argc, char **argv)
 
     ros::Subscriber uuv_thrust_input = nh.subscribe("/uuv_control/uuv_control_node/thrust", 
                                                     10, 
-                                                    &UUVDynamic4DOFModel::ThrustCallback, 
-                                                    &uuv_model);
+                                                    &Generic6DOFUUVDynamicModel::ThrustCallback,
+                                                    dynamic_cast<Generic6DOFUUVDynamicModel*> (&uuv_model));
     
     while(ros::ok())
     {
@@ -41,14 +44,14 @@ int main(int argc, char **argv)
         ros::spinOnce();
 
         /* Calculate Model States */
-        VTecU4DynamicModel.CalculateStates();
+        uuv_model.CalculateStates();
 
         /* Publish Odometry */
-        uuv_accel.publish(VTecU4DynamicModel.linear_acceleration);
-        // uuv_arate.publish(VTecU4DynamicModel.angular_rate);
-        // uuv_apos.publish(VTecU4DynamicModel.angular_position);
-        uuv_vel.publish(VTecU4DynamicModel.velocities);
-        uuv_pose.publish(VTecU4DynamicModel.eta_pose);
+        uuv_accel.publish(uuv_model.accelerations);
+        // uuv_arate.publish(uuv_model.angular_rate);
+        // uuv_apos.publish(uuv_model.angular_position);
+        uuv_vel.publish(uuv_model.velocities);
+        uuv_pose.publish(uuv_model.eta_pose);
         
         /* Sleep for 10ms */
         cycle_rate.sleep();
