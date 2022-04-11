@@ -71,15 +71,23 @@ VTecU4DynamicModel::VTecU4DynamicModel(float _sample_time_s) : Generic6DOFUUVDyn
     rv_x            = 0;
     rv_y            = 0.2384;
     rv_z            = 0;
+
+    /* Maximum forces and torques per degree of freedom */
+    MAX_TAU[0] = 127;   // X
+    MAX_TAU[1] = 34;    // Y
+    MAX_TAU[2] = 118;   // Z
+    MAX_TAU[3] = 28;    // K
+    MAX_TAU[4] = 9.6;   // M
+    MAX_TAU[5] = 36.6;  // N
 }
 
 VTecU4DynamicModel::~VTecU4DynamicModel(){}
 
 void VTecU4DynamicModel::UpdateThrust()
 {
-    float c_delta = abs(std::cos(delta));
-    float c_alpha = abs(std::cos(alpha));
-    float c_gamma = abs(std::cos(gamma));
+    float c_delta = fabs(std::cos(delta));
+    float c_alpha = fabs(std::cos(alpha));
+    float c_gamma = fabs(std::cos(gamma));
     
     L <<  c_delta,   c_delta,    -c_delta,   -c_delta,    0,     0,
          -c_alpha,   c_alpha,    -c_alpha,    c_alpha,    0,     0,

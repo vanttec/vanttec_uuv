@@ -50,8 +50,8 @@ class UUV_6DOF_ASMC
         ASMC theta_controller;
         ASMC psi_controller;
 
-        Eigen::Vector6f f_x;
-        Eigen::Vector6f g_x;
+        Eigen::Vector6f f;
+        Eigen::Vector6f g;
 
         UUV_6DOF_ASMC(float _sample_time_s, const float _kpid_u[3], const float _kpid_v[3], const float _kpid_z[3], const float _kpid_psi[3]);
         ~UUV_6DOF_ASMC();

@@ -33,7 +33,6 @@ class Generic6DOFUUVDynamicModel
         Eigen::MatrixXf J;
         Eigen::Matrix3f R;
         Eigen::Matrix3f T;
-        Eigen::Matrix3f zero = Eigen::Matrix3f::Zero(3, 3);
 
         /* System states */
 
@@ -43,8 +42,8 @@ class Generic6DOFUUVDynamicModel
         Eigen::VectorXf nu;             // u, v, w, p, q, r
         Eigen::VectorXf nu_dot;
         Eigen::VectorXf nu_dot_prev;
-        Eigen::MatrixXf f;
-        Eigen::MatrixXf g;
+        // Eigen::VectorXf f;
+        // Eigen::MatrixXf g;
 
         /* System matrices */
         
@@ -58,8 +57,6 @@ class Generic6DOFUUVDynamicModel
         Eigen::MatrixXf D_lin;
         Eigen::MatrixXf D_qua;
         Eigen::VectorXf g_eta;
-
-    public:
 
         /* Physical Parameters */
 
@@ -116,8 +113,10 @@ class Generic6DOFUUVDynamicModel
         Eigen::VectorXf tau;
         Eigen::VectorXf u;
 
+    public:
+        Eigen::VectorXf f;
+        Eigen::MatrixXf g;
         
-
         vanttec_uuv::EtaPose    eta_pose;
         geometry_msgs::Twist    velocities;
         geometry_msgs::Accel    accelerations;
@@ -130,6 +129,7 @@ class Generic6DOFUUVDynamicModel
         virtual void CalculateDamping();
         void ThrustCallback(const vanttec_uuv::ThrustControl& _thrust);
         void CalculateStates();
+        friend class VTecU4DynamicModel;
 };
 
 #endif

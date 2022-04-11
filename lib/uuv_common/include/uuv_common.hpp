@@ -23,6 +23,12 @@ typedef enum Side_E
     RIGHT = 1,
 } Side_E;
 
+typedef enum DOFControllerType_E
+{
+    LINEAR_DOF = 0,
+    ANGULAR_DOF = 1,
+} DOFControllerType_E;
+
 namespace uuv_common
 {
     /* Helper constants */

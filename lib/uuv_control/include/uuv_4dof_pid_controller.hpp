@@ -1,16 +1,17 @@
 /** ----------------------------------------------------------------------------
- * @file: uuv_4dof_controller.hpp
+ * @file: uuv_4dof_pid_controller.hpp
  * @date: July 30, 2020
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
  * 
  * @brief: 4-DOF controller class, using a different, decoupled controller for
  *         each DOF.
+           OUTDATED.
  * -----------------------------------------------------------------------------
  * */
 
-#ifndef __UUV_4DOF_CONTROLLER_H__
-#define __UUV_4DOF_CONTROLLER_H__
+#ifndef __UUV_4DOF_PID_CONTROLLER_H__
+#define __UUV_4DOF_PID_CONTROLLER_H__
 
 #include "pid_controller.hpp"
 #include "vtec_u3_parameters.hpp"

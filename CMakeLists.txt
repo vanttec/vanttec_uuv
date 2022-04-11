@@ -40,6 +40,7 @@ add_message_files(
    Obj_detected.msg
    Obj_detected_list.msg
    Gate.msg
+   SystemDynamics.msg
 )
 
 add_service_files(
@@ -81,7 +82,7 @@ target_link_libraries(uuv_odometry_node ${catkin_LIBRARIES})
 
 add_executable(uuv_control_node 
     src/uuv_control_node.cpp 
-    lib/uuv_control/src/uuv_4dof_controller.cpp 
+    lib/uuv_control/src/uuv_6dof_pid.cpp 
     lib/uuv_control/src/pid_controller.cpp)
 add_dependencies(uuv_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_control_node ${catkin_LIBRARIES})

@@ -115,8 +115,8 @@ void Generic6DOFUUVDynamicModel::CalculateTransformation()
             0,     std::cos(eta(3)),                  -std::sin(eta(3)),
             0,     std::sin(eta(3))/std::cos(eta(4)),  std::cos(eta(3))/std::cos(eta(4));
 
-    J << R,     zero,
-         zero,  T;
+    J << R,                              Eigen::Matrix3f::Zero(3, 3),
+         Eigen::Matrix3f::Zero(3, 3),    T;
 }
 
 void Generic6DOFUUVDynamicModel::CalculateCoriolis()

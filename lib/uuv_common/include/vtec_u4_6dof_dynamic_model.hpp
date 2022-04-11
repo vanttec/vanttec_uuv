@@ -38,6 +38,8 @@ private:
     float rv_x;
     float rv_y;
     float rv_z;
+
+    float MAX_TAU[6]; // X, Y, Z, K, M, N
 };
 
 #endif

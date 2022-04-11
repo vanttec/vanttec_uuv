@@ -1,15 +1,16 @@
 /** ----------------------------------------------------------------------------
- * @file: uuv_4dof_controller.cpp
+ * @file: uuv_4dof_pid_controller.cpp
  * @date: July 30, 2020
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
  * 
  * @brief: 4-DOF controller class, using a different, decoupled controller for
  *         each DOF.
+           OUTDATED.
  * -----------------------------------------------------------------------------
  * */
 
-#include "uuv_4dof_controller.hpp"
+#include "uuv_4dof_pid_controller.hpp"
 
 UUV4DOFController::UUV4DOFController(float _sample_time_s, const float _kpid_u[3], const float _kpid_v[3], const float _kpid_z[3], const float _kpid_psi[3])
                                     : surge_speed_controller(_sample_time_s, _kpid_u, LINEAR_DOF_PID)
