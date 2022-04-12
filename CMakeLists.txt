@@ -22,7 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
     cv_bridge
 )
 
-find_package(PCL 1.2 REQUIRED)
+find_package(PCL 1.2  REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -157,4 +157,5 @@ target_link_libraries(uuv_mission_manager_node ${catkin_LIBRARIES})
 
 link_directories(${PCL_LIBRARY_DIRS})
 add_executable(object_detector_node src/object_detector_node.cpp)
-target_link_libraries(object_detector_node ${catkin_LIBRARIES})
+target_link_libraries(object_detector_node ${catkin_LIBRARIES} pcl_visualization)
+

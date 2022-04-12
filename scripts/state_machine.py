@@ -9,18 +9,18 @@ import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
 from geometry_msgs.msg import Pose, PoseStamped
 from vanttec_uuv.msg import GuidanceWaypoints
-from usv_perception.msg import obj_detected, obj_detected_list
+from vanttec_uuv.msg import obj_detected, obj_detected_list
 from nav_msgs.msg import Path
 from binmission import BinMission
-from gatemission import GateMission
-from buoymission import BuoyMission
+from gate_mission import Gate_Mission
+from buoy_mission import BuoyMission
 # Class Definition
 class StateMachine:
     def __init__(self): 
         self.transition_mission = 0
         self.activated = True
         self.binmission = BinMission()
-        self.gatemission = GateMission()
+        self.gatemission = Gate_Mission()
         self.buoymission = BuoyMission()
         
       

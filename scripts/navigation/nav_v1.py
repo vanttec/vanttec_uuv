@@ -10,8 +10,7 @@ from geometry_msgs.msg import Pose, PoseStamped,Point
 from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list
 from nav_msgs.msg import Path
 
-# Class Definition
-class BuoyMission:
+class uuv_instance:
     def __init__(self):
         self.ned_x = 0
         self.ned_y = 0
@@ -260,7 +259,8 @@ class BuoyMission:
         if(timeduration >= 3):
             self.timewait = 0
             rospy.logwarn("Found image")
-            self.foundstate = nextmission           
+            self.foundstate = nextmission  
+
     def search(self):
         #look subscriber of pathmarker
         rospy.loginfo("search")
@@ -269,9 +269,11 @@ class BuoyMission:
             if self.searchstate == -1:
                 #sweep to find 
                 self.sweep(0)
+                rospy.loginfo("sweeping")
             elif self.searchstate == 0:
                 self.waypoints.guidance_law = 1
                 #move 3 meter
+                rospy.loginfo("Moving")
                 _euc_distance = pow(pow(self.ned_x-self.searchx,2)+pow(self.ned_y-self.searchy,2),0.5)
                 if(_euc_distance <0.35):
                     self.searchstate = -1
@@ -422,9 +424,6 @@ class BuoyMission:
         self.uuv_path_pub.publish(self.uuv_path)
     def results(self):
         rospy.logwarn("Buoy mission finished")
-      
-
-
 
     def activate(self):
         rate = rospy.Rate(20)
@@ -435,24 +434,23 @@ class BuoyMission:
             else:
                 self.activated = False
             rate.sleep()
-def main():
-    rospy.init_node("buoy_mission", anonymous=False)
-    rate = rospy.Rate(20)
-    buoy_mission = BuoyMission()
-    last_detection = []
-    while not rospy.is_shutdown() and buoy_mission.activated:
-        if(buoy_mission.state != 7):
-            #rospy.loginfo("Buoymission is activated")
-            buoy_mission.buoymission()
-        else:
-            buoy_mission.results()
-        rate.sleep()
-    rospy.spin()
 
+class uuv_nav:
+    def main(self):
+        print("I'm in main")
+        rospy.init_node("navigation", anonymous=False)
+        rate = rospy.Rate(20)
+        print(rospy.get_time())
+        uuv = uuv_instance()
+        while not rospy.is_shutdown():
+            uuv.search()
+            rate.sleep()
+            # rospy.spin()
 
 
 if __name__ == "__main__":
     try:
-        main()
+        i = uuv_nav()
+        i.main()
     except rospy.ROSInterruptException:     
         pass
