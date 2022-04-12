@@ -1,8 +1,10 @@
 /** ----------------------------------------------------------------------------
- * @file: tf_broadcaster.hpp
- * @date: July 30, 2020
+ * @file: tf2_broadcaster.hpp
+ * @date: April 10, 2022
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
+ * @author: Sebastian Martinez
+ * @email: sebas.martp@gmail.com
  * 
  * @brief: Used to publish the current pose of the simulated UUV and correctly
  *         represent it in RViz.
@@ -21,6 +23,7 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h>
+#include "vanttec_uuv/EtaPose.h"
 
 class TfBroadcaster
 {
@@ -35,7 +38,7 @@ class TfBroadcaster
         TfBroadcaster(const std::string& _parent, const std::string& _child);
         ~TfBroadcaster();
 
-        void BroadcastTransform(const geometry_msgs::Pose& msg);
+        void BroadcastTransform(const vanttec_uuv::EtaPose& msg);
 };
 
 #endif

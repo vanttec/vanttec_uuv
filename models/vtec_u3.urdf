@@ -9,7 +9,7 @@
     <visual>
     	<origin rpy="1.57 0 1.57" xyz="-0.25 -0.425 -0.165"/>
       <geometry>
-        <mesh filename="package://vanttec_uuv/models/meshes/VTEC_U-II_.STL" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://vanttec_uuv/models/meshes/VTEC_U-II_GAMMA.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="white"/>
     </visual>

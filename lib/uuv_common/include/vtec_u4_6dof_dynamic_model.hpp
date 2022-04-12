@@ -16,30 +16,30 @@
 
 class VTecU4DynamicModel : public Generic6DOFUUVDynamicModel
 {
-public:
-    VTecU4DynamicModel(float _sample_time_s);
-    ~VTecU4DynamicModel();
+    public:
+        VTecU4DynamicModel(float _sample_time_s);
+        ~VTecU4DynamicModel();
 
-    void UpdateThrust();
-private:
-    Eigen::MatrixXf L;          // Thrust mapping matrix
-    Eigen::VectorXf Thrust;     // Thrust vector (6 elements, 1 per thruster)
+        void UpdateThrust();
+    private:
+        Eigen::MatrixXf L;          // Thrust mapping matrix
+        Eigen::VectorXf Thrust;     // Thrust vector (6 elements, 1 per thruster)
 
-    /* Thruster configuration parameters */
+        /* Thruster configuration parameters */
 
-    float beta;
-    float var_epsilon;
-    float alpha;
-    float delta;
-    float gamma;
-    float rh_x;
-    float rh_y;
-    float rh_z;
-    float rv_x;
-    float rv_y;
-    float rv_z;
+        float beta;
+        float var_epsilon;
+        float alpha;
+        float delta;
+        float gamma;
+        float rh_x;
+        float rh_y;
+        float rh_z;
+        float rv_x;
+        float rv_y;
+        float rv_z;
 
-    float MAX_TAU[6]; // X, Y, Z, K, M, N
+        float MAX_TAU[6]; // X, Y, Z, K, M, N
 };
 
 #endif

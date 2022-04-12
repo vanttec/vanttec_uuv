@@ -26,7 +26,7 @@ class UUV6DOFPIDController
 {
     private:
         ros::NodeHandle handle;
-
+        bool functs_arrived;
     public:
         Eigen::VectorXf u;              // Control
         Eigen::VectorXf ua;             // Auxiliary Control

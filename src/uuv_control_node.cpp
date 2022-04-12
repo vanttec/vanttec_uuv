@@ -31,11 +31,11 @@ int main(int argc, char **argv)
     UUV6DOFPIDController   system_controller(SAMPLE_TIME_S, k_p, k_i, k_d, types);
     
     ros::Publisher  uuv_thrust      = nh.advertise<vanttec_uuv::ThrustControl>("/uuv_control/uuv_control_node/thrust", 1000);
-    ros::Subscriber uuv_dynamics    = nh.subscribe("/uuv_simulation/dynamic_model/non_linear_functions", 1, 
+    ros::Subscriber uuv_dynamics    = nh.subscribe("/uuv_simulation/dynamic_model/non_linear_functions", 10, 
                                                     &UUV6DOFPIDController::UpdateDynamics,
                                                     &system_controller);
 
-    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/pose", 10,
+    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose", 10,
                                                     &UUV6DOFPIDController::UpdatePose,
                                                     &system_controller);
 
@@ -57,19 +57,11 @@ int main(int argc, char **argv)
 
         /* Update Parameters with new info */ 
         system_controller.CalculateManipulations();
-        
-        // system_controller.PublishAccel();
-        /*
-        if (counter % 10 == 0)
-        {
-            std::cout << "E: " << system_controller.heading_controller.error << std::endl;
-            std::cout << "S: " << system_controller.heading_controller.set_point << std::endl;
-        }
-
-        counter++;     
-        */
        
-        /* Publish Odometry */ 
+        /* Publish Odometry */
+        // Current way: if no functions arrive through the subscriber, the last computed thrusts are published.
+        // An option could be to use ros::topic::waitForMessage to publish once the nonlinear functioncs arrive, in order to
+        // avoid publishing garbage.
         uuv_thrust.publish(system_controller.thrust);
 
         /* Slee for 10ms */

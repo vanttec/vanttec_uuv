@@ -18,6 +18,44 @@ Generic6DOFUUVDynamicModel::Generic6DOFUUVDynamicModel(float sample_time_s)
 {
     _sample_time_s = sample_time_s;
 
+    J.resize(6,6);
+    M.resize(6,6);
+    M_rb.resize(6,6);
+    M_a.resize(6,6);
+    C.resize(6,6);
+    C_rb.resize(6,6);
+    C_a.resize(6,6);
+    D.resize(6,6);
+    D_lin.resize(6,6);
+    D_qua.resize(6,6);
+    g.resize(6,6);
+
+    eta.resize(6,1);            // x, y, z, phi, theta, psi
+    eta_dot.resize(6,1);
+    eta_dot_prev.resize(6,1);
+    nu.resize(6,1);             // u, v, w, p, q, r
+    nu_dot.resize(6,1);
+    nu_dot_prev.resize(6,1);
+    g_eta.resize(6,1);
+    tau.resize(6,1);
+    u.resize(6,1);
+    f.resize(6,1);
+
+    J = Eigen::MatrixXf::Zero(6, 6);
+    R = Eigen::Matrix3f::Zero(3,3);
+    T = Eigen::Matrix3f::Zero(3,3);
+
+    M = Eigen::MatrixXf::Zero(6, 6);
+    M_rb = Eigen::MatrixXf::Zero(6, 6);
+    M_a = Eigen::MatrixXf::Zero(6, 6);
+    C = Eigen::MatrixXf::Zero(6, 6);
+    C_rb = Eigen::MatrixXf::Zero(6, 6);
+    C_a = Eigen::MatrixXf::Zero(6, 6);
+    D = Eigen::MatrixXf::Zero(6, 6);
+    D_lin = Eigen::MatrixXf::Zero(6, 6);
+    D_qua = Eigen::MatrixXf::Zero(6, 6);
+    g_eta = Eigen::MatrixXf::Zero(6, 1);
+
     eta << 0,
            0,
            0,
@@ -67,12 +105,7 @@ Generic6DOFUUVDynamicModel::Generic6DOFUUVDynamicModel(float sample_time_s)
          0,
          0;
 
-    g << 0,
-         0,
-         0,
-         0,
-         0,
-         0;
+    g = Eigen::MatrixXf::Zero(6, 6);
 
     tau << 0,
            0,
@@ -80,6 +113,13 @@ Generic6DOFUUVDynamicModel::Generic6DOFUUVDynamicModel(float sample_time_s)
            0,
            0,
            0;
+
+    u << 0,
+           0,
+           0,
+           0,
+           0,
+           0;        
 
     eta_pose.x = 0;
     eta_pose.y = 0;
@@ -134,7 +174,7 @@ void Generic6DOFUUVDynamicModel::CalculateCoriolis()
             0,   0,   0,   -m_w,  0,     m_u,
             0,   0,   0,   m_v,   -m_u,   0,
             0,   m_w,  -m_v, 0,    -izz_r, iyy_q,
-            -m_w, 0 ,  m_u,  izz_r, 0,     -ixx_p,eta,
+            -m_w, 0 ,  m_u,  izz_r, 0,     -ixx_p,
             m_v,  -m_u, 0,   -iyy_q, ixx_p,  0;
 
     /* Hydrodynamic Added Mass Coriolis Matrix */
@@ -154,6 +194,8 @@ void Generic6DOFUUVDynamicModel::CalculateCoriolis()
            -a2,  a1,   0,  -a5,   a4,  0;
     
     C = C_rb + C_a;
+    // std::cout << "C:" << C << std::endl;
+
 }
 
 void Generic6DOFUUVDynamicModel::CalculateDamping()
@@ -175,6 +217,8 @@ void Generic6DOFUUVDynamicModel::CalculateDamping()
              0, 0, 0, 0, 0, -(N_rr * fabs(nu(5)));
     
     D = D_lin + D_qua;
+    // std::cout << "D:" << D << std::endl;
+
 }
 
 void Generic6DOFUUVDynamicModel::ThrustCallback(const vanttec_uuv::ThrustControl& _thrust)
@@ -212,7 +256,7 @@ void Generic6DOFUUVDynamicModel::CalculateStates()
            0, 0, 0, 0, 0, N_r_dot;
 
     M = M_rb + M_a;
-
+    // std::cout << "M:" << M << std::endl;
     CalculateCoriolis();
 
     CalculateDamping();
@@ -230,6 +274,9 @@ void Generic6DOFUUVDynamicModel::CalculateStates()
 
     g = M.inverse();
     f = -M.inverse() * ((C * nu) + (D * nu) + g_eta);
+    // std::cout << "f:" << f << std::endl;
+    // std::cout << "g:" << g << std::endl;
+
     u = tau;
     nu_dot = f + g*u;
     // nu_dot =  M.inverse() * (tau - (C * nu) - (D * nu) - g_eta);

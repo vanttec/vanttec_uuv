@@ -18,6 +18,27 @@ UUV6DOFPIDController::UUV6DOFPIDController(const float &_sample_time_s, const fl
                     PID_theta(_sample_time_s, _k_p[4], _k_i[4], _k_d[4], _type[4]),
                     PID_psi  (_sample_time_s, _k_p[5], _k_i[5], _k_d[5], _type[5])
 {
+
+    u.resize(6,1);              // Control
+    ua.resize(6,1);             // Auxiliary Control
+    f.resize(6,1);
+    g.resize(6,6);
+    ref_dot_dot.resize(6,1);
+
+    u << 0,
+         0,
+         0,
+         0,
+         0,
+         0;
+
+    ua << 0,
+         0,
+         0,
+         0,
+         0,
+         0;
+
     ref_dot_dot << 0,
                    0,
                    0,
@@ -25,8 +46,23 @@ UUV6DOFPIDController::UUV6DOFPIDController(const float &_sample_time_s, const fl
                    0,
                    0;
 
-    g = Eigen::Matrix3f::Zero(6,6);
-    f = ref_dot_dot;
+    g = Eigen::MatrixXf::Zero(6,6);
+
+    f << 0,
+         0,
+         0,
+         0,
+         0,
+         0;
+
+    thrust.tau_x = 0;
+    thrust.tau_y = 0;
+    thrust.tau_z = 0;
+    thrust.tau_phi = 0;
+    thrust.tau_theta = 0;
+    thrust.tau_psi = 0;
+    
+    functs_arrived = 0;
 }
 
 UUV6DOFPIDController::~UUV6DOFPIDController(){};
@@ -54,28 +90,30 @@ void UUV6DOFPIDController::UpdatePose(const vanttec_uuv::EtaPose& _current)
 
 void UUV6DOFPIDController::CalculateManipulations()
 {
-    ua << PID_x.manipulation,
-          PID_y.manipulation,
-          PID_z.manipulation,
-          PID_phi.manipulation,
-          PID_theta.manipulation,
-          PID_psi.manipulation;
+    if (functs_arrived) {
+        ua << PID_x.manipulation,
+            PID_y.manipulation,
+            PID_z.manipulation,
+            PID_phi.manipulation,
+            PID_theta.manipulation,
+            PID_psi.manipulation;
 
-    u << g.inverse()*(ref_dot_dot - f + ua);
+        u << g.inverse()*(ref_dot_dot - f + ua);
 
-    if(fabs(u(0)) > 127)  u(0) = u(0) / fabs(u(0)) * 127;
-    if(fabs(u(1)) > 34)   u(1) = u(1) / fabs(u(1)) * 34;
-    if(fabs(u(2)) > 118)  u(2) = u(2) / fabs(u(2)) * 118;
-    if(fabs(u(3)) > 28)   u(3) = u(3) / fabs(u(3)) * 28;
-    if(fabs(u(4)) > 9.6)  u(4) = u(4) / fabs(u(4)) * 9.6;
-    if(fabs(u(5)) > 36.6) u(5) = u(5) / fabs(u(5)) * 36.6;
+        if(fabs(u(0)) > 127)  u(0) = u(0) / fabs(u(0)) * 127;
+        if(fabs(u(1)) > 34)   u(1) = u(1) / fabs(u(1)) * 34;
+        if(fabs(u(2)) > 118)  u(2) = u(2) / fabs(u(2)) * 118;
+        if(fabs(u(3)) > 28)   u(3) = u(3) / fabs(u(3)) * 28;
+        if(fabs(u(4)) > 9.6)  u(4) = u(4) / fabs(u(4)) * 9.6;
+        if(fabs(u(5)) > 36.6) u(5) = u(5) / fabs(u(5)) * 36.6;
     
-    thrust.tau_x = u(0);
-    thrust.tau_y = u(1);
-    thrust.tau_z = u(2);
-    thrust.tau_phi = u(3);
-    thrust.tau_theta = u(4);
-    thrust.tau_psi = u(5);
+        thrust.tau_x = u(0);
+        thrust.tau_y = u(1);
+        thrust.tau_z = u(2);
+        thrust.tau_phi = u(3);
+        thrust.tau_theta = u(4);
+        thrust.tau_psi = u(5);
+    }
 }
 
 void UUV6DOFPIDController::UpdateDynamics(const vanttec_uuv::SystemDynamics& _non_linear_functions)
@@ -98,8 +136,13 @@ void UUV6DOFPIDController::UpdateDynamics(const vanttec_uuv::SystemDynamics& _no
 
     f << _non_linear_functions.f[0],
          _non_linear_functions.f[1],
-          _non_linear_functions.f[2],
-          _non_linear_functions.f[3],
-          _non_linear_functions.f[4],
-          _non_linear_functions.f[5];
+         _non_linear_functions.f[2],
+         _non_linear_functions.f[3],
+         _non_linear_functions.f[4],
+         _non_linear_functions.f[5];
+
+    // std::cout << "f:" << f << std::endl;
+    // std::cout << "g:" << g << std::endl;
+
+    functs_arrived = 1;
 }

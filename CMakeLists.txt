@@ -118,11 +118,11 @@ add_executable(uuv_shootout_simulation_node
 add_dependencies(uuv_shootout_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_shootout_simulation_node ${catkin_LIBRARIES})
 
-add_executable(uuv_tf_broadcast_node 
-    src/uuv_tf_broadcast_node.cpp 
-    lib/uuv_simulation/src/tf_broadcaster.cpp)
-add_dependencies(uuv_tf_broadcast_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(uuv_tf_broadcast_node ${catkin_LIBRARIES})
+add_executable(uuv_tf2_broadcast_node 
+    src/uuv_tf2_broadcast_node.cpp 
+    lib/uuv_simulation/src/tf2_broadcaster.cpp)
+add_dependencies(uuv_tf2_broadcast_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_tf2_broadcast_node ${catkin_LIBRARIES})
 
 add_executable(uuv_master_node 
     src/uuv_master_node.cpp 

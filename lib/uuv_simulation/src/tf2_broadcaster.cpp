@@ -1,15 +1,18 @@
 /** ----------------------------------------------------------------------------
- * @file: tf_broadcaster.cpp
- * @date: July 30, 2020
+ * @file: tf2_broadcaster.cpp
+ * @date: April 10, 2022
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
+ * @author: Sebastian Martinez
+ * @email: sebas.martp@gmail.com
  * 
  * @brief: Used to publish the current pose of the simulated UUV and correctly
  *         represent it in RViz.
+ * https://github.com/ros-visualization/rviz/issues/597
  * -----------------------------------------------------------------------------
  **/
 
-#include "tf_broadcaster.hpp"
+#include "tf2_broadcaster.hpp"
 
 TfBroadcaster::TfBroadcaster(const std::string& _parent, const std::string& _child)
 {
@@ -19,19 +22,21 @@ TfBroadcaster::TfBroadcaster(const std::string& _parent, const std::string& _chi
 
 TfBroadcaster::~TfBroadcaster(){}
 
-void TfBroadcaster::BroadcastTransform(const geometry_msgs::Pose& _pose)
+void TfBroadcaster::BroadcastTransform(const vanttec_uuv::EtaPose& _pose)
 {    
     geometry_msgs::TransformStamped transformStamped;
     
+    // From NED to RViz reference frame (x forward, y left, z up): negate y and z
     transformStamped.header.stamp               = ros::Time::now();
     transformStamped.header.frame_id            = this->parent_frame;
     transformStamped.child_frame_id             = this->child_frame;
-    transformStamped.transform.translation.x    = _pose.position.x;
-    transformStamped.transform.translation.y    = -_pose.position.y;
-    transformStamped.transform.translation.z    = -_pose.position.z;
+    transformStamped.transform.translation.x    = _pose.x;
+    transformStamped.transform.translation.y    = -_pose.y;
+    transformStamped.transform.translation.z    = -_pose.z;
 
     tf2::Quaternion q;
-    q.setRPY(0, 0, -_pose.orientation.z);
+    q.setRPY(_pose.phi, -_pose.theta, -_pose.psi);
+    q.normalize();
     transformStamped.transform.rotation.x = q.x();
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
@@ -49,9 +54,9 @@ void TfBroadcaster::BroadcastTransform(const geometry_msgs::Pose& _pose)
 
     pose.header.stamp       = ros::Time::now();
     pose.header.frame_id    = this->parent_frame;
-    pose.pose.position.x    = _pose.position.x;
-    pose.pose.position.y    = -_pose.position.y;
-    pose.pose.position.z    = -_pose.position.z;
+    pose.pose.position.x    = _pose.x;
+    pose.pose.position.y    = -_pose.y;
+    pose.pose.position.z    = -_pose.z;
 
     this->path.header.stamp     = ros::Time::now();
     this->path.header.frame_id  = this->parent_frame;
