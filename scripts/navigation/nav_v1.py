@@ -69,8 +69,8 @@ class uuv_instance:
 
         # ROS Subscribers
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
-        rospy.Subscriber("/uuv_perception/buoy_1_pos_pub",Point,self.buoy1_callback)
-        rospy.Subscriber("/uuv_perception/buoy_2_pos_pub",Point,self.buoy2_callback)
+        # rospy.Subscriber("/uuv_perception/buoy_1_pos_pub",Point,self.buoy1_callback)
+        # rospy.Subscriber("/uuv_perception/buoy_2_pos_pub",Point,self.buoy2_callback)
         rospy.Subscriber("/markerwaypoint",Point,self.marker_callback)
         rospy.Subscriber('/uuv_perception/yolo_zed/objects_detected', obj_detected_list, self.detected_objects_callback)
 
@@ -98,27 +98,12 @@ class uuv_instance:
                 self.badge_x_coord = object.x
                 self.buoy2_class_found = 1
 
-    def buoy1_callback(self, msg):
-        self.buoy1 = msg
-        buoy = Point()
-        if self.buoy1.x < self.buoy2.x:
-            buoy = self.buoy2
-            self.buoy2 = self.buoy1
-            self.buoy1 = buoy
-
-    def buoy2_callback(self, msg):
-        self.buoy2 = msg
-        buoy = Point()
-        if self.buoy1.x < self.buoy2.x:
-            buoy = self.buoy2
-            self.buoy2 = self.buoy1
-            self.buoy1 = buoy
-
     def ins_pose_callback(self,pose):
         self.ned_x = pose.position.x
         self.ned_y = pose.position.y
         self.ned_z = pose.position.z
         self.yaw = pose.orientation.z  
+
     def marker_callback(self, msg):
         if(msg.x != 1 and msg.y != 0):
             self.callbackmarkerx = msg.x
@@ -214,6 +199,7 @@ class uuv_instance:
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
                 self.desired(self.waypoints) 
+
     def touch_buoy(self,nextmission):
         self.waypoints.guidance_law = 0
         #self.waypoints.depth_setpoint = 4
@@ -250,7 +236,8 @@ class uuv_instance:
                 self.waypoints.waypoint_list_x = [0, 0]
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)  
+                self.desired(self.waypoints) 
+
     def wait(self,nextmission):
         self.waypoints.guidance_law = 0
         self.waypoints.heading_setpoint = 0
@@ -276,13 +263,15 @@ class uuv_instance:
                 rospy.loginfo("Moving")
                 _euc_distance = pow(pow(self.ned_x-self.searchx,2)+pow(self.ned_y-self.searchy,2),0.5)
                 if(_euc_distance <0.35):
+                    rospy.loginfo(_euc_distance)
                     self.searchstate = -1
                 else:
                     self.waypoints.waypoint_list_x = [self.ned_x,self.searchx]
                     self.waypoints.waypoint_list_y = [self.ned_y,self.searchy]
                     self.waypoints.waypoint_list_z = [0,0]   
                     self.desired(self.waypoints)   
-        #look subscriber of image distance    
+        #look subscriber of image distance
+            
         elif(self.findimage == False):
             rospy.logwarn("Pahtmarker is located")
             self.timewait = rospy.get_time()
@@ -439,13 +428,58 @@ class uuv_nav:
     def main(self):
         print("I'm in main")
         rospy.init_node("navigation", anonymous=False)
-        rate = rospy.Rate(20)
+        rate = rospy.Rate(10)
         print(rospy.get_time())
         uuv = uuv_instance()
+
         while not rospy.is_shutdown():
-            uuv.search()
+            self.search(uuv)
             rate.sleep()
             # rospy.spin()
+    
+    def search(self, uuv):
+        #look subscriber of pathmarker
+        rospy.loginfo("search")
+        if(uuv.locatemarker == False):
+            rospy.logwarn("Pahtmarker is not located")
+            if uuv.searchstate == -1:
+                #sweep to find 
+                rospy.loginfo(uuv.waypoints.heading_setpoint)
+                current_waypoint = uuv.waypoints.heading_setpoint
+                if (uuv.waypoints.heading_setpoint < uuv.waypoints.heading_setpoint + math.pi/2):
+                    uuv.waypoints.guidance_law = 0
+                    uuv.waypoints.heading_setpoint += math.pi/400.0
+                    uuv.waypoints.waypoint_list_x = [0 ,0]
+                    uuv.waypoints.waypoint_list_y = [0, 0]
+                    uuv.waypoints.waypoint_list_z = [0,0]
+                    uuv.desired(uuv.waypoints)
+                    rospy.loginfo("sweeping")
+                else :
+                    rospy.loginfo("DOOOOOOOOOOOONE")
+                    uuv.waypoints.guidance_law = 0
+                    uuv.searchx = uuv.ned_x 
+                    uuv.searchy = uuv.ned_y + 3
+                    rospy.loginfo("ned done")
+                    uuv.sweepstate = -1
+                    uuv.desired(self.waypoints)
+                    uuv.searchstate = 0
+                    # self.searchx = self.ned_x + 3
+
+
+            elif uuv.searchstate == 0:
+                uuv.waypoints.guidance_law = 1
+                #move 3 meter
+                rospy.loginfo("Moving")
+                _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
+                if(_euc_distance <0.35):
+                    rospy.loginfo(_euc_distance)
+                    uuv.searchstate = -1
+                else:
+                    uuv.waypoints.waypoint_list_x = [uuv.ned_x,uuv.searchx]
+                    uuv.waypoints.waypoint_list_y = [uuv.ned_y,uuv.searchy]
+                    uuv.waypoints.waypoint_list_z = [0,0]   
+                    uuv.desired(uuv.waypoints)   
+        #look subscriber of image distance
 
 
 if __name__ == "__main__":
