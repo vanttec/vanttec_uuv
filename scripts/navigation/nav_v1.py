@@ -425,6 +425,15 @@ class uuv_instance:
             rate.sleep()
 
 class uuv_nav:
+
+    def __init__(self):
+        self.waypointstatus = None
+        self.waypointtarget = None
+        self.rot_control = 0 
+        self.nav_matrix = [[0,0,0],
+                           [0,0,0],
+                           [0,0,0]]
+
     def main(self):
         print("I'm in main")
         rospy.init_node("navigation", anonymous=False)
@@ -433,7 +442,8 @@ class uuv_nav:
         uuv = uuv_instance()
 
         while not rospy.is_shutdown():
-            self.search(uuv)
+            self.rotate(uuv, math.pi/4)
+            rospy.loginfo("Testinnnnnnnnnnnnnnnnnnnng")
             rate.sleep()
             # rospy.spin()
     
@@ -446,9 +456,9 @@ class uuv_nav:
                 #sweep to find 
                 rospy.loginfo(uuv.waypoints.heading_setpoint)
                 current_waypoint = uuv.waypoints.heading_setpoint
-                if (uuv.waypoints.heading_setpoint < uuv.waypoints.heading_setpoint + math.pi/2):
+                if (uuv.waypoints.heading_setpoint < math.pi/2):
                     uuv.waypoints.guidance_law = 0
-                    uuv.waypoints.heading_setpoint += math.pi/400.0
+                    uuv.waypoints.heading_setpoint += math.pi/360
                     uuv.waypoints.waypoint_list_x = [0 ,0]
                     uuv.waypoints.waypoint_list_y = [0, 0]
                     uuv.waypoints.waypoint_list_z = [0,0]
@@ -461,7 +471,7 @@ class uuv_nav:
                     uuv.searchy = uuv.ned_y + 3
                     rospy.loginfo("ned done")
                     uuv.sweepstate = -1
-                    uuv.desired(self.waypoints)
+                    uuv.desired(uuv.waypoints)
                     uuv.searchstate = 0
                     # self.searchx = self.ned_x + 3
 
@@ -480,6 +490,33 @@ class uuv_nav:
                     uuv.waypoints.waypoint_list_z = [0,0]   
                     uuv.desired(uuv.waypoints)   
         #look subscriber of image distance
+
+    def rotate(self, uuv, rotation):
+        if self.rot_control == 0:
+            self.waypointstatus = uuv.waypoints.heading_setpoint
+            self.waypointtarget = self.waypointstatus + rotation
+            self.rot_control = 1
+
+        if ((self.rot_control == 1) and (uuv.waypoints.heading_setpoint < self.waypointtarget)):
+                    uuv.waypoints.guidance_law = 0
+                    uuv.waypoints.heading_setpoint += math.pi/360
+                    uuv.waypoints.waypoint_list_x = [0 ,0]
+                    uuv.waypoints.waypoint_list_y = [0, 0]
+                    uuv.waypoints.waypoint_list_z = [0,0]
+                    uuv.desired(uuv.waypoints)
+                    rospy.loginfo("sweeping")
+        
+        else:
+            rospy.logwarn("Sleeping")
+            rate = rospy.Rate(10)
+            for i in range(10):
+                rate.sleep()
+            self.rot_control = 0
+            rospy.loginfo(self.waypointstatus)
+            
+
+
+     
 
 
 if __name__ == "__main__":
