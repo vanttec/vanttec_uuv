@@ -427,9 +427,12 @@ class uuv_instance:
 class uuv_nav:
 
     def __init__(self):
+        self.isrot = False
+        self.ismov = False
         self.waypointstatus = None
         self.waypointtarget = None
         self.rot_control = 0 
+        self.search_control = 0
         self.nav_matrix = [[0,0,0],
                            [0,0,0],
                            [0,0,0]]
@@ -440,57 +443,104 @@ class uuv_nav:
         rate = rospy.Rate(10)
         print(rospy.get_time())
         uuv = uuv_instance()
+        self.walk(uuv, 3)
+
 
         while not rospy.is_shutdown():
-            self.rotate(uuv, math.pi/4)
+            self.search(uuv,1)
+            # self.walk(uuv, 3)
+            # self.rotate(uuv, math.pi/2)
             rospy.loginfo("Testinnnnnnnnnnnnnnnnnnnng")
+            # self.rotate(uuv,math.pi/2)
             rate.sleep()
             # rospy.spin()
     
-    def search(self, uuv):
+    def search(self, uuv, times):
         #look subscriber of pathmarker
         rospy.loginfo("search")
-        if(uuv.locatemarker == False):
-            rospy.logwarn("Pahtmarker is not located")
-            if uuv.searchstate == -1:
-                #sweep to find 
-                rospy.loginfo(uuv.waypoints.heading_setpoint)
-                current_waypoint = uuv.waypoints.heading_setpoint
-                if (uuv.waypoints.heading_setpoint < math.pi/2):
-                    uuv.waypoints.guidance_law = 0
-                    uuv.waypoints.heading_setpoint += math.pi/360
-                    uuv.waypoints.waypoint_list_x = [0 ,0]
-                    uuv.waypoints.waypoint_list_y = [0, 0]
-                    uuv.waypoints.waypoint_list_z = [0,0]
-                    uuv.desired(uuv.waypoints)
-                    rospy.loginfo("sweeping")
-                else :
-                    rospy.loginfo("DOOOOOOOOOOOONE")
-                    uuv.waypoints.guidance_law = 0
-                    uuv.searchx = uuv.ned_x 
-                    uuv.searchy = uuv.ned_y + 3
-                    rospy.loginfo("ned done")
-                    uuv.sweepstate = -1
-                    uuv.desired(uuv.waypoints)
-                    uuv.searchstate = 0
-                    # self.searchx = self.ned_x + 3
+
+        # self.rotate(uuv, math.pi/2)
+        # self.walk(uuv,3)
+        if (self.search_control == 0):
+            control2 = self.rotate(uuv, math.pi/2)
+            if control2 == 1:
+                self.search_control = control2
+                rospy.logwarn("DONE")
+                rospy.loginfo(self.search_control)
+            
+        if self.search_control == 1:
+            pass
+            rospy.logwarn("Going to moves")
+            control2 = self.walk(uuv,3)
+            if control2 == 1:
+                rospy.loginfo(self.search_control)
+                self.search_control = 0
 
 
-            elif uuv.searchstate == 0:
-                uuv.waypoints.guidance_law = 1
-                #move 3 meter
-                rospy.loginfo("Moving")
-                _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
-                if(_euc_distance <0.35):
-                    rospy.loginfo(_euc_distance)
-                    uuv.searchstate = -1
-                else:
-                    uuv.waypoints.waypoint_list_x = [uuv.ned_x,uuv.searchx]
-                    uuv.waypoints.waypoint_list_y = [uuv.ned_y,uuv.searchy]
-                    uuv.waypoints.waypoint_list_z = [0,0]   
-                    uuv.desired(uuv.waypoints)   
-        #look subscriber of image distance
 
+        # self.rotate(uuv, math.pi/2)
+        # if(uuv.locatemarker == False):
+        #     rospy.logwarn("Pahtmarker is not located")
+        #     if uuv.searchstate == -1:
+        #         #sweep to find 
+        #         rospy.loginfo(uuv.waypoints.heading_setpoint)
+        #         current_waypoint = uuv.waypoints.heading_setpoint
+        #         if (uuv.waypoints.heading_setpoint < math.pi/2):
+        #             uuv.waypoints.guidance_law = 0
+        #             uuv.waypoints.heading_setpoint += math.pi/400.0
+        #             uuv.waypoints.waypoint_list_x = [0 ,0]
+        #             uuv.waypoints.waypoint_list_y = [0, 0]
+        #             uuv.waypoints.waypoint_list_z = [0,0]
+        #             uuv.desired(uuv.waypoints)
+        #             rospy.loginfo("sweeping")
+        #         else :
+        #             rospy.loginfo("DOOOOOOOOOOOONE")
+        #             uuv.waypoints.guidance_law = 0
+        #             uuv.searchx = uuv.ned_x 
+        #             uuv.searchy = uuv.ned_y +3
+        #             rospy.loginfo("ned done")
+        #             uuv.sweepstate = -1
+        #             uuv.desired(uuv.waypoints)
+        #             uuv.searchstate = 0
+        #             # self.searchx = self.ned_x + 3
+
+
+        #     elif uuv.searchstate == 0:
+        #         uuv.waypoints.guidance_law = 1
+        #         #move 3 meter
+        #         rospy.loginfo("Moving")
+        #         _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
+        #         if(_euc_distance <0.35):
+        #             rospy.loginfo(_euc_distance)
+        #             uuv.searchstate = -1
+        #         else:
+        #             uuv.waypoints.waypoint_list_x = [uuv.ned_x,uuv.searchx]
+        #             uuv.waypoints.waypoint_list_y = [uuv.ned_y,uuv.searchy]
+        #             uuv.waypoints.waypoint_list_z = [0,0]   
+        #             uuv.desired(uuv.waypoints)   
+        # #look subscriber of image distance
+
+    def walk(self, uuv, dis):
+        uuv.waypoints.guidance_law = 0
+        uuv.searchx = uuv.ned_x + (dis * math.cos(uuv.waypoints.heading_setpoint))
+        uuv.searchy = uuv.ned_y + (dis * math.sin(uuv.waypoints.heading_setpoint))
+        rospy.loginfo("ned done")
+        uuv.waypoints.guidance_law = 1
+        #move 3 meter
+        rospy.loginfo("Moving")
+        _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
+        if(_euc_distance <0.35):
+            rospy.loginfo(_euc_distance)
+            uuv.searchstate = -1
+        else:
+            uuv.waypoints.waypoint_list_x = [uuv.ned_x,uuv.searchx]
+            uuv.waypoints.waypoint_list_y = [uuv.ned_y,uuv.searchy]
+            uuv.waypoints.waypoint_list_z = [0,0]   
+            uuv.desired(uuv.waypoints)
+        if (uuv.searchx == uuv.ned_x) and (uuv.searchy == uuv.ned_y):
+            rospy.logwarn("MOVVVVVVVED")
+            return 1 
+        
     def rotate(self, uuv, rotation):
         if self.rot_control == 0:
             self.waypointstatus = uuv.waypoints.heading_setpoint
@@ -509,10 +559,11 @@ class uuv_nav:
         else:
             rospy.logwarn("Sleeping")
             rate = rospy.Rate(10)
-            for i in range(10):
+            for i in range(60):
                 rate.sleep()
             self.rot_control = 0
             rospy.loginfo(self.waypointstatus)
+            return 1
             
 
 
