@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     sensor_msgs
     cv_bridge
+    actionlib_msgs
 )
 
 find_package(PCL 1.2  REQUIRED)
@@ -46,15 +47,21 @@ add_service_files(
    color_id.srv
 )
 
+add_action_files(
+   FILES rotate.action walk.action
+
+ )
+
 generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
   sensor_msgs
+  actionlib_msgs
 )
 
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs sensor_msgs vehicle_user_control pcl_ros
+  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs sensor_msgs vehicle_user_control pcl_ros 
   DEPENDS ${LIBS}
 )
 

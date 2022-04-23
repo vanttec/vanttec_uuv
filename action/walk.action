@@ -1,0 +1,8 @@
+# Define the goal
+float32 walk_dis  # Specify which dishwasher we want to use
+---
+# Define the result
+uint32 walk_done
+---
+# Define a feedback message
+float32 walk_feed
