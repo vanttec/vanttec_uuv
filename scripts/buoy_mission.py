@@ -251,7 +251,7 @@ class BuoyMission:
                 self.waypoints.waypoint_list_x = [0, 0]
                 self.waypoints.waypoint_list_y = [0, 0]
                 self.waypoints.waypoint_list_z = [0,0]
-                self.desired(self.waypoints)  
+                self.desired(self.waypoints)
     def wait(self,nextmission):
         self.waypoints.guidance_law = 0
         self.waypoints.heading_setpoint = 0
@@ -260,7 +260,8 @@ class BuoyMission:
         if(timeduration >= 3):
             self.timewait = 0
             rospy.logwarn("Found image")
-            self.foundstate = nextmission           
+            self.foundstate = nextmission       
+                
     def search(self):
         #look subscriber of pathmarker
         rospy.loginfo("search")

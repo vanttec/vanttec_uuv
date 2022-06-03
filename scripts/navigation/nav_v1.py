@@ -7,8 +7,22 @@ import numpy as np
 import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
 from geometry_msgs.msg import Pose, PoseStamped,Point
-from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list
+from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list, rotateAction, rotateGoal, walkAction, walkGoal
+import actionlib
 from nav_msgs.msg import Path
+import time
+
+# Default values
+RTURN90 = math.pi/2
+LTURN90 = -math.pi/2
+WALKDIS = 3
+
+
+
+# Publisher para tomar fotos
+
+# Explorar un punto, es importante orbitar para de esta manera detectar yolo
+
 
 class uuv_instance:
     def __init__(self):
@@ -411,6 +425,8 @@ class uuv_instance:
             pose.pose.position.z    = path.waypoint_list_z[index]
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
+        rospy.logwarn("Desired sended")
+        
     def results(self):
         rospy.logwarn("Buoy mission finished")
 
@@ -425,146 +441,149 @@ class uuv_instance:
             rate.sleep()
 
 class uuv_nav:
-
     def __init__(self):
+        
         self.isrot = False
         self.ismov = False
+        self.clustered = None
         self.waypointstatus = None
         self.waypointtarget = None
         self.rot_control = 0 
         self.search_control = 0
-        self.nav_matrix = [[0,0,0],
-                           [0,0,0],
-                           [0,0,0]]
+        self.rot_client = actionlib.SimpleActionClient('rotate', rotateAction)
+        self.rot_goal = rotateGoal()
+        self.walk_client = actionlib.SimpleActionClient('walk', walkAction)
+        self.walk_goal = walkGoal()
+        self.search_step = 0
+        self.iteration = 1
+        rospy.loginfo("Waiting for rotate server")
+        self.rot_client.wait_for_server()
+        rospy.loginfo("Waiting for walk server")
+        self.walk_client.wait_for_server()
+        self.nav_matrix = []
+        # self.nav_matrix = [[0,0,0],
+        #                    [0,0,0],
+        #                    [0,0,0]]
+
 
     def main(self):
         print("I'm in main")
-        rospy.init_node("navigation", anonymous=False)
         rate = rospy.Rate(10)
         print(rospy.get_time())
         uuv = uuv_instance()
-        self.walk(uuv, 3)
 
 
         while not rospy.is_shutdown():
-            self.search(uuv,1)
+            self.search(uuv)
             # self.walk(uuv, 3)
             # self.rotate(uuv, math.pi/2)
-            rospy.loginfo("Testinnnnnnnnnnnnnnnnnnnng")
+            rospy.loginfo("searching")
             # self.rotate(uuv,math.pi/2)
             rate.sleep()
             # rospy.spin()
     
-    def search(self, uuv, times):
+    def search(self, uuv):
         #look subscriber of pathmarker
         rospy.loginfo("search")
 
-        # self.rotate(uuv, math.pi/2)
-        # self.walk(uuv,3)
+        # walk actions should e be changed for a dynamic iterative option
+        # self.search_control = self.check_cluster()
+
+        # Also a good idea would be store the last pose 
+
+        # Three ways of use, if 
+
         if (self.search_control == 0):
-            control2 = self.rotate(uuv, math.pi/2)
-            if control2 == 1:
-                self.search_control = control2
-                rospy.logwarn("DONE")
-                rospy.loginfo(self.search_control)
+            rospy.logwarn(self.search_step)
+            if self.search_step == 0:
+                self.walk()
+                # Capture
+                self.search_step = 1
+
+            elif self.search_step == 1:
+                self.rotate()
+                self.walk()
+                # Capture
+                self.search_step = 2
             
-        if self.search_control == 1:
+            elif self.search_step == 2:
+                self.rotate()
+                self.walk()
+                #Capture
+                self.search_step = 3
+
+            elif self.search_step == 3:
+                self.walk()
+                self.rotate()
+                self.walk()
+                # Capture
+                self.search_step = 4 
+
+            elif self.search_step == 4:
+                self.walk()
+                self.walk()
+                self.rotate()
+                self.walk()
+                # Capture
+                self.search_step = 5
+
+            elif self.search_step == 5:
+                #Check whats the best way to reset
+                pass
+                rospy.logwarn("step5")
+    
+        
+        if self.search_control == 1: #clustered
             pass
-            rospy.logwarn("Going to moves")
-            control2 = self.walk(uuv,3)
-            if control2 == 1:
-                rospy.loginfo(self.search_control)
-                self.search_control = 0
-
-
-
-        # self.rotate(uuv, math.pi/2)
-        # if(uuv.locatemarker == False):
-        #     rospy.logwarn("Pahtmarker is not located")
-        #     if uuv.searchstate == -1:
-        #         #sweep to find 
-        #         rospy.loginfo(uuv.waypoints.heading_setpoint)
-        #         current_waypoint = uuv.waypoints.heading_setpoint
-        #         if (uuv.waypoints.heading_setpoint < math.pi/2):
-        #             uuv.waypoints.guidance_law = 0
-        #             uuv.waypoints.heading_setpoint += math.pi/400.0
-        #             uuv.waypoints.waypoint_list_x = [0 ,0]
-        #             uuv.waypoints.waypoint_list_y = [0, 0]
-        #             uuv.waypoints.waypoint_list_z = [0,0]
-        #             uuv.desired(uuv.waypoints)
-        #             rospy.loginfo("sweeping")
-        #         else :
-        #             rospy.loginfo("DOOOOOOOOOOOONE")
-        #             uuv.waypoints.guidance_law = 0
-        #             uuv.searchx = uuv.ned_x 
-        #             uuv.searchy = uuv.ned_y +3
-        #             rospy.loginfo("ned done")
-        #             uuv.sweepstate = -1
-        #             uuv.desired(uuv.waypoints)
-        #             uuv.searchstate = 0
-        #             # self.searchx = self.ned_x + 3
-
-
-        #     elif uuv.searchstate == 0:
-        #         uuv.waypoints.guidance_law = 1
-        #         #move 3 meter
-        #         rospy.loginfo("Moving")
-        #         _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
-        #         if(_euc_distance <0.35):
-        #             rospy.loginfo(_euc_distance)
-        #             uuv.searchstate = -1
-        #         else:
-        #             uuv.waypoints.waypoint_list_x = [uuv.ned_x,uuv.searchx]
-        #             uuv.waypoints.waypoint_list_y = [uuv.ned_y,uuv.searchy]
-        #             uuv.waypoints.waypoint_list_z = [0,0]   
-        #             uuv.desired(uuv.waypoints)   
-        # #look subscriber of image distance
-
-    def walk(self, uuv, dis):
-        uuv.waypoints.guidance_law = 0
-        uuv.searchx = uuv.ned_x + (dis * math.cos(uuv.waypoints.heading_setpoint))
-        uuv.searchy = uuv.ned_y + (dis * math.sin(uuv.waypoints.heading_setpoint))
-        rospy.loginfo("ned done")
-        uuv.waypoints.guidance_law = 1
-        #move 3 meter
-        rospy.loginfo("Moving")
-        _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
-        if(_euc_distance <0.35):
-            rospy.loginfo(_euc_distance)
-            uuv.searchstate = -1
-        else:
-            uuv.waypoints.waypoint_list_x = [uuv.ned_x,uuv.searchx]
-            uuv.waypoints.waypoint_list_y = [uuv.ned_y,uuv.searchy]
-            uuv.waypoints.waypoint_list_z = [0,0]   
-            uuv.desired(uuv.waypoints)
-        if (uuv.searchx == uuv.ned_x) and (uuv.searchy == uuv.ned_y):
-            rospy.logwarn("MOVVVVVVVED")
-            return 1 
-        
-    def rotate(self, uuv, rotation):
-        if self.rot_control == 0:
-            self.waypointstatus = uuv.waypoints.heading_setpoint
-            self.waypointtarget = self.waypointstatus + rotation
-            self.rot_control = 1
-
-        if ((self.rot_control == 1) and (uuv.waypoints.heading_setpoint < self.waypointtarget)):
-                    uuv.waypoints.guidance_law = 0
-                    uuv.waypoints.heading_setpoint += math.pi/360
-                    uuv.waypoints.waypoint_list_x = [0 ,0]
-                    uuv.waypoints.waypoint_list_y = [0, 0]
-                    uuv.waypoints.waypoint_list_z = [0,0]
-                    uuv.desired(uuv.waypoints)
-                    rospy.loginfo("sweeping")
-        
-        else:
-            rospy.logwarn("Sleeping")
-            rate = rospy.Rate(10)
-            for i in range(60):
-                rate.sleep()
-            self.rot_control = 0
-            rospy.loginfo(self.waypointstatus)
-            return 1
             
+    def check_detections(self):
+        
+        rospy.Subscriber("/cluster_topic", Point, self.clustered)
+        rospy.Subscriber('/uuv_perception/yolo_zed/objects_detected', obj_detected_list, self.detected_objects_callback)
+
+        # Priorities are: 
+        # If an image is detected it's there
+        # If we have a good cluster we go there
+        # Anything else we use the regular algorithm
+
+        if self.clustered <0.5:
+            return 0
+        elif self.clustered >=0.5:
+            return 1
+        
+        # Implement yolo 
+            # return a 2
+
+    def rotate(self, rotation):
+        self.rot_goal.goal_angle = rotation
+        self.rot_client.send_goal(self.rot_goal)
+        self.rot_client.wait_for_result()
+        time.sleep(1)
+        
+
+    def walk(self, walk_dis):
+        self.walk_goal.walk_dis = walk_dis
+        self.walk_client.send_goal(self.walk_goal)
+        self.walk_client.wait_for_result()
+
+    def rotate(self):
+        self.rot_goal.goal_angle = RTURN90
+        self.rot_client.send_goal(self.rot_goal)
+        self.rot_client.wait_for_result()
+        time.sleep(1)
+
+    def walk(self):
+        self.walk_goal.walk_dis = WALKDIS
+        self.walk_client.send_goal(self.walk_goal)
+        self.walk_client.wait_for_result()  
+    
+    def create_nav_mat(self,size):
+        for i in range(size):
+            aux = aux.append(0)
+            for j in range(size):
+                self.nav_matrix
+        
+
 
 
      
@@ -572,6 +591,7 @@ class uuv_nav:
 
 if __name__ == "__main__":
     try:
+        rospy.init_node("navigation", anonymous=False)
         i = uuv_nav()
         i.main()
     except rospy.ROSInterruptException:     

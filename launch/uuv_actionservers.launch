@@ -1,0 +1,5 @@
+<launch>
+    <node name="rotate_server"      pkg="vanttec_uuv" type="rotate_aserver.py"  />
+    <node name="walk_server"     pkg="vanttec_uuv" type="walk_aserver.py"  />
+    <node name="orbit_server"     pkg="vanttec_uuv" type="orbit_aserver.py"  />
+</launch>
