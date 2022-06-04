@@ -13,7 +13,6 @@ class walkServer:
   def __init__(self):
     self.server = actionlib.SimpleActionServer('walk', walkAction, self.execute, False)
     self.server.start()
-
     self.isrot = False
     self.ismov = False
     self.waypointstatus = None

@@ -6,7 +6,7 @@ import time
 import numpy as np
 import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
-from geometry_msgs.msg import Pose, PoseStamped,Point
+from geometry_msgs.msg import Pose, PoseStamped, Point
 from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list, rotateAction, rotateGoal, walkAction, walkGoal
 import actionlib
 from nav_msgs.msg import Path
@@ -492,6 +492,19 @@ class uuv_nav:
         # Also a good idea would be store the last pose 
 
         # Three ways of use, if 
+        target = Point() #This should be a subscriber of the cluster
+        target.x = 3
+        target.y = 3
+        target.z = 0
+        while True:
+            rospy.loginfo(target.y - uuv.ned_y)
+            self.walk(target.y - uuv.ned_y)
+            self.rotate()
+            rospy.loginfo(target.x - uuv.ned_x)
+            self.walk(target.x - uuv.ned_x)
+            break
+
+
 
         if (self.search_control == 0):
             rospy.logwarn(self.search_step)
@@ -499,18 +512,6 @@ class uuv_nav:
                 self.walk()
                 # Capture
                 self.search_step = 1
-
-            elif self.search_step == 1:
-                self.rotate()
-                self.walk()
-                # Capture
-                self.search_step = 2
-            
-            elif self.search_step == 2:
-                self.rotate()
-                self.walk()
-                #Capture
-                self.search_step = 3
 
             elif self.search_step == 3:
                 self.walk()
@@ -554,28 +555,19 @@ class uuv_nav:
         # Implement yolo 
             # return a 2
 
-    def rotate(self, rotation):
+    def rotate(self,rotation = RTURN90):
         self.rot_goal.goal_angle = rotation
         self.rot_client.send_goal(self.rot_goal)
         self.rot_client.wait_for_result()
         time.sleep(1)
         
 
-    def walk(self, walk_dis):
+    def walk(self, walk_dis = WALKDIS):
         self.walk_goal.walk_dis = walk_dis
         self.walk_client.send_goal(self.walk_goal)
         self.walk_client.wait_for_result()
 
-    def rotate(self):
-        self.rot_goal.goal_angle = RTURN90
-        self.rot_client.send_goal(self.rot_goal)
-        self.rot_client.wait_for_result()
-        time.sleep(1)
-
-    def walk(self):
-        self.walk_goal.walk_dis = WALKDIS
-        self.walk_client.send_goal(self.walk_goal)
-        self.walk_client.wait_for_result()  
+   
     
     def create_nav_mat(self,size):
         for i in range(size):
