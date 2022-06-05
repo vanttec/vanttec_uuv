@@ -48,7 +48,7 @@ add_service_files(
 )
 
 add_action_files(
-   FILES rotate.action walk.action orbit.action
+   FILES rotate.action walk.action goto.action
 
  )
 

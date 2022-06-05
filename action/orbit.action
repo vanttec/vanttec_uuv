@@ -1,8 +1,0 @@
-# Define the goal
-geometry_msgs/Point orbit_point  # Specify which dishwasher we want to use
----
-# Define the result
-uint32 goal_done
----
-# Define a feedback message
-float32 orbit_status

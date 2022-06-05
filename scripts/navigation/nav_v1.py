@@ -7,7 +7,7 @@ import numpy as np
 import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
 from geometry_msgs.msg import Pose, PoseStamped, Point
-from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list, rotateAction, rotateGoal, walkAction, walkGoal
+from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list, rotateAction, rotateGoal, walkAction, walkGoal, gotoAction, gotoGoal
 import actionlib
 from nav_msgs.msg import Path
 import time
@@ -425,7 +425,7 @@ class uuv_instance:
             pose.pose.position.z    = path.waypoint_list_z[index]
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
-        rospy.logwarn("Desired sended")
+        # rospy.logwarn("Desired sended")
         
     def results(self):
         rospy.logwarn("Buoy mission finished")
@@ -442,7 +442,7 @@ class uuv_instance:
 
 class uuv_nav:
     def __init__(self):
-        
+        self.uuv = uuv_instance()
         self.isrot = False
         self.ismov = False
         self.clustered = None
@@ -454,12 +454,17 @@ class uuv_nav:
         self.rot_goal = rotateGoal()
         self.walk_client = actionlib.SimpleActionClient('walk', walkAction)
         self.walk_goal = walkGoal()
+        self.goto_client = actionlib.SimpleActionClient('goto', gotoAction)
+        self.goto_goal = gotoGoal()
+
         self.search_step = 0
         self.iteration = 1
         rospy.loginfo("Waiting for rotate server")
         self.rot_client.wait_for_server()
         rospy.loginfo("Waiting for walk server")
         self.walk_client.wait_for_server()
+        rospy.loginfo("Waiting for goto server")
+        self.goto_client.wait_for_server()
         self.nav_matrix = []
         # self.nav_matrix = [[0,0,0],
         #                    [0,0,0],
@@ -470,7 +475,7 @@ class uuv_nav:
         print("I'm in main")
         rate = rospy.Rate(10)
         print(rospy.get_time())
-        uuv = uuv_instance()
+        uuv = self.uuv
 
 
         while not rospy.is_shutdown():
@@ -492,17 +497,12 @@ class uuv_nav:
         # Also a good idea would be store the last pose 
 
         # Three ways of use, if 
-        target = Point() #This should be a subscriber of the cluster
-        target.x = 3
-        target.y = 3
+        target = Point()
+        target.x = 1
+        target.y = 1
         target.z = 0
-        while True:
-            rospy.loginfo(target.y - uuv.ned_y)
-            self.walk(target.y - uuv.ned_y)
-            self.rotate()
-            rospy.loginfo(target.x - uuv.ned_x)
-            self.walk(target.x - uuv.ned_x)
-            break
+        
+        # self.orbit(target)
 
 
 
@@ -512,6 +512,18 @@ class uuv_nav:
                 self.walk()
                 # Capture
                 self.search_step = 1
+
+            elif self.search_step == 1:
+                self.rotate()
+                self.walk()
+                # Capture
+                self.search_step = 2
+
+            elif self.search_step == 2:
+                self.rotate()
+                self.walk()
+                #Capture
+                self.search_step = 3
 
             elif self.search_step == 3:
                 self.walk()
@@ -555,18 +567,63 @@ class uuv_nav:
         # Implement yolo 
             # return a 2
 
-    def rotate(self,rotation = RTURN90):
+    def rotate(self, rotation = RTURN90):
         self.rot_goal.goal_angle = rotation
         self.rot_client.send_goal(self.rot_goal)
         self.rot_client.wait_for_result()
-        time.sleep(1)
-        
 
     def walk(self, walk_dis = WALKDIS):
         self.walk_goal.walk_dis = walk_dis
         self.walk_client.send_goal(self.walk_goal)
         self.walk_client.wait_for_result()
+        time.sleep(1)
 
+
+    def goto(self, point):
+        self.goto_goal.goto_point = point
+        self.goto_client.send_goal(self.goto_goal)
+        self.goto_client.wait_for_result()
+
+    def orbit(self, point, walk_dis = WALKDIS):
+        #First we go to a point to orbit
+        rospy.loginfo("Goingto")
+        point.x = point.x - walk_dis
+
+        self.goto(point)
+        time.sleep(1)
+        while abs(self.uuv.yaw) > 0.1:
+            rospy.loginfo(self.uuv.yaw)
+            self.rotate(RTURN90/90)
+        self.rotate(LTURN90)
+        for i in range(2):
+            rospy.loginfo("supose first rot")
+            self.rotate()
+
+        rospy.logwarn("GONE 1")
+        point.x = point.x + walk_dis
+        point.y = point.y + walk_dis
+        self.goto(point)
+        for i in range(2):
+            rospy.loginfo("supose sec rot")
+            self.rotate(LTURN90)
+        rospy.logwarn("GONE 2")
+        point.x = point.x + walk_dis
+        point.y = point.y - walk_dis
+        self.goto(point)
+        for i in range(2):
+            self.rotate(LTURN90)
+            rospy.loginfo("supose thr rot")
+
+        rospy.logwarn("GONE 3")
+        point.x = point.x - walk_dis
+        point.y = point.y - walk_dis
+        self.goto(point)
+        self.rotate(LTURN90)
+        rospy.logwarn("GONE 4")
+        point.x = point.x - walk_dis
+        point.y = point.y + walk_dis
+        self.goto(point)
+        rospy.logwarn("GONE 5")
    
     
     def create_nav_mat(self,size):
