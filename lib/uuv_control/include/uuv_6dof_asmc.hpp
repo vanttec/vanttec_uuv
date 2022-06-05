@@ -1,6 +1,7 @@
 /** ----------------------------------------------------------------------------
  * @file: uuv_6dof_controller.hpp
  * @date: March 2, 2022
+ * @date: June 4, 2022
  * @author: Sebas Mtz
  * @email: sebas.martp@gmail.com
  * 
@@ -12,7 +13,8 @@
 #define __UUV_6DOF_ASMC_H__
 
 #include "asmc.hpp"
-#include "vtec_u3_parameters.hpp"
+#include "vanttec_uuv/ThrustControl.h"
+#include "vanttec_uuv/SystemDynamics.h"
 
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Twist.h>
@@ -24,46 +26,38 @@
 class UUV_6DOF_ASMC
 {
     private:
-        Eigen::Vector6f upsilon;
-        Eigen::Matrix6f M_rb;
-        Eigen::Matrix6f M_a;
-        Eigen::Matrix6f C_rb;
-        Eigen::Matrix6f C_a;
-        Eigen::Matrix6f D_lin;
-        Eigen::Matrix6f D_qua;
-        Eigen::Vector6f G_eta;
-
         ros::NodeHandle handle;
-        ros::Publisher v_dot_pub = handle.advertise<geometry_msgs::Twist>("/uuv_accel",1000);
-    public:
-        geometry_msgs::Pose         local_pose;
-        geometry_msgs::Twist        local_twist;
+        bool functs_arrived;
         
+    public:
+        Eigen::VectorXf u;              // Control
+        Eigen::VectorXf ua;             // Auxiliary Control
+        Eigen::VectorXf f;
+        Eigen::MatrixXf g;
+        Eigen::VectorXf q_dot_dot;      //ref_dot_dot
         vanttec_uuv::ThrustControl  thrust;
 
-        float yaw_psi_angle;
-
-        ASMC x_controller;
-        ASMC y_controller;
-        ASMC z_controller;
-        ASMC phi_controller;
-        ASMC theta_controller;
-        ASMC psi_controller;
-
-        Eigen::Vector6f f;
-        Eigen::Vector6f g;
-
-        UUV_6DOF_ASMC(float _sample_time_s, const float _kpid_u[3], const float _kpid_v[3], const float _kpid_z[3], const float _kpid_psi[3]);
+        ASMC ASMC_x;
+        ASMC ASMC_y;
+        ASMC ASMC_z;
+        ASMC ASMC_phi;
+        ASMC ASMC_theta;
+        ASMC ASMC_psi;
+        
+        UUV_6DOF_ASMC(float sample_time_s, const float K2[6], const float K_alpha[6],  const float K_min[6],  const float mu[6]);
         ~UUV_6DOF_ASMC();
 
-        void UpdatePose(const geometry_msgs::Pose& _pose);
-        void UpdateTwist(const geometry_msgs::Twist& _twist);
-        void UpdateSetPoints(const geometry_msgs::Twist& _set_points);
-        
-        void UpdateControlLaw();
-        void UpdateThrustOutput();
+        void UpdateDynamics(const vanttec_uuv::SystemDynamics& non_linear_functions);
+        void UpdatePose(const vanttec_uuv::EtaPose& current);
+        void UpdateSetPoints(const vanttec_uuv::EtaPose& set_points);
+        void CalculateManipulation();
 
-        void PublishAccel();
+        // void UpdateTwist(const geometry_msgs::Twist& twist);
+        
+        // void UpdateControlLaw();
+        // void UpdateThrustOutput();
+
+        // void PublishAccel();
 };
 
-#endif __UUV_6DOF_ASMC_H__
+#endif

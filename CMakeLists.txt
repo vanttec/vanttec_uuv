@@ -80,12 +80,19 @@ add_executable(uuv_odometry_node
 add_dependencies(uuv_odometry_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_odometry_node ${catkin_LIBRARIES})
 
-add_executable(uuv_control_node 
-    src/uuv_control_node.cpp 
+add_executable(uuv_pid_control_node 
+    src/uuv_pid_control_node.cpp 
     lib/uuv_control/src/uuv_6dof_pid.cpp 
     lib/uuv_control/src/pid_controller.cpp)
-add_dependencies(uuv_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(uuv_control_node ${catkin_LIBRARIES})
+add_dependencies(uuv_pid_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_pid_control_node ${catkin_LIBRARIES})
+
+add_executable(uuv_asmc_node 
+    src/uuv_asmc_node.cpp 
+    lib/uuv_control/src/uuv_6dof_asmc.cpp 
+    lib/uuv_control/src/asmc.cpp)
+add_dependencies(uuv_asmc_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_asmc_node ${catkin_LIBRARIES})
 
 # add_executable(asmc_guidance_unit_test 
 #     tests/asmc_guidance_unit_test.cpp

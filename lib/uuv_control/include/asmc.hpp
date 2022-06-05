@@ -1,6 +1,7 @@
 /** ----------------------------------------------------------------------------
  * @file: asmc.hpp
  * @date: June 17, 2021
+ * @date: June 4, 2022
  * @author: Sebas Mtz
  * @email: sebas.martp@gmail.com
  * 
@@ -11,48 +12,52 @@
 #ifndef __ASMC_H__
 #define __ASMC_H__
 
+#include "uuv_common.hpp"
+#include "vanttec_uuv/EtaPose.h"
 #include <cmath>
-#define PI 3.14159265359
-
-typedef enum DOFControllerType_E
-{
-    LINEAR_DOF = 0,
-    ANGULAR_DOF = 1,
-} DOFControllerType_E;
 
 class ASMC
 {
+    private:
+        float _sample_time_s;
+        float _q_d;         // Setpoint
+        float _q_dot_d;
+        float _error1;
+        float _error2;
+        float _prev_error1;
+        float _prev_error2;
+        
+        // Auxiliar control
+        float _ua;
+
+        // Sliding surface
+        float _lambda;
+        float _s;
+
+        // Gains
+        float _K1;
+        float _K2;
+        float _dot_K1;
+        float _prev_dot_K1;
+
+        // Adaptive law
+        float _K_min;
+        float _K_alpha;
+        float _mu;
+
+        DOFControllerType_E _controller_type;
     public:
-        double set_point;
-        double error1;
-        double prev_error1;
-        double error2;
-        double prev_error2;
-
-        double ua;
-
-        double lambda;
-        double s;           //Sliding surface
-
-        double K1;
-        double dot_K1;
-        double prev_dot_K1;
-        double K2;
-        double K_min;
-        double K_alpha;
-        double mu;
-
-        DOFControllerType_E controller_type;
-
         // Constructor
-        ASMC(const double _K2, const double _K_alpha, const double _K_min, const double _mu, const DOFControllerType_E _type);
+        ASMC(const float sample_time_s, const float K2, const float K_alpha, const float K_min, const float mu, const DOFControllerType_E type);
 
         // Destructor
         ~ASMC();
 
         void Reset();
-        void SetAdaptiveParams(const double _K_min, const double _K_alpha, const double _mu);
-        void CalculateAuxControl(double set_point, double _current_pos, double _current_vel, double _sample_time_s);
+        void UpdateSetPoint(const float q_d, const float q_dot_d);
+        void CalculateAuxControl(float q, float q_dot);
+
+        friend class UUV_6DOF_ASMC;
 };
 
 #endif
