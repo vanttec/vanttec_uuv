@@ -500,7 +500,6 @@ class uuv_nav:
 
 
         while not rospy.is_shutdown():
-            while self.
             self.search(uuv)
             # self.walk(uuv, 3)
             # self.rotate(uuv, math.pi/2)
@@ -599,7 +598,6 @@ class uuv_nav:
         self.walk_client.send_goal(self.walk_goal)
         self.walk_client.wait_for_result()
         time.sleep(1)
-
 
     def goto(self, point):
         self.goto_goal.goto_point = point
