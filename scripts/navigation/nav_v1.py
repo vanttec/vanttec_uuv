@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -- coding: utf-8 --
 
+from ctypes import pointer
 import math
 import time
 import numpy as np
@@ -455,7 +456,22 @@ class uuv_nav:
         self.walk_client = actionlib.SimpleActionClient('walk', walkAction)
         self.walk_goal = walkGoal()
         self.goto_client = actionlib.SimpleActionClient('goto', gotoAction)
+
+        #Vars to use gate
         self.goto_goal = gotoGoal()
+        self.gate_pos = Point()
+        self.gate_pos.x = 0
+        self.gate_pos.y = 7.5
+        self.gate_pos.z = 0
+        self.gate_width = 4
+        self.gate_target = Point()
+        self.gate_target = self.gate_pos
+        self.choose_side = 'police'
+        if self.choose_side == 'police':
+            self.gate_target.x = self.gate_target + (self.gate_width/4)
+        elif self.choose_side == 'otroquenomeacuerdo':
+            self.gate_target.x = self.gate_target + (self.gate_width/4)
+
 
         self.search_step = 0
         self.iteration = 1
@@ -466,6 +482,11 @@ class uuv_nav:
         rospy.loginfo("Waiting for goto server")
         self.goto_client.wait_for_server()
         self.nav_matrix = []
+        self.nav_counter
+        self.init_point = Point()
+        self.init_point.x = self.uuv.ned_x
+        self.init_point.y = self.uuv.ned_y
+        self.init_point.z = self.uuv.ned_z
         # self.nav_matrix = [[0,0,0],
         #                    [0,0,0],
         #                    [0,0,0]]
@@ -479,6 +500,7 @@ class uuv_nav:
 
 
         while not rospy.is_shutdown():
+            while self.
             self.search(uuv)
             # self.walk(uuv, 3)
             # self.rotate(uuv, math.pi/2)
