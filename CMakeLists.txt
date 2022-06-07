@@ -31,6 +31,7 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_message_files(
    FILES
+   clusters_center_list.msg
    ThrustControl.msg
    GuidanceWaypoints.msg
    MasterStatus.msg

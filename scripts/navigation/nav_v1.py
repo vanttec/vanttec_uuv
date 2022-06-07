@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 # -- coding: utf-8 --
 
-from ctypes import pointer
 import math
+from pickle import FALSE
 import time
 import numpy as np
 import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
-from geometry_msgs.msg import Pose, PoseStamped, Point
-from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list, rotateAction, rotateGoal, walkAction, walkGoal, gotoAction, gotoGoal
+from geometry_msgs.msg import Pose, PoseStamped,Point,Vector3
+from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list, rotateAction, rotateGoal, walkAction, walkGoal, gotoAction, gotoGoal, clusters_center_list
 import actionlib
 from nav_msgs.msg import Path
 import time
+#from vanttec_uuv.msg import clusters_center_list
+
 
 # Default values
 RTURN90 = math.pi/2
@@ -82,6 +84,12 @@ class uuv_instance:
         self.camera_offset_y = 0.0
         self.camera_offset_z = -0.1
 
+        self.oldclusters=set()
+        self.newclusters=set()
+        self.explored_zones=set()
+        self.explore_threshold=2
+        self.newexploration=False
+
         # ROS Subscribers
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
         # rospy.Subscriber("/uuv_perception/buoy_1_pos_pub",Point,self.buoy1_callback)
@@ -101,7 +109,47 @@ class uuv_instance:
         #rospy.Subscriber("buoy_1_pos_pub",Point,self.buoy_vision_callback)
 
         #Waypoint test instead of perception node
-        #This array shall be modified with zed inputs of distance    
+        #This array shall be modified with zed inputs of distance  
+        rospy.Subscriber("clusters_center",clusters_center_list,self.cluster_callback)
+    def order(self,ele):
+        return pow(pow(ele[0]-self.ned_x,2)+pow(ele[1]-self.ned_y,2),0.5)
+    def analyze_cluster(self,unknown_cluster):
+        newclusters=set()
+        for i in unknown_cluster:
+            #Far distance from sub/body
+            _euc_distance = pow(pow(i[0]-self.ned_x,2)+pow(i[1]-self.ned_y,2),0.5)
+            if _euc_distance>self.explore_threshold:
+                if len(self.explored_zones)==0:
+                    newclusters.add(i)
+                    self.explored_zones.add(i)
+                    sorted(newclusters,key=self.order)
+                    self.newexploration=True
+                else:
+                    #Far distance from explored zones
+                    for j in self.explored_zones:
+                        _euc_distance2 = pow(pow(i[0]-j[0],2)+pow(i[1]-j[1],2),0.5)
+                        if _euc_distance2>self.explore_threshold:
+                            newclusters.add(i)
+                            sorted(newclusters,key=self.order)
+                            self.newexploration=True
+        return newclusters
+
+    def cluster_callback(self,msg):
+        rospy.logwarn("Coordenadasssss")
+        rospy.logwarn(msg.clusters)
+        octocluster=[]
+        for i in msg.clusters:
+            octocluster.append([i.x,i.y,i.z])
+        cluster=[tuple(y) for y in octocluster]
+        setCluster=set(cluster)
+        newclusters =  self.analyze_cluster(setCluster)
+        if  newclusters!=self.oldclusters:
+            self.newclusters=newclusters.symmetric_difference(self.oldclusters)
+            self.oldclusters=newclusters
+            
+
+
+
 
     def detected_objects_callback(self, msg):
         self.objects_list = msg
@@ -426,7 +474,7 @@ class uuv_instance:
             pose.pose.position.z    = path.waypoint_list_z[index]
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
-        # rospy.logwarn("Desired sended")
+        rospy.logwarn("Desired sended")
         
     def results(self):
         rospy.logwarn("Buoy mission finished")
@@ -443,7 +491,7 @@ class uuv_instance:
 
 class uuv_nav:
     def __init__(self):
-        self.uuv = uuv_instance()
+        
         self.isrot = False
         self.ismov = False
         self.clustered = None
@@ -456,37 +504,25 @@ class uuv_nav:
         self.walk_client = actionlib.SimpleActionClient('walk', walkAction)
         self.walk_goal = walkGoal()
         self.goto_client = actionlib.SimpleActionClient('goto', gotoAction)
-
-        #Vars to use gate
         self.goto_goal = gotoGoal()
-        self.gate_pos = Point()
-        self.gate_pos.x = 0
-        self.gate_pos.y = 7.5
-        self.gate_pos.z = 0
-        self.gate_width = 4
-        self.gate_target = Point()
-        self.gate_target = self.gate_pos
-        self.choose_side = 'police'
-        if self.choose_side == 'police':
-            self.gate_target.x = self.gate_target + (self.gate_width/4)
-        elif self.choose_side == 'otroquenomeacuerdo':
-            self.gate_target.x = self.gate_target + (self.gate_width/4)
-
-
+        
         self.search_step = 0
         self.iteration = 1
         rospy.loginfo("Waiting for rotate server")
         self.rot_client.wait_for_server()
         rospy.loginfo("Waiting for walk server")
         self.walk_client.wait_for_server()
-        rospy.loginfo("Waiting for goto server")
-        self.goto_client.wait_for_server()
+        self.oclient = actionlib.SimpleActionClient('goto', gotoAction)
+        self.oclient.wait_for_server()
+        self.ggoal = gotoGoal()
         self.nav_matrix = []
-        self.nav_counter
-        self.init_point = Point()
-        self.init_point.x = self.uuv.ned_x
-        self.init_point.y = self.uuv.ned_y
-        self.init_point.z = self.uuv.ned_z
+        self.enableoctomap = rospy.Publisher("/enablepcl",String, queue_size=10)
+        self.enableclustering = rospy.Publisher("/start_clustering",String, queue_size=10)
+        self.eraseoctomap = rospy.Publisher("/erasemap",String, queue_size=10)
+
+        self.init_pose = Point()
+        self.current_pose = Point()
+        self.alg_control = 0
         # self.nav_matrix = [[0,0,0],
         #                    [0,0,0],
         #                    [0,0,0]]
@@ -496,18 +532,24 @@ class uuv_nav:
         print("I'm in main")
         rate = rospy.Rate(10)
         print(rospy.get_time())
-        uuv = self.uuv
+        uuv = uuv_instance()
+        self.init_pose.x = uuv.ned_x
+        self.init_pose.y = uuv.ned_y
 
 
         while not rospy.is_shutdown():
-            self.search(uuv)
+            if uuv.newexploration:
+                rospy.logwarn("Explore")
+                self.explore_cluster(uuv.newclusters,uuv)
+            else:
+                rospy.logwarn("Search")
+                self.search(uuv)
             # self.walk(uuv, 3)
             # self.rotate(uuv, math.pi/2)
-            rospy.loginfo("searching")
             # self.rotate(uuv,math.pi/2)
             rate.sleep()
             # rospy.spin()
-    
+
     def search(self, uuv):
         #look subscriber of pathmarker
         rospy.loginfo("search")
@@ -518,53 +560,94 @@ class uuv_nav:
         # Also a good idea would be store the last pose 
 
         # Three ways of use, if 
-        target = Point()
-        target.x = 1
-        target.y = 1
-        target.z = 0
-        
-        # self.orbit(target)
-
-
 
         if (self.search_control == 0):
             rospy.logwarn(self.search_step)
             if self.search_step == 0:
+                self.current_pose.x = uuv.ned_x
+                self.current_pose.y = uuv.ned_y
+                self.current_pose.z = 0
+                
+                rospy.logwarn("entrenadooooo")
                 self.walk()
-                # Capture
-                self.search_step = 1
+                rospy.logwarn("saliendoooo")
 
+                # Capture
+                self.enableoctomap.publish("Activate")
+                self.enableclustering.publish("Activate")
+                rospy.sleep(3)
+                self.enableclustering.publish("Deactivate")
+                self.enableoctomap.publish("Deactivate")                
+                self.search_step = 1
             elif self.search_step == 1:
                 self.rotate()
                 self.walk()
                 # Capture
+                self.enableoctomap.publish("Activate")
+                self.enableclustering.publish("Activate")
+                rospy.sleep(3)
+                self.enableoctomap.publish("Deactivate")  
                 self.search_step = 2
-
+            
             elif self.search_step == 2:
-                self.rotate()
-                self.walk()
+                self.rotate(LTURN90)
                 #Capture
+                self.enableoctomap.publish("Activate")
+                self.enableclustering.publish("Activate")
+                rospy.sleep(3)
+                self.enableoctomap.publish("Deactivate")  
+                self.enableoctomap.publish("Deactivate") 
+                self.rotate()
                 self.search_step = 3
 
             elif self.search_step == 3:
                 self.walk()
-                self.rotate()
-                self.walk()
+                self.rotate(LTURN90)
+                
                 # Capture
+                self.enableoctomap.publish("Activate")
+                self.enableclustering.publish("Activate")
+                rospy.sleep(3)
+                self.enableoctomap.publish("Deactivate")  
+                self.enableoctomap.publish("Deactivate") 
+                self.rotate(LTURN90)
+                self.walk()
                 self.search_step = 4 
 
             elif self.search_step == 4:
                 self.walk()
-                self.walk()
                 self.rotate()
-                self.walk()
                 # Capture
+                self.enableoctomap.publish("Activate")
+                rospy.sleep(3)
+                self.enableoctomap.publish("Deactivate")  
+                self.walk()
                 self.search_step = 5
 
             elif self.search_step == 5:
+                self.alg_control = self.alg_control + 1
                 #Check whats the best way to reset
-                pass
+                algx = [WALKDIS*3,  WALKDIS*3 , 0         , -WALKDIS*3, -WALKDIS*3 ,-WALKDIS*3 ,0          , WALKDIS*3]
+                algy = [0        ,  WALKDIS*3 , WALKDIS*3,  WALKDIS*3, 0          ,-WALKDIS*3 ,-WALKDIS*3 ,  -WALKDIS*3]
+                #       "Frente     Derecha     Atras       Atras       Izquierda   Izquierda   Frente  Frente"
+                # aux = self.alg_control // len(algx)
+                newpoint = Point()
+                newpoint.x = self.init_pose.x + algx[self.alg_control%len(algx)] + ((algx[self.alg_control%len(algx)]) * (self.alg_control//len(algx)))
+                newpoint.y = self.init_pose.y + algy[self.alg_control%len(algy)] + ((algy[self.alg_control%len(algy)]) * (self.alg_control//len(algy)))
+                # newpoint.x = self.init_pose.x + algx[self.alg_control%len(algx)] 
+                # newpoint.y = self.init_pose.y + algy[self.alg_control%len(algy)] 
+                newpoint.z = 0
+                rospy.logwarn(newpoint)
+                if self.alg_control%len(algx) > 5 and self.alg_control < 3:
+                    rospy.logwarn("GOING TO")
+                    rospy.logwarn(newpoint)
+                    self.goto(newpoint)
+
+                rospy.loginfo("Iteration ")
+                rospy.loginfo (self.alg_control)
+                # time.sleep(4)
                 rospy.logwarn("step5")
+                self.search_step = 0
     
         
         if self.search_control == 1: #clustered
@@ -592,6 +675,8 @@ class uuv_nav:
         self.rot_goal.goal_angle = rotation
         self.rot_client.send_goal(self.rot_goal)
         self.rot_client.wait_for_result()
+        time.sleep(1)
+        
 
     def walk(self, walk_dis = WALKDIS):
         self.walk_goal.walk_dis = walk_dis
@@ -644,7 +729,37 @@ class uuv_nav:
         point.y = point.y + walk_dis
         self.goto(point)
         rospy.logwarn("GONE 5")
-   
+    
+    def explore_cluster(self,newcluster,uuv):
+        f = lambda x:list(x)
+        exploration_coord = [f(x) for x in newcluster]
+        rospy.logwarn(exploration_coord)
+        for i in exploration_coord:
+            self.ggoal.goto_point.x = i[0]
+            self.ggoal.goto_point.y = i[1]
+            self.ggoal.goto_point.z = 0
+            self.oclient.send_goal(self.ggoal)
+            self.oclient.wait_for_result()
+        #self.eraseoctomap.publish("Activate")
+        rospy.logwarn("Leaving")
+        self.ggoal.goto_point.x =uuv.ned_x+2
+        self.ggoal.goto_point.y = 0
+        self.ggoal.goto_point.z = 0
+        self.oclient.send_goal(self.ggoal)
+        self.oclient.wait_for_result()
+        self.walk_client.wait_for_result()
+        #self.eraseoctomap.publish("Deactivate")
+        uuv.newexploration=False
+
+        
+
+    # def rotate(self):
+    #     self.rot_goal.goal_angle = RTURN90
+    #     self.rot_client.send_goal(self.rot_goal)
+    #     self.rot_client.wait_for_result()
+    #     time.sleep(1)
+
+
     
     def create_nav_mat(self,size):
         for i in range(size):

@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
         
     ros::Rate               cycle_rate(int(1 / SAMPLE_TIME_S));
-    TfBroadcaster           tf_broadcaster("world", "uuv");
+    TfBroadcaster           tf_broadcaster("world_ned", "vtec_u3_base_link");
     
     ros::Publisher  uuv_path    = nh.advertise<nav_msgs::Path>("/uuv_simulation/uuv_tf_broadcast/uuv_path", 1000);
     
