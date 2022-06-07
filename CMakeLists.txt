@@ -16,7 +16,18 @@ find_package(catkin REQUIRED COMPONENTS
     tf2_geometry_msgs
     vehicle_user_control
     visualization_msgs
+    pcl_ros
+    roscpp
+    sensor_msgs
+    cv_bridge
+    actionlib_msgs
 )
+
+find_package(PCL 1.2 REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 add_message_files(
    FILES
@@ -26,16 +37,32 @@ add_message_files(
    Obstacle.msg
    DetectedObstacles.msg
    MissionStatus.msg
+   obj_detected.msg
+   obj_detected_list.msg
+   Gate.msg
+   clusters_center_list.msg
 )
 
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
+add_service_files(
+   FILES
+   color_id.srv
 )
+add_action_files(
+    FILES rotate.action walk.action goto.action
+ )
+
+ generate_messages(
+    DEPENDENCIES
+    std_msgs
+    geometry_msgs
+    sensor_msgs
+    actionlib_msgs
+  )
+  
 
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs vehicle_user_control
+  CATKIN_DEPENDS roscpp
+  std_msgs message_runtime geometry_msgs sensor_msgs vehicle_user_control pcl_ros
   DEPENDS ${LIBS}
 )
 
@@ -49,7 +76,9 @@ include_directories(
     lib/uuv_simulation/include
     lib/uuv_missions/include
     include ${catkin_INCLUDE_DIRS}
+    ${PCL_INCLUDE_DIRS}
 )
+add_definitions(${PCL_DEFINITIONS})
 
 add_executable(uuv_odometry_node 
     src/uuv_odometry_node.cpp 
@@ -134,6 +163,6 @@ add_executable(uuv_mission_manager_node
 add_dependencies(uuv_mission_manager_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_mission_manager_node ${catkin_LIBRARIES})
 
-add_executable(gazebo_interface src/gazebo_interface.cpp)
-target_link_libraries(gazebo_interface ${catkin_LIBRARIES})
-
+link_directories(${PCL_LIBRARY_DIRS})
+add_executable(object_detector_node src/object_detector_node.cpp)
+target_link_libraries(object_detector_node ${catkin_LIBRARIES} pcl_visualization)

@@ -18,6 +18,7 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Pose.h>
 #include <eigen3/Eigen/Dense>
+#include "nav_msgs/Odometry.h"
 
 class UUVDynamic4DOFModel
 {
@@ -31,6 +32,7 @@ class UUVDynamic4DOFModel
 
         geometry_msgs::Twist    velocities;
         geometry_msgs::Pose     pose;
+        nav_msgs::Odometry odom;
 
         UUVDynamic4DOFModel(float _sample_time_s);
         ~UUVDynamic4DOFModel();

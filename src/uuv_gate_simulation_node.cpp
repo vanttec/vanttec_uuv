@@ -204,7 +204,7 @@ class ObstacleSimulator
         visualization_msgs::MarkerArray marker_array_fov;
 
         // FOV Cone
-        marker_fov.header.frame_id  = "/uuv";
+        marker_fov.header.frame_id  = "/vtec_u3_base_link";
         marker_fov.lifetime = ros::Duration(0.1);
 
         tf2::Quaternion quat;

@@ -409,9 +409,13 @@ void GuidanceController::UpdateStateMachines()
                         float desired_velocity = 0.075;
                     }
 
+                    //Change direction of movement
                     this->desired_setpoints.linear.x = 0;
-                    this->desired_setpoints.linear.y = -desired_velocity;
-                    this->desired_setpoints.angular.z = desired_heading + PI / 2;
+                    this->desired_setpoints.linear.y = desired_velocity;
+                    this->desired_setpoints.angular.z = desired_heading - PI/2;
+                    //this->desired_setpoints.linear.x = 0;
+                    //this->desired_setpoints.linear.y = -desired_velocity;
+                    //this->desired_setpoints.angular.z = desired_heading + PI / 2;
 
                     this->orbit_euclidean_distance = std::sqrt(std::pow((x_k1 - x_uuv), 2) + std::pow((y_k1 - y_uuv), 2));
 

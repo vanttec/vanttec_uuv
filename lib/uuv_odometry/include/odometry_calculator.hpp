@@ -5,7 +5,7 @@
  * @email: pedro.sc.97@gmail.com
  * 
  * @brief: Odometry calculator class. Used to get velocities and positions 
- *         from the IMU.
+ *         from the world.
  * -----------------------------------------------------------------------------
  * */
 
@@ -21,7 +21,7 @@ class OdometryCalculator
 {
     public:
         
-        /* Inputs from IMU */
+        /* Inputs from world */
         geometry_msgs::Vector3  linear_acceleration;
         geometry_msgs::Vector3  angular_rate;
         geometry_msgs::Vector3  angular_position;

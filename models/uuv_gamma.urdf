@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<robot name="uuv">
+<robot name="vtec_u3_base_link">
 
   <material name="white">
     <color rgba="0.25 0.25 0.25 1"/>
   </material>
 
-  <link name="uuv">
+  <link name="vtec_u3_base_link">
     <visual>
     	<origin rpy="1.57 0 1.57" xyz="-0.25 -0.425 -0.165"/>
       <geometry>

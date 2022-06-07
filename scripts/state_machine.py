@@ -11,12 +11,12 @@ from geometry_msgs.msg import Pose, PoseStamped
 from vanttec_uuv.msg import GuidanceWaypoints
 from usv_perception.msg import obj_detected, obj_detected_list
 from nav_msgs.msg import Path
-from vanttec_uuv.scripts.binmission import BinMission
-from vanttec_uuv.scripts.gatemission import GateMission
-from vanttec_uuv.scripts.buoymission import BuoyMission
+from binmission import BinMission
+from gatemission import GateMission
+from buoymission import BuoyMission
 # Class Definition
 class StateMachine:
-    def __init__(self):
+    def __init__(self): 
         self.transition_mission = 0
         self.activated = True
         self.binmission = BinMission()

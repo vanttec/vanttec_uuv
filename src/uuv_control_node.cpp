@@ -30,7 +30,7 @@ int main(int argc, char **argv)
                                                     &UUV4DOFController::UpdatePose,
                                                     &system_controller);
 
-    ros::Subscriber uuv_twist       = nh.subscribe("/uuv_simulation/dynamic_model/vel", 
+    ros::Subscriber uuv_twist       = nh.subscribe("/uuv_simulation/dynamic_model/world", 
                                                     10,
                                                     &UUV4DOFController::UpdateTwist,
                                                     &system_controller);

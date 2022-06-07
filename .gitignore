@@ -1,1 +1,4 @@
 .vscode
+/scripts/YOLACT/*
+/scripts/saulb/*
+scripts/yolo-config/config_best.weights

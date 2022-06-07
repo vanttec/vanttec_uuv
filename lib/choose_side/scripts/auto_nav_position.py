@@ -309,12 +309,12 @@ class AutoNav:
     def desired(self, path):
     	self.uuv_waypoints.publish(path)
         self.uuv_path.header.stamp = rospy.Time.now()
-        self.uuv_path.header.frame_id = "world"
+        self.uuv_path.header.frame_id = "world_ned"
         del self.uuv_path.poses[:]
         for index in range(path.waypoint_list_length):
             pose = PoseStamped()
             pose.header.stamp       = rospy.Time.now()
-            pose.header.frame_id    = "world"
+            pose.header.frame_id    = "world_ned"
             pose.pose.position.x    = path.waypoint_list_x[index]
             pose.pose.position.y    = path.waypoint_list_y[index]
             pose.pose.position.z    = path.waypoint_list_z[index]

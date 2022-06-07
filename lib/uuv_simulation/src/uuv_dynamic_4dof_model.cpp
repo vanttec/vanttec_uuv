@@ -9,7 +9,11 @@
  **/
 
 #include "uuv_dynamic_4dof_model.hpp"
-
+#include <ros/ros.h>
+#include <tf/transform_broadcaster.h>
+#include <tf2/convert.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <nav_msgs/Odometry.h>
 #include <math.h>
 #include <stdio.h>
 #include <iostream>
@@ -271,4 +275,36 @@ void UUVDynamic4DOFModel::CalculateStates()
     // this->pose.orientation.y = this->quat(2);
     this->pose.orientation.z = this->eta(3); //this->quat(3);
     // this->pose.orientation.w = this->quat(0);
+    //Odom
+    this->odom.pose.pose.position.x = this->pose.position.x;
+    this->odom.pose.pose.position.y = this->pose.position.y;
+    this->odom.pose.pose.position.z = this->pose.position.z;
+    this->odom.pose.pose.orientation.x = this->angular_position.x;
+    this->odom.pose.pose.orientation.y = this->angular_position.y;
+    this->odom.pose.pose.orientation.y = this->angular_position.z;
+    this->odom.pose.pose.orientation.w = 0;
+    this->odom.twist.twist.linear.x=this->velocities.linear.x;
+    this->odom.twist.twist.linear.y=this->velocities.linear.y;
+    this->odom.twist.twist.linear.z=this->velocities.linear.z;
+    this->odom.twist.twist.angular.x=this->angular_rate.x;
+    this->odom.twist.twist.angular.y=this->angular_rate.y;
+    this->odom.twist.twist.angular.z=this->angular_rate.z;
+    tf::TransformBroadcaster odom_broadcaster;
+    geometry_msgs::TransformStamped odom_trans;
+    ros::Time current_time;
+    current_time = ros::Time::now();
+    /*
+    odom_trans.header.stamp = current_time;
+    odom_trans.header.frame_id = "vtec_u3_base_link";
+    odom_trans.child_frame_id = "frontrs200_camera";
+    tf2::Quaternion myQuaternion;
+    myQuaternion.setRPY(this->angular_position.x,this->angular_position.y,this->angular_position.z);
+    geometry_msgs::Quaternion quat_msg = tf2::toMsg(myQuaternion);
+    odom_trans.transform.translation.x = this->pose.position.x;
+    odom_trans.transform.translation.y = this->pose.position.y;
+    odom_trans.transform.translation.z = this->pose.position.z;
+    odom_trans.transform.rotation = quat_msg; 
+    //send the transform
+    odom_broadcaster.sendTransform(odom_trans);
+    */
 }

@@ -63,7 +63,7 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        uuv:
+        vtec_u3_base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
