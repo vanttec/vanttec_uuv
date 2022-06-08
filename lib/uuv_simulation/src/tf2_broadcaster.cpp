@@ -41,6 +41,11 @@ void TfBroadcaster::BroadcastTransform(const vanttec_uuv::EtaPose& _pose)
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
     transformStamped.transform.rotation.w = q.w();
+    // std::cout << std::endl;
+    // std::cout << transformStamped.transform.rotation.x << std::endl;
+    // std::cout << transformStamped.transform.rotation.y << std::endl;
+    // std::cout << transformStamped.transform.rotation.z << std::endl;
+    // std::cout << transformStamped.transform.rotation.w << std::endl;
 
     // For NED to ENU: swap x and y and negate z
     // transformStamped.transform.rotation.x = _pose.orientation.y;
@@ -57,6 +62,10 @@ void TfBroadcaster::BroadcastTransform(const vanttec_uuv::EtaPose& _pose)
     pose.pose.position.x    = _pose.x;
     pose.pose.position.y    = -_pose.y;
     pose.pose.position.z    = -_pose.z;
+    pose.pose.orientation.x = q.x();
+    pose.pose.orientation.y = q.y();
+    pose.pose.orientation.z = q.z();
+    pose.pose.orientation.w = q.w();
 
     this->path.header.stamp     = ros::Time::now();
     this->path.header.frame_id  = this->parent_frame;

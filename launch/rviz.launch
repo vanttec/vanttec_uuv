@@ -7,7 +7,7 @@
     <!-- <param name="use_gui" value="true" />     -->
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find vanttec_uuv)/launch/rviz/rviz_config.rviz" />
 
-    <node name="uuv_tf_broadcast_node" pkg="vanttec_uuv" type="uuv_tf_broadcast_node">
+    <node name="uuv_tf2_broadcast_node" pkg="vanttec_uuv" type="uuv_tf2_broadcast_node">
         <param name="parent_frame" value="world" />
         <param name="child_frame" value="uuv" />
     </node>

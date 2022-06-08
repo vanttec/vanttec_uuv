@@ -73,12 +73,12 @@ VTecU4DynamicModel::VTecU4DynamicModel(float _sample_time_s) : Generic6DOFUUVDyn
     rv_z            = 0;
 
     /* Maximum forces and torques per degree of freedom */
-    MAX_TAU[0] = 127;   // X
-    MAX_TAU[1] = 34;    // Y
-    MAX_TAU[2] = 118;   // Z
-    MAX_TAU[3] = 28;    // K
-    MAX_TAU[4] = 9.6;   // M
-    MAX_TAU[5] = 36.6;  // N
+    MAX_FORCE_X = 127; 
+    MAX_FORCE_Y = 34;  
+    MAX_FORCE_Z = 118; 
+    MAX_TORQUE_K = 28;  
+    MAX_TORQUE_M = 9.6; 
+    MAX_TORQUE_N = 36.6;
 }
 
 VTecU4DynamicModel::~VTecU4DynamicModel(){}

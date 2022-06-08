@@ -23,10 +23,13 @@ int main(int argc, char **argv)
     std::string child_frame;
 
     ros::init(argc, argv, "uuv_tf2_broadcast_node");
-    ros::NodeHandle nh;
+    ros::NodeHandle nh("~");
     
-    nh.getParam("parent", parent_frame);
-    nh.getParam("child", child_frame);
+    nh.param<std::string>("parent_frame", parent_frame, "world");
+    nh.param<std::string>("child_frame", child_frame, "uuv");
+
+    // ROS_INFO_STREAM("Parent frame: " << parent_frame);
+    // ROS_INFO_STREAM("Child frame: " << child_frame);
 
     ros::Rate               cycle_rate(int(1 / SAMPLE_TIME_S));
     TfBroadcaster           tf_broadcaster(parent_frame, child_frame);

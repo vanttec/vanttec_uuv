@@ -7,7 +7,7 @@
 
     <!-- The order of the simulation and control node is important -->
     <node name="uuv_simulation_node"         pkg="vanttec_uuv"           type="uuv_simulation_node" />
-    <node name="uuv_control_node"            pkg="vanttec_uuv"           type="uuv_control_node" />
+    <node name="uuv_control_node"            pkg="vanttec_uuv"           type="uuv_asmc_node" />
     
     <!--<node name="uuv_mission_manager_node"    pkg="vanttec_uuv"           type="uuv_mission_manager_node" />-->
     <!-- <node name="vehicle_user_control"        pkg="vehicle_user_control"  type="vehicle_user_control" />  -->

@@ -27,7 +27,14 @@ class UUV_6DOF_ASMC
 {
     private:
         ros::NodeHandle handle;
-        bool functs_arrived;
+        // bool functs_arrived;
+
+        float MAX_FORCE_X;
+        float MAX_FORCE_Y;
+        float MAX_FORCE_Z;
+        float MAX_TORQUE_K;
+        float MAX_TORQUE_M;
+        float MAX_TORQUE_N; 
         
     public:
         Eigen::VectorXf u;              // Control
@@ -44,9 +51,10 @@ class UUV_6DOF_ASMC
         ASMC ASMC_theta;
         ASMC ASMC_psi;
         
-        UUV_6DOF_ASMC(float sample_time_s, const float K2[6], const float K_alpha[6],  const float K_min[6],  const float mu[6]);
+        UUV_6DOF_ASMC(const float sample_time_s, const float lambda[6], const float K2[6], const float K_alpha[6],  const float K_min[6],  const float mu[6]);
         ~UUV_6DOF_ASMC();
 
+        void SetTauLimits(const float* MAX_TAU);
         void UpdateDynamics(const vanttec_uuv::SystemDynamics& non_linear_functions);
         void UpdatePose(const vanttec_uuv::EtaPose& current);
         void UpdateSetPoints(const vanttec_uuv::EtaPose& set_points);

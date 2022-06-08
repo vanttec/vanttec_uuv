@@ -119,7 +119,14 @@ Generic6DOFUUVDynamicModel::Generic6DOFUUVDynamicModel(float sample_time_s)
            0,
            0,
            0,
-           0;        
+           0;
+
+    MAX_FORCE_X = 0.0;
+    MAX_FORCE_Y = 0.0;
+    MAX_FORCE_Z = 0.0;
+    MAX_TORQUE_K = 0.0;
+    MAX_TORQUE_M = 0.0;
+    MAX_TORQUE_N = 0.0;
 
     eta_pose.x = 0;
     eta_pose.y = 0;

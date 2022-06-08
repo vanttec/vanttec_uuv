@@ -113,6 +113,13 @@ class Generic6DOFUUVDynamicModel
         Eigen::VectorXf tau;
         Eigen::VectorXf u;
 
+        float MAX_FORCE_X;
+        float MAX_FORCE_Y;
+        float MAX_FORCE_Z;
+        float MAX_TORQUE_K;
+        float MAX_TORQUE_M;
+        float MAX_TORQUE_N;
+
     public:
         Eigen::VectorXf f;
         Eigen::MatrixXf g;

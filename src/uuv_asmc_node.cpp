@@ -23,15 +23,31 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     
     ros::Rate cycle_rate(int(1 / SAMPLE_TIME_S));
-    float K2[6] = {8, 5, 7, 60, 40, 80};
-    float K_alpha[6] = {0, 0, 0, 0, 0.01, 0.01};
-    float K_min[6] = {1.5, 5, 0.7, 7, 5, 20};
-    float mu[6] = {1.5, 5, 0.7, 7, 5, 20};
 
-    UUV_6DOF_ASMC   system_controller(SAMPLE_TIME_S, K2, K_alpha, K_min, mu);
+    // Sliding surface params
+    float lambda[6] = {0.3, 0.3, 0.3, 0.8, 0.8, 0.8};
+    
+    // K2 gains
+    // float K2[6] = {0.5, 0.5, 0.3, 0.3, 0.3, 0.3};
+    float K2[6] = {1,1,1,1,1,1};
+    
+    // Adaptive law params
+    // float K_alpha[6] = {1.2, 0.8, 0.5, 6, 0.7, 4};
+    // float K_min[6] = {0.1, 0.1, 0.1, 0.2, 0.1, 0.2};
+    // float mu[6] = {0.01, 0.01, 0.01, 0.005, 0.005, 0.005};
+    
+    float K_alpha[6] = {0.1,0.1,0.1,0.1,0.1,0.1};
+    float K_min[6] = {0.01, 0.01, 0.01,0.01, 0.01, 0.01};
+    float mu[6] = {0.01, 0.01, 0.01,0.01, 0.01, 0.01};
+
+    // Max Tau
+    float MAX_TAU[6] = {127, 34, 118, 28, 9.6, 36.6};
+
+    UUV_6DOF_ASMC   system_controller(SAMPLE_TIME_S, lambda, K2, K_alpha, K_min, mu);
+    system_controller.SetTauLimits(MAX_TAU);
     
     ros::Publisher  uuv_thrust      = nh.advertise<vanttec_uuv::ThrustControl>("/uuv_control/uuv_control_node/thrust", 1000);
-    ros::Subscriber uuv_dynamics    = nh.subscribe("/uuv_simulation/dynamic_model/non_linear_functions", 10, 
+    ros::Subscriber uuv_dynamics    = nh.subscribe("/uuv_dynamics/non_linear_functions", 10, 
                                                     &UUV_6DOF_ASMC::UpdateDynamics,
                                                     &system_controller);
 

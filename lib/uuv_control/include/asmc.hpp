@@ -48,7 +48,7 @@ class ASMC
         DOFControllerType_E _controller_type;
     public:
         // Constructor
-        ASMC(const float sample_time_s, const float K2, const float K_alpha, const float K_min, const float mu, const DOFControllerType_E type);
+        ASMC(const float sample_time_s, const float lambda,  const float K2, const float K_alpha, const float K1_init, const float K_min, const float mu, const DOFControllerType_E type);
 
         // Destructor
         ~ASMC();

@@ -11,7 +11,7 @@
 
 #include "asmc.hpp"
 
-ASMC::ASMC(const float sample_time_s, const float K2, const float K_alpha, const float K_min, const float mu, const DOFControllerType_E type)
+ASMC::ASMC(const float sample_time_s, const float lambda, const float K2, const float K_alpha, const float K1_init, const float K_min, const float mu, const DOFControllerType_E type)
 {
     _sample_time_s = sample_time_s;
     _q_d = 0.0;
@@ -25,11 +25,11 @@ ASMC::ASMC(const float sample_time_s, const float K2, const float K_alpha, const
     _ua = 0.0;
 
     // Sliding surface
-    _lambda = 0.0;
+    _lambda = lambda;
     _s = 0.0;
 
     // Gains
-    _K1 = 0.0;
+    _K1 = K1_init;
     _K2 = K2;
     _dot_K1 = 0.0;
     _prev_dot_K1 = 0.0;
