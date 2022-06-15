@@ -40,8 +40,8 @@ class walkServer:
     print(self.yaw)
     uuv.searchx = uuv.ned_x + ((math.cos(self.yaw)) * goal.walk_dis)
     uuv.searchy = uuv.ned_y + ((math.sin(self.yaw)) * goal.walk_dis)
-    rospy.loginfo(uuv.searchx - uuv.ned_x)
-    rospy.loginfo(uuv.searchy - uuv.ned_y)
+    #rospy.loginfo(uuv.searchx - uuv.ned_x)
+    #rospy.loginfo(uuv.searchy - uuv.ned_y)
     
     _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
     # rospy.loginfo(_euc_distance)

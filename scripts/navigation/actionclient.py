@@ -9,26 +9,35 @@ import math
 
 
 from vanttec_uuv.msg import rotateAction, rotateGoal, walkAction, walkGoal, gotoAction, gotoGoal
+from octomap_server.msg import oclustAction, oclustGoal
 
 if __name__ == '__main__':
     rospy.init_node('action_client')
-    rclient = actionlib.SimpleActionClient('rotate', rotateAction)
-    rclient.wait_for_server()
-    wclient = actionlib.SimpleActionClient('walk', walkAction)
-    wclient.wait_for_server()
-    oclient = actionlib.SimpleActionClient('goto', gotoAction)
+    # rclient = actionlib.SimpleActionClient('rotate', rotateAction)
+    # rclient.wait_for_server()
+    # wclient = actionlib.SimpleActionClient('walk', walkAction)
+    # wclient.wait_for_server()
+    # oclient = actionlib.SimpleActionClient('goto', gotoAction)
+    # oclient.wait_for_server()
+    oclient = actionlib.SimpleActionClient('oclust', oclustAction)
     oclient.wait_for_server()
+
     
-    ggoal = gotoGoal()
-    rospy.loginfo(ggoal)
-    ggoal.goto_point.x = 10
-    ggoal.goto_point.y = 0
-    ggoal.goto_point.z = 0
-    # rgoal.goal_angle = 0
-    print(ggoal)
-    oclient.send_goal(ggoal)
+    ogoal = oclustGoal()
+    oclient.send_goal(ogoal)
     oclient.wait_for_result()
-    time.sleep(2)
+    rospy.logwarn("Acabe")
+    
+    # ggoal = gotoGoal()
+    # rospy.loginfo(ggoal)
+    # ggoal.goto_point.x = 10
+    # ggoal.goto_point.y = 0
+    # ggoal.goto_point.z = 0
+    # # rgoal.goal_angle = 0
+    # print(ggoal)
+    # oclient.send_goal(ggoal)
+    # oclient.wait_for_result()
+    # time.sleep(2)
 
     # rgoal = rotateGoal()
     # rgoal.goal_angle = math.pi/2

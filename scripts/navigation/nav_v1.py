@@ -1,16 +1,22 @@
 #!/usr/bin/env python
 # -- coding: utf-8 --
 
+from cgitb import enable
+from distutils.ccompiler import new_compiler
 import math
 from pickle import FALSE
 import time
 import numpy as np
+from rosdep2 import RosdepLookup
+from yaml import Mark
 import rospy
-from std_msgs.msg import Float32MultiArray, Int32, String
+from std_msgs.msg import Float32MultiArray, Int32, String,Int16
 from geometry_msgs.msg import Pose, PoseStamped,Point,Vector3
 from vanttec_uuv.msg import GuidanceWaypoints, obj_detected_list, rotateAction, rotateGoal, walkAction, walkGoal, gotoAction, gotoGoal, clusters_center_list
+from octomap_server.msg import oclustAction, oclustGoal, points_list
 import actionlib
 from nav_msgs.msg import Path
+from visualization_msgs.msg import Marker, MarkerArray
 import time
 #from vanttec_uuv.msg import clusters_center_list
 
@@ -18,8 +24,10 @@ import time
 # Default values
 RTURN90 = math.pi/2
 LTURN90 = -math.pi/2
-WALKDIS = 3
-
+WALKDIS = 6
+EXPLORE_THRESHOLD_X =  3
+EXPLORE_THRESHOLD_Y = 8
+FILENAME = "/ws/src/octomap_mapping/octomap_server/scripts/inputpointclouds.csv"
 
 
 # Publisher para tomar fotos
@@ -87,8 +95,23 @@ class uuv_instance:
         self.oldclusters=set()
         self.newclusters=set()
         self.explored_zones=set()
-        self.explore_threshold=2
+        self.explore_threshold=3
+        self.explore_thresholdx=pow(EXPLORE_THRESHOLD_X,2) #a
+        self.explore_thresholdy=pow(EXPLORE_THRESHOLD_Y,2) #b
         self.newexploration=False
+        self.markerArray = MarkerArray()
+        self.auxmarker = Marker()
+        self.auxmarker.header.frame_id = "world_ned"
+        self.auxmarker.type = Marker.SPHERE
+        self.auxmarker.action = Marker.ADD
+        self.auxmarker.scale.x = EXPLORE_THRESHOLD_X
+        self.auxmarker.scale.y = EXPLORE_THRESHOLD_Y
+        self.auxmarker.scale.z = 0.4
+        self.auxmarker.color.a = 0.3 # Don't forget to set the alpha!
+        self.auxmarker.color.r = 1.0
+        self.auxmarker.color.g = 0.0
+        self.auxmarker.color.b = 0.0
+
 
         # ROS Subscribers
         rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, self.ins_pose_callback)
@@ -106,46 +129,106 @@ class uuv_instance:
         self.uuv_path_pub = rospy.Publisher("/uuv_planning/motion_planning/desired_path", Path, queue_size=10)
         self.status_pub = rospy.Publisher("/mission/status", Int32, queue_size=10)
         self.test = rospy.Publisher("/mission/state", Int32, queue_size=10)
+        self.octocluster=rospy.Publisher("/oldclusters",points_list,queue_size=10)
         #rospy.Subscriber("buoy_1_pos_pub",Point,self.buoy_vision_callback)
 
         #Waypoint test instead of perception node
         #This array shall be modified with zed inputs of distance  
         rospy.Subscriber("clusters_center",clusters_center_list,self.cluster_callback)
+
     def order(self,ele):
         return pow(pow(ele[0]-self.ned_x,2)+pow(ele[1]-self.ned_y,2),0.5)
     def analyze_cluster(self,unknown_cluster):
         newclusters=set()
-        for i in unknown_cluster:
-            #Far distance from sub/body
-            _euc_distance = pow(pow(i[0]-self.ned_x,2)+pow(i[1]-self.ned_y,2),0.5)
-            if _euc_distance>self.explore_threshold:
-                if len(self.explored_zones)==0:
+        enter=0
+        unknown_cluster1=unknown_cluster
+        oldcluster1=self.oldclusters
+        newold_cluster=set()
+        while enter==0:
+            for i in unknown_cluster1:
+                #Far distance from sub/body
+                if len(self.oldclusters)==0:
+                    rospy.logwarn("Primera vez")
+                    rospy.loginfo(i)
                     newclusters.add(i)
-                    self.explored_zones.add(i)
+                    self.oldclusters.add(i)
                     sorted(newclusters,key=self.order)
                     self.newexploration=True
+                    self.auxmarker.id = 0
+                    self.auxmarker.pose.position.x = i[0]
+                    self.auxmarker.pose.position.y = i[1]
+                    self.auxmarker.pose.position.z = i[2]
+                    self.auxmarker.pose.orientation.x = 0
+                    self.auxmarker.pose.orientation.y = 0
+                    self.auxmarker.pose.orientation.z = 0
+                    self.auxmarker.pose.orientation.w = 1
+
+                    self.markerArray.markers.append(self.auxmarker)
+                    rospy.logwarn("Paso el clustermarker pub")
                 else:
                     #Far distance from explored zones
-                    for j in self.explored_zones:
-                        _euc_distance2 = pow(pow(i[0]-j[0],2)+pow(i[1]-j[1],2),0.5)
-                        if _euc_distance2>self.explore_threshold:
-                            newclusters.add(i)
-                            sorted(newclusters,key=self.order)
+                    rospy.logwarn("Old clusters")
+                    rospy.logwarn(self.oldclusters)
+                    for j in oldcluster1:
+                        _euc_distance2=pow(i[0]-j[0],2)/self.explore_thresholdx+pow(i[1]-j[1],2)/self.explore_thresholdy
+                        rospy.logwarn(_euc_distance2)
+                        if _euc_distance2<1:
+                            self.newexploration=False
+                            break
+                        else:
                             self.newexploration=True
+                    if self.newexploration:
+                        rospy.logwarn("Explored zones")
+                        rospy.loginfo(_euc_distance2)
+                        rospy.loginfo(i)
+                        newold_cluster.add(i)
+                        newclusters.add(i)
+                        
+                        self.auxmarker.id = len(self.oldclusters) +len(newold_cluster)+ 1
+                        self.auxmarker.pose.position.x = i[0]
+                        self.auxmarker.pose.position.y = i[1]
+                        self.auxmarker.pose.position.z = i[2]
+                        self.auxmarker.pose.orientation.x = 0
+                        self.auxmarker.pose.orientation.y = 0
+                        self.auxmarker.pose.orientation.z = 0
+                        self.auxmarker.pose.orientation.w = 1
+                        self.markerArray.markers.append(self.auxmarker)
+
+                        sorted(newclusters,key=self.order)
+
+                enter=1
+        if len(newold_cluster)!=0:
+            for index,value in enumerate(newold_cluster):
+                self.oldclusters.add(value)
+                rospy.logwarn("Paso el clustermarker pub")
+        try:
+            m_octocluster=points_list()
+            v_octcluster=Vector3()
+            m_octocluster.lenpoints=len(self.oldclusters)
+            for i in newclusters:
+                v_octcluster.x=i[0]
+                v_octcluster.y=i[1]
+                v_octcluster.z=i[2]
+                m_octocluster.points.append(v_octcluster)
+            self.octocluster.publish(m_octocluster)
+        except Exception as e:
+            rospy.logwarn(e)
         return newclusters
 
+
+
     def cluster_callback(self,msg):
-        rospy.logwarn("Coordenadasssss")
-        rospy.logwarn(msg.clusters)
         octocluster=[]
         for i in msg.clusters:
+            rospy.logwarn(i)
             octocluster.append([i.x,i.y,i.z])
         cluster=[tuple(y) for y in octocluster]
         setCluster=set(cluster)
         newclusters =  self.analyze_cluster(setCluster)
-        if  newclusters!=self.oldclusters:
-            self.newclusters=newclusters.symmetric_difference(self.oldclusters)
-            self.oldclusters=newclusters
+        if  len(newclusters)!=0:
+            self.newclusters=newclusters
+            rospy.logwarn("New cluster")
+            rospy.logwarn(self.newclusters)
             
 
 
@@ -474,7 +557,7 @@ class uuv_instance:
             pose.pose.position.z    = path.waypoint_list_z[index]
             self.uuv_path.poses.append(pose)
         self.uuv_path_pub.publish(self.uuv_path)
-        rospy.logwarn("Desired sended")
+        # rospy.logwarn("Desired sended")
         
     def results(self):
         rospy.logwarn("Buoy mission finished")
@@ -491,7 +574,8 @@ class uuv_instance:
 
 class uuv_nav:
     def __init__(self):
-        
+
+        self.uuv = uuv_instance()
         self.isrot = False
         self.ismov = False
         self.clustered = None
@@ -505,6 +589,9 @@ class uuv_nav:
         self.walk_goal = walkGoal()
         self.goto_client = actionlib.SimpleActionClient('goto', gotoAction)
         self.goto_goal = gotoGoal()
+        self.octoclient = actionlib.SimpleActionClient('oclust', oclustAction)
+        self.octogoal = oclustGoal()
+
         
         self.search_step = 0
         self.iteration = 1
@@ -512,32 +599,52 @@ class uuv_nav:
         self.rot_client.wait_for_server()
         rospy.loginfo("Waiting for walk server")
         self.walk_client.wait_for_server()
+        rospy.loginfo("Waiting for goto server")
         self.oclient = actionlib.SimpleActionClient('goto', gotoAction)
         self.oclient.wait_for_server()
         self.ggoal = gotoGoal()
+        rospy.loginfo("Waiting for oclust server")
+        self.octoclient.wait_for_server()
         self.nav_matrix = []
         self.enableoctomap = rospy.Publisher("/enablepcl",String, queue_size=10)
         self.enableclustering = rospy.Publisher("/start_clustering",String, queue_size=10)
+        self.enableanalyseocto = rospy.Publisher("/readyforcluster",String,queue_size=10)
         self.eraseoctomap = rospy.Publisher("/erasemap",String, queue_size=10)
+        self.pointlist_pub = rospy.Publisher("/octomap/point_list",points_list, queue_size=10)
+        self.waiting=True
+        self.size_octoarray=0
+        self.prev_size_octoarray=0
 
         self.init_pose = Point()
         self.current_pose = Point()
+        self.point_handler = Point()
         self.alg_control = 0
         # self.nav_matrix = [[0,0,0],
         #                    [0,0,0],
         #                    [0,0,0]]
-
+        rospy.Subscriber('/enablepcl', String, self.octomap_waiting_callback)
+        rospy.Subscriber('/arraylengthocto', Int16, self.arraylength_octo_callback)
+        self.waiting_octo="Deactivate"
+    def octomap_waiting_callback(self,msg):
+        self.waiting_octo=msg.data
+    def arraylength_octo_callback(self,msg):
+        self.size_octoarray=msg.data
 
     def main(self):
-        print("I'm in main")
         rate = rospy.Rate(10)
         print(rospy.get_time())
-        uuv = uuv_instance()
+        uuv = self.uuv
         self.init_pose.x = uuv.ned_x
         self.init_pose.y = uuv.ned_y
 
 
+        markerpub = rospy.Publisher('Clusters', MarkerArray,queue_size=1)
+        rospy.logwarn("Published")
+
+
         while not rospy.is_shutdown():
+            
+            markerpub.publish(uuv.markerArray)
             if uuv.newexploration:
                 rospy.logwarn("Explore")
                 self.explore_cluster(uuv.newclusters,uuv)
@@ -560,94 +667,169 @@ class uuv_nav:
         # Also a good idea would be store the last pose 
 
         # Three ways of use, if 
+        self.current_pose.x = self.uuv.ned_x
+        self.current_pose.y = self.uuv.ned_y
+        self.current_pose.z = self.uuv.ned_z
 
         if (self.search_control == 0):
             rospy.logwarn(self.search_step)
             if self.search_step == 0:
-                self.current_pose.x = uuv.ned_x
-                self.current_pose.y = uuv.ned_y
-                self.current_pose.z = 0
                 
-                rospy.logwarn("entrenadooooo")
-                self.walk()
-                rospy.logwarn("saliendoooo")
-
-                # Capture
-                self.enableoctomap.publish("Activate")
-                self.enableclustering.publish("Activate")
-                rospy.sleep(3)
-                self.enableclustering.publish("Deactivate")
-                self.enableoctomap.publish("Deactivate")                
-                self.search_step = 1
-            elif self.search_step == 1:
-                self.rotate()
-                self.walk()
-                # Capture
-                self.enableoctomap.publish("Activate")
-                self.enableclustering.publish("Activate")
-                rospy.sleep(3)
-                self.enableoctomap.publish("Deactivate")  
-                self.search_step = 2
+                # self.allign()
             
-            elif self.search_step == 2:
-                self.rotate(LTURN90)
-                #Capture
-                self.enableoctomap.publish("Activate")
-                self.enableclustering.publish("Activate")
-                rospy.sleep(3)
-                self.enableoctomap.publish("Deactivate")  
-                self.enableoctomap.publish("Deactivate") 
-                self.rotate()
-                self.search_step = 3
+                if self.waiting_octo=="Deactivate":
+                    self.walk()    
+                    self.point_handler.x = self.uuv.ned_x
+                    self.point_handler.y = self.uuv.ned_y
+                    self.point_handler.z = self.uuv.ned_z + 1
+                    # rospy.logwarn(self.point_handler)
+                    self.goto(self.point_handler)
+                    self.allign()
+                    self.enableoctomap.publish("Activate")
+                   
+                else :
 
-            elif self.search_step == 3:
-                self.walk()
-                self.rotate(LTURN90)
+                    self.point_handler.x = self.uuv.ned_x
+                    self.point_handler.y = self.uuv.ned_y
+                    self.point_handler.z = self.uuv.ned_z - 1
+                    self.goto(self.point_handler)
+                    if self.size_octoarray==self.prev_size_octoarray :
+                        rospy.sleep(7)
+                        self.prev_size_octoarray=self.size_octoarray
+                    ogoal=oclustGoal()
+                    self.octoclient.send_goal(ogoal)
+                    self.octoclient.wait_for_result()
+                    rospy.sleep(2)
+                    self.enableoctomap.publish("Deactivate") 
+                    rospy.sleep(4)     
+                    self.search_step = 0.1
+                    
+                # Capture
+
+                #Detente
+                #De frente ,Tomo la foto 
+                #Deactivo 
+                #Otro search
+
+                #
+            elif self.search_step == 0.1:
+                if self.waiting_octo=="Deactivate":
+                    self.search_step=1
                 
-                # Capture
-                self.enableoctomap.publish("Activate")
-                self.enableclustering.publish("Activate")
-                rospy.sleep(3)
-                self.enableoctomap.publish("Deactivate")  
-                self.enableoctomap.publish("Deactivate") 
-                self.rotate(LTURN90)
-                self.walk()
-                self.search_step = 4 
-
-            elif self.search_step == 4:
-                self.walk()
+            elif self.search_step == 1:
+                
+                
+                if self.waiting_octo=="Deactivate":
+                    self.rotate()
+                    self.walk()
+                    # Capture
+                    self.rotate(LTURN90)
+                    self.lallign()
+                    self.point_handler.x = self.uuv.ned_x
+                    self.point_handler.y = self.uuv.ned_y
+                    self.point_handler.z = self.uuv.ned_z + 1
+                    self.goto(self.point_handler)
+                    # rospy.logwarn("ABAJO")
+                    self.enableoctomap.publish("Activate")
+                else:
+                    if self.size_octoarray==self.prev_size_octoarray :
+                        rospy.sleep(7)
+                        self.prev_size_octoarray=self.size_octoarray
+                    self.point_handler.x = self.uuv.ned_x
+                    self.point_handler.y = self.uuv.ned_y
+                    self.point_handler.z = self.uuv.ned_z - 1
+                    self.goto(self.point_handler)
+                    self.enableoctomap.publish("Deactivate")   
+                    rospy.sleep(4)   
+                    ogoal=oclustGoal()
+                    self.octoclient.send_goal(ogoal)
+                    self.octoclient.wait_for_result()
+                    rospy.sleep(2)
+                    # rospy.sleep(3)
+                    self.search_step = 1.1
+            elif self.search_step == 1.1:
+                if self.waiting_octo=="Deactivate":
+                    self.search_step=2
+            elif self.search_step == 2:
+                if self.waiting_octo=="Deactivate":
+                    self.rotate(LTURN90)
+                    self.walk()
+                    self.walk()
+                    # self.allign()
+                    self.rotate()
+                    #Capture
+                    self.allign()
+                    self.point_handler.x = self.uuv.ned_x
+                    self.point_handler.y = self.uuv.ned_y
+                    self.point_handler.z = self.uuv.ned_z + 1
+                    self.goto(self.point_handler)
+                    self.enableoctomap.publish("Activate")
+                else:
+                    if self.size_octoarray==self.prev_size_octoarray :
+                        rospy.sleep(7)
+                        self.prev_size_octoarray=self.size_octoarray  
+                    self.point_handler.x = self.uuv.ned_x
+                    self.point_handler.y = self.uuv.ned_y
+                    self.point_handler.z = self.uuv.ned_z - 1
+                    self.goto(self.point_handler)
+                    ogoal=oclustGoal()
+                    self.octoclient.send_goal(ogoal)
+                    self.octoclient.wait_for_result()
+                    rospy.sleep(2)
+                    self.enableoctomap.publish("Deactivate")   
+                    rospy.sleep(4)    
+                    # rospy.sleep(3)  
+                    self.search_step = 2.1
+            elif self.search_step == 2.1:
+                if self.waiting_octo=="Deactivate":
+                    self.search_step=3
+            elif self.search_step == 3:
                 self.rotate()
-                # Capture
-                self.enableoctomap.publish("Activate")
-                rospy.sleep(3)
-                self.enableoctomap.publish("Deactivate")  
                 self.walk()
-                self.search_step = 5
-
-            elif self.search_step == 5:
-                self.alg_control = self.alg_control + 1
-                #Check whats the best way to reset
-                algx = [WALKDIS*3,  WALKDIS*3 , 0         , -WALKDIS*3, -WALKDIS*3 ,-WALKDIS*3 ,0          , WALKDIS*3]
-                algy = [0        ,  WALKDIS*3 , WALKDIS*3,  WALKDIS*3, 0          ,-WALKDIS*3 ,-WALKDIS*3 ,  -WALKDIS*3]
-                #       "Frente     Derecha     Atras       Atras       Izquierda   Izquierda   Frente  Frente"
-                # aux = self.alg_control // len(algx)
-                newpoint = Point()
-                newpoint.x = self.init_pose.x + algx[self.alg_control%len(algx)] + ((algx[self.alg_control%len(algx)]) * (self.alg_control//len(algx)))
-                newpoint.y = self.init_pose.y + algy[self.alg_control%len(algy)] + ((algy[self.alg_control%len(algy)]) * (self.alg_control//len(algy)))
-                # newpoint.x = self.init_pose.x + algx[self.alg_control%len(algx)] 
-                # newpoint.y = self.init_pose.y + algy[self.alg_control%len(algy)] 
-                newpoint.z = 0
-                rospy.logwarn(newpoint)
-                if self.alg_control%len(algx) > 5 and self.alg_control < 3:
-                    rospy.logwarn("GOING TO")
-                    rospy.logwarn(newpoint)
-                    self.goto(newpoint)
-
-                rospy.loginfo("Iteration ")
-                rospy.loginfo (self.alg_control)
-                # time.sleep(4)
-                rospy.logwarn("step5")
+                self.rotate(LTURN90)
+                self.allign()
                 self.search_step = 0
+
+
+            # elif self.search_step == 4:
+            #     # Capture
+            #     if uuv.waiting_octo=="Activate":
+            #         self.enableclustering.publish("Deactivate")
+            #         self.enableoctomap.publish("Deactivate")       
+            #         self.enableanalyseocto.publish("Deactivate")      
+            #         rospy.sleep(3)
+            #         self.walk()
+            #         self.search_step = 0
+            #     elif uuv.waiting_octo =="Deactivate":
+            #         self.walk()
+            #         self.rotate(LTURN90)
+            #         self.enableoctomap.publish("Activate")
+            #         self.enableclustering.publish("Activate")
+
+
+            # elif self.search_step == 5:
+            #     self.alg_control = self.alg_control + 1
+            #     #Check whats the best way to reset
+            #     self.current_pose.x = uuv.ned_x
+            #     self.current_pose.y = uuv.ned_y
+            #     algx = [WALKDIS*3,  WALKDIS*3 , WALKDIS*3 , -WALKDIS*3, -WALKDIS*3 ,-WALKDIS*3 , WALKDIS*3 , WALKDIS*3]
+            #     algy = [0        ,  0         , 0         , 0         , 0          ,0          ,0          , 0        ]
+            #     # algx = [WALKDIS*3,  WALKDIS*3 , 0         , -WALKDIS*3, -WALKDIS*3 ,-WALKDIS*3 ,0          , WALKDIS*3]
+            #     # algy = [0        ,  WALKDIS*3 , WALKDIS*3,  WALKDIS*3, 0          ,-WALKDIS*3 ,-WALKDIS*3 ,  -WALKDIS*3]
+            #     #       "Frente     Derecha     Atras       Atras       Izquierda   Izquierda   Frente  Frente"
+            #     # aux = self.alg_control // len(algx)
+            #     newpoint = Point()
+            #     newpoint.x = self.init_pose.x + algx[self.alg_control%len(algx)] + ((algx[self.alg_control%len(algx)]) * (self.alg_control//len(algx)))
+            #     newpoint.y = self.init_pose.y + algy[self.alg_control%len(algy)] + ((algy[self.alg_control%len(algy)]) * (self.alg_control//len(algy)))
+            #     # newpoint.x = self.init_pose.x + algx[self.alg_control%len(algx)] 
+            #     # newpoint.y = self.init_pose.y + algy[self.alg_control%len(algy)] 
+            #     newpoint.z = 0
+            #     rospy.logwarn(newpoint)
+            #     rospy.loginfo("Iteration ")
+            #     rospy.loginfo (self.alg_control)
+            #     # time.sleep(4)
+            #     rospy.logwarn("step5")
+            #     self.search_step = 0
     
         
         if self.search_control == 1: #clustered
@@ -675,19 +857,34 @@ class uuv_nav:
         self.rot_goal.goal_angle = rotation
         self.rot_client.send_goal(self.rot_goal)
         self.rot_client.wait_for_result()
-        time.sleep(1)
+        rospy.sleep(1)
         
 
     def walk(self, walk_dis = WALKDIS):
         self.walk_goal.walk_dis = walk_dis
         self.walk_client.send_goal(self.walk_goal)
         self.walk_client.wait_for_result()
-        time.sleep(1)
+        rospy.sleep(1)
 
     def goto(self, point):
         self.goto_goal.goto_point = point
         self.goto_client.send_goal(self.goto_goal)
         self.goto_client.wait_for_result()
+
+    def allign(self):
+        while abs(self.uuv.yaw) > 0.07:
+            # rospy.loginfo(self.uuv.yaw)
+            self.rot_goal.goal_angle = RTURN90/90
+            self.rot_client.send_goal(self.rot_goal)
+            self.rot_client.wait_for_result()
+
+    def lallign(self):
+        while abs(self.uuv.yaw) > 0.07:
+            # rospy.loginfo(self.uuv.yaw)
+            self.rot_goal.goal_angle = LTURN90/90
+            self.rot_client.send_goal(self.rot_goal)
+            self.rot_client.wait_for_result()
+
 
     def orbit(self, point, walk_dis = WALKDIS):
         #First we go to a point to orbit
@@ -731,25 +928,43 @@ class uuv_nav:
         rospy.logwarn("GONE 5")
     
     def explore_cluster(self,newcluster,uuv):
+
+        self.current_pose.x = self.uuv.ned_x
+        self.current_pose.y = self.uuv.ned_y
+        self.current_pose.z = self.uuv.ned_z
         f = lambda x:list(x)
         exploration_coord = [f(x) for x in newcluster]
         rospy.logwarn(exploration_coord)
-        for i in exploration_coord:
-            self.ggoal.goto_point.x = i[0]
-            self.ggoal.goto_point.y = i[1]
-            self.ggoal.goto_point.z = 0
-            self.oclient.send_goal(self.ggoal)
-            self.oclient.wait_for_result()
-        #self.eraseoctomap.publish("Activate")
-        rospy.logwarn("Leaving")
-        self.ggoal.goto_point.x =uuv.ned_x+2
-        self.ggoal.goto_point.y = 0
-        self.ggoal.goto_point.z = 0
-        self.oclient.send_goal(self.ggoal)
-        self.oclient.wait_for_result()
-        self.walk_client.wait_for_result()
-        #self.eraseoctomap.publish("Deactivate")
-        uuv.newexploration=False
+        self.enableoctomap.publish("Deactivate")
+        if self.waiting_octo=="Deactivate":
+            for i in exploration_coord:
+                self.ggoal.goto_point.x = i[0]-1.5
+                self.ggoal.goto_point.y = -i[1]
+                self.ggoal.goto_point.z = uuv.ned_z
+                self.oclient.send_goal(self.ggoal)
+                self.oclient.wait_for_result()
+            #self.eraseoctomap.publish("Activate")
+            rospy.sleep(5)
+            f = open('/ws/src/octomap_mapping/octomap_server/scripts/inputpointclouds.csv', "w+")
+            f.truncate()
+            f.close()
+            # self.ggoal.goto_point.x =uuv.ned_x
+            # self.ggoal.goto_point.y = self.current_pose.y
+            # self.ggoal.goto_point.z = self.current_pose.z
+            # self.oclient.send_goal(self.ggoal)
+            # self.oclient.wait_for_result()
+            # self.walk_client.wait_for_result()
+            v_pointList = points_list()
+            v_pointList.points=[]
+            self.pointlist_pub.publish(v_pointList)
+            rospy.logwarn("Finish exploration")
+            # self.eraseoctomap.publish("Activate")
+            
+            # rospy.sleep(5)
+            # self.eraseoctomap.publish("Deactivate")
+            self.allign()
+            uuv.newexploration=False
+            self.search_step = 0
 
         
 
@@ -768,6 +983,25 @@ class uuv_nav:
                 self.nav_matrix
         
 
+def cluster_marker(name,pose,id):
+    marker = Marker()
+    marker.header.frame_id = "world_ned"
+    marker.id = id
+    marker.header.stamp = rospy.get_rostime()
+
+    pub = rospy.Publisher(name, Marker, queue_size=10)
+    marker.type = marker.SPHERE
+    marker.action = Marker.ADD
+    marker.pose = pose
+    marker.scale.x = EXPLORE_THRESHOLD_Y
+    marker.scale.y = 1
+    marker.scale.z = 1
+    marker.color.a = 0.8 # Don't forget to set the alpha!
+    marker.color.r = 1.0
+    marker.color.g = 0.0
+    marker.color.b = 0.0
+    pub.publish(marker)
+    rospy.logwarn("Published")
 
 
      

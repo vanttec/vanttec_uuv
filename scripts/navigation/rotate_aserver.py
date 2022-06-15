@@ -43,16 +43,16 @@ class rotateServer:
         rospy.loginfo(self.waypointstatus)
 
         #self.waypointtarget = self.waypointstatus + goal.goal_angle
-        rospy.logwarn("Waypoint target is")
-        rospy.logwarn(self.waypointtarget)
-        rospy.logwarn(uuv.yaw)
-        rospy.logwarn(self.waypointstatus)
+        #rospy.logwarn("Waypoint target is")
+        #rospy.logwarn(self.waypointtarget)
+        #rospy.logwarn(uuv.yaw)
+        #rospy.logwarn(self.waypointstatus)
 
         self.waypointtarget = self.waypointstatus + goal.goal_angle
-        rospy.logwarn("changing")
-        rospy.logwarn(self.waypointstatus)
+        #rospy.logwarn("changing")
+        #rospy.logwarn(self.waypointstatus)
 
-        rospy.logwarn(self.waypointtarget)
+        #rospy.logwarn(self.waypointtarget)
 
         # if self.waypointstatus > math.pi:
         #     rospy.logwarn("MORE")
@@ -88,11 +88,11 @@ class rotateServer:
                 uuv.desired(uuv.waypoints)
                 rospy.loginfo("sweeping")
                 # rospy.logwarn(uuv.waypoints.heading_setpoint)
-                rospy.loginfo(self.waypointstatus)
+                #rospy.loginfo(self.waypointstatus)
                 r.sleep()
                 # rospy.logwarn("Primero")
 
-                rospy.logwarn(self.waypointtarget + self.waypointstatus)
+                #rospy.logwarn(self.waypointtarget + self.waypointstatus)
 
                 if abs(self.waypointtarget + self.waypointstatus ) < 0.1:
                     self.rot_control = 1
@@ -111,12 +111,12 @@ class rotateServer:
                 r.sleep()
                 # rospy.logwarn("Segundo")
 
-                rospy.logwarn(self.waypointtarget - self.waypointstatus)
+                #rospy.logwarn(self.waypointtarget - self.waypointstatus)
                 if abs(self.waypointtarget - self.waypointstatus) < 0.1:
                     self.rot_control = 1
-                    rospy.logwarn("Terminado Seg")
-                    rospy.logwarn(self.rot_control)
-                    rospy.logwarn(abs(self.waypointtarget - self.waypointstatus))
+                    #rospy.logwarn("Terminado Seg")
+                    #rospy.logwarn(self.rot_control)
+                    #rospy.logwarn(abs(self.waypointtarget - self.waypointstatus))
 
             
 
@@ -124,8 +124,8 @@ class rotateServer:
             if self.rot_control == 1:
                 self._result = 1
                 rospy.logwarn('Succeeded rotating')
-                rospy.logwarn(uuv.waypoints.heading_setpoint)
-                rospy.loginfo(self.waypointstatus)
+                #rospy.logwarn(uuv.waypoints.heading_setpoint)
+                #rospy.loginfo(self.waypointstatus)
                 self.rot_control = 2
                 r.sleep()
                 break

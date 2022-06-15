@@ -37,24 +37,26 @@ class gotoServer:
         uuv.waypoints.guidance_law = 1
         #move 3 meter
         rospy.loginfo("Moving")
-        rospy.logwarn(goal.goto_point)
+        #rospy.logwarn(goal.goto_point)
         print(self.yaw)
         uuv.searchx = goal.goto_point.x
         uuv.searchy = goal.goto_point.y
-        rospy.loginfo(uuv.searchx - uuv.ned_x)
-        rospy.loginfo(uuv.searchy - uuv.ned_y)
+        uuv.searchz = goal.goto_point.z
+        #rospy.loginfo(uuv.searchx - uuv.ned_x)
+        #rospy.loginfo(uuv.searchy - uuv.ned_y)
         
-        _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
-        # rospy.loginfo(_euc_distance)
+        _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2)+pow(uuv.ned_z-uuv.searchz,2),0.5)
+        rospy.loginfo(_euc_distance)
         self.th = 0.1
         while _euc_distance >= self.th:
-            _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2),0.5)
-            rospy.logwarn(_euc_distance)
+            _euc_distance = pow(pow(uuv.ned_x-uuv.searchx,2)+pow(uuv.ned_y-uuv.searchy,2)+pow(uuv.ned_z-uuv.searchz,2),0.5)
+            #rospy.logwarn(_euc_distance)
             # rospy.loginfo(_euc_distance)
             uuv.waypoints.waypoint_list_x = [uuv.ned_x,uuv.searchx]
             uuv.waypoints.waypoint_list_y = [uuv.ned_y,uuv.searchy]
-            uuv.waypoints.waypoint_list_z = [0,0]   
+            uuv.waypoints.waypoint_list_z = [uuv.ned_z,uuv.searchz]   
             uuv.desired(uuv.waypoints)
+            rospy.logwarn("IM here")
             r.sleep()
             if _euc_distance < 0.35:
                 self.searchstate = -1

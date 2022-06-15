@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
     sensor_msgs
     cv_bridge
     actionlib_msgs
+    visualization_msgs
 )
 
 find_package(PCL 1.2  REQUIRED)
@@ -59,6 +60,7 @@ generate_messages(
   geometry_msgs
   sensor_msgs
   actionlib_msgs
+  visualization_msgs
 )
 
 catkin_package(
