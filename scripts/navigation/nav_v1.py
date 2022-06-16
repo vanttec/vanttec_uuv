@@ -24,6 +24,9 @@ import time
 # Default values
 RTURN90 = math.pi/2
 LTURN90 = -math.pi/2
+SWEEP_RIGHT = math.pi/4
+SWEEP_LEFT = -math.pi/4
+DISTANCE_AWAY_EXPLORE=3
 WALKDIS = 6
 EXPLORE_THRESHOLD_X =  3
 EXPLORE_THRESHOLD_Y = 8
@@ -926,7 +929,16 @@ class uuv_nav:
         point.y = point.y + walk_dis
         self.goto(point)
         rospy.logwarn("GONE 5")
-    
+    def sweep(self):
+        self.rotate(SWEEP_RIGHT)
+        rospy.sleep(4)
+        self.rotate(SWEEP_LEFT)
+        rospy.sleep(4)
+        self.rotate(SWEEP_LEFT)
+        rospy.sleep(4)
+        self.rotate(SWEEP_RIGHT)
+
+
     def explore_cluster(self,newcluster,uuv):
 
         self.current_pose.x = self.uuv.ned_x
@@ -938,11 +950,12 @@ class uuv_nav:
         self.enableoctomap.publish("Deactivate")
         if self.waiting_octo=="Deactivate":
             for i in exploration_coord:
-                self.ggoal.goto_point.x = i[0]-1.5
+                self.ggoal.goto_point.x = i[0]-DISTANCE_AWAY_EXPLORE
                 self.ggoal.goto_point.y = -i[1]
                 self.ggoal.goto_point.z = uuv.ned_z
                 self.oclient.send_goal(self.ggoal)
                 self.oclient.wait_for_result()
+                self.sweep()
             #self.eraseoctomap.publish("Activate")
             rospy.sleep(5)
             f = open('/ws/src/octomap_mapping/octomap_server/scripts/inputpointclouds.csv', "w+")
