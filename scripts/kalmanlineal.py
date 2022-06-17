@@ -180,7 +180,7 @@ class Kalman_Filter:
             prevP2 = np.matmul((H -np.matmul(K,H)),P)
         
         
-        rospy.logwarn(State)#,self.ned_y,self.ned_z,self.vel_x,self.vel_y,self.vel_z,self.acc_x,self.acc_y,self.acc_z)
+        #rospy.logwarn(State)#,self.ned_y,self.ned_z,self.vel_x,self.vel_y,self.vel_z,self.acc_x,self.acc_y,self.acc_z)
 
 
 def main():
@@ -189,7 +189,7 @@ def main():
     kalman_filter = Kalman_Filter()
     rospy.loginfo("Kalman_filter is activated")
     while not rospy.is_shutdown() :
-        rospy.loginfo("Kalman_filter is activated")
+        #rospy.loginfo("Kalman_filter is activated")
         kalman_filter.main()
         rate.sleep()
     rospy.spin()

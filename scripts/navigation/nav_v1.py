@@ -577,7 +577,6 @@ class uuv_instance:
 
 class uuv_nav:
     def __init__(self):
-
         self.uuv = uuv_instance()
         self.isrot = False
         self.ismov = False
@@ -594,8 +593,6 @@ class uuv_nav:
         self.goto_goal = gotoGoal()
         self.octoclient = actionlib.SimpleActionClient('oclust', oclustAction)
         self.octogoal = oclustGoal()
-
-        
         self.search_step = 0
         self.iteration = 1
         rospy.loginfo("Waiting for rotate server")
@@ -628,6 +625,7 @@ class uuv_nav:
         rospy.Subscriber('/enablepcl', String, self.octomap_waiting_callback)
         rospy.Subscriber('/arraylengthocto', Int16, self.arraylength_octo_callback)
         self.waiting_octo="Deactivate"
+
     def octomap_waiting_callback(self,msg):
         self.waiting_octo=msg.data
     def arraylength_octo_callback(self,msg):
@@ -648,7 +646,9 @@ class uuv_nav:
         while not rospy.is_shutdown():
             
             markerpub.publish(uuv.markerArray)
-            if uuv.newexploration:
+            if uuv.selfdetection:
+                self.mission()
+            elif uuv.newexploration:
                 rospy.logwarn("Explore")
                 self.explore_cluster(uuv.newclusters,uuv)
             else:
@@ -893,7 +893,6 @@ class uuv_nav:
         #First we go to a point to orbit
         rospy.loginfo("Goingto")
         point.x = point.x - walk_dis
-
         self.goto(point)
         time.sleep(1)
         while abs(self.uuv.yaw) > 0.1:
