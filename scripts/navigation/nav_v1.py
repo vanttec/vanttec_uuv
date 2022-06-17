@@ -24,13 +24,15 @@ import time
 # Default values
 RTURN90 = math.pi/2
 LTURN90 = -math.pi/2
-SWEEP_RIGHT = math.pi/4
-SWEEP_LEFT = -math.pi/4
+SWEEP_RIGHT = math.pi/6
+SWEEP_LEFT = -math.pi/6
 DISTANCE_AWAY_EXPLORE=3
 WALKDIS = 6
 EXPLORE_THRESHOLD_X =  3
 EXPLORE_THRESHOLD_Y = 8
 FILENAME = "/ws/src/octomap_mapping/octomap_server/scripts/inputpointclouds.csv"
+
+
 
 
 # Publisher para tomar fotos
@@ -111,9 +113,9 @@ class uuv_instance:
         self.auxmarker.scale.y = EXPLORE_THRESHOLD_Y
         self.auxmarker.scale.z = 0.4
         self.auxmarker.color.a = 0.3 # Don't forget to set the alpha!
-        self.auxmarker.color.r = 1.0
+        self.auxmarker.color.r = 0
         self.auxmarker.color.g = 0.0
-        self.auxmarker.color.b = 0.0
+        self.auxmarker.color.b = 0.8
 
 
         # ROS Subscribers
@@ -625,6 +627,30 @@ class uuv_nav:
         rospy.Subscriber('/enablepcl', String, self.octomap_waiting_callback)
         rospy.Subscriber('/arraylengthocto', Int16, self.arraylength_octo_callback)
         self.waiting_octo="Deactivate"
+        self.torpedos_pub = rospy.Publisher("/EnableTorpedo",Int16,queue_size=1)
+        self.switch_mission = {
+        "GATE":self.gate,
+        "BOUYS": self.bouys,
+        "BINS": self.bins,
+        "TORPEDOS": self.torpedos,
+        "OCTAGON": self.octagon,
+        }
+        self.mission_coordinates = {
+        "GATE":[7.43,-0.91],
+        "BOUYS": [18,5.3],
+        "BINS": [27,-5.92],
+        "TORPEDOS": [33.94,-7.3],
+        "OCTAGON": [43.69,10.88],
+        }
+        self.nextmission={
+            0:"GATE",
+            1:"BOUYS",
+            2:"TORPEDOS",
+            3:"BINS",
+            4:"OCTAGON"
+        }
+        self.count_state=0
+
 
     def octomap_waiting_callback(self,msg):
         self.waiting_octo=msg.data
@@ -646,9 +672,8 @@ class uuv_nav:
         while not rospy.is_shutdown():
             
             markerpub.publish(uuv.markerArray)
-            if uuv.selfdetection:
-                self.mission()
-            elif uuv.newexploration:
+            
+            if uuv.newexploration:
                 rospy.logwarn("Explore")
                 self.explore_cluster(uuv.newclusters,uuv)
             else:
@@ -955,6 +980,11 @@ class uuv_nav:
                 self.oclient.send_goal(self.ggoal)
                 self.oclient.wait_for_result()
                 self.sweep()
+                rospy.logwarn("Count state %d", self.count_state)
+                rospy.logwarn("Next mission %s", self.nextmission[self.count_state])
+                rospy.logwarn(self.mission_coordinates[self.nextmission[self.count_state]])
+                self.state_machine(self.nextmission[self.count_state],self.mission_coordinates[self.nextmission[self.count_state]])
+                self.count_state+=1
             #self.eraseoctomap.publish("Activate")
             rospy.sleep(5)
             f = open('/ws/src/octomap_mapping/octomap_server/scripts/inputpointclouds.csv', "w+")
@@ -977,8 +1007,70 @@ class uuv_nav:
             self.allign()
             uuv.newexploration=False
             self.search_step = 0
+    def gate(self,coordinates = None):
+
+        if coordinates == None:
+            return
+        else :
+            rospy.logwarn("Gate Mission")
+            self.point_handler.x = coordinates[0] - 2
+            self.point_handler.y = coordinates[1]
+            self.point_handler.z = 0
+            self.goto(self.point_handler)
+            self.allign()
+            self.walk(2)
+
+
+    def bouys(self,coordinates = None):
+        if coordinates == None:
+            return
+        else:
+            rospy.logwarn("Buoy mission")
+            self.point_handler.x = coordinates[0] -2
+            self.point_handler.y = coordinates[1]
+            self.point_handler.z = 0
+            self.goto(self.point_handler)
+            self.allign()
+            self.walk(2.3)
+            self.rotate(2*RTURN90)
+            rospy.sleep(1)
+            self.walk(2)
+            self.rotate(LTURN90)
+            self.walk(3)
+            self.rotate(LTURN90)
+            self.walk(5)
+            self.rotate(LTURN90)
+            self.walk(3)
+            self.rotate(RTURN90)
+            self.allign()
 
         
+
+    def torpedos(self, coordinates = None):
+        if coordinates == None:
+            return
+        else:
+            self.torpedos_pub.publish(1)
+
+    def bins(self, coordinates = None):
+        if coordinates == None:
+            return
+
+    def octagon(self, coordinates = None):
+        if coordinates == None:
+            return
+    
+    def error(self, coordinates = None):
+        if coordinates == None:
+            return
+
+    #tomamos la función asociada a la variable y la invocamos
+    
+    def state_machine(self,mission,coordinate):
+        coordinate = self.mission_coordinates[mission]
+        self.switch_mission.get(mission, self.error)(coordinate)
+        
+
 
     # def rotate(self):
     #     self.rot_goal.goal_angle = RTURN90
@@ -1008,10 +1100,10 @@ def cluster_marker(name,pose,id):
     marker.scale.x = EXPLORE_THRESHOLD_Y
     marker.scale.y = 1
     marker.scale.z = 1
-    marker.color.a = 0.8 # Don't forget to set the alpha!
-    marker.color.r = 1.0
+    marker.color.a = 0.7 # Don't forget to set the alpha!
+    marker.color.r = 0.0
     marker.color.g = 0.0
-    marker.color.b = 0.0
+    marker.color.b = 0.8
     pub.publish(marker)
     rospy.logwarn("Published")
 

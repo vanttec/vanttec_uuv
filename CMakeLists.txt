@@ -42,6 +42,7 @@ add_message_files(
    obj_detected.msg
    obj_detected_list.msg
    Gate.msg
+   TargetsCentroids.msg
 )
 
 add_service_files(
