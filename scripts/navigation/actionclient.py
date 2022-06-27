@@ -6,50 +6,63 @@ import rospy
 import actionlib
 import time
 import math
+import numpy as np
 
 
 from vanttec_uuv.msg import rotateAction, rotateGoal, walkAction, walkGoal, gotoAction, gotoGoal
-from octomap_server.msg import oclustAction, oclustGoal
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
-if __name__ == '__main__':
-    rospy.init_node('action_client')
-    # rclient = actionlib.SimpleActionClient('rotate', rotateAction)
-    # rclient.wait_for_server()
-    # wclient = actionlib.SimpleActionClient('walk', walkAction)
-    # wclient.wait_for_server()
-    # oclient = actionlib.SimpleActionClient('goto', gotoAction)
-    # oclient.wait_for_server()
-    oclient = actionlib.SimpleActionClient('oclust', oclustAction)
-    oclient.wait_for_server()
+        
+class client:
+    def __init__(self):
+        rospy.loginfo("Waiting for action servers")    
+        self.rot_client = actionlib.SimpleActionClient('rotate', rotateAction)
+        self.rot_goal = rotateGoal()
+        self.walk_client = actionlib.SimpleActionClient('walk', walkAction)
+        self.walk_goal = walkGoal()
+        self.goto_client = actionlib.SimpleActionClient('goto', gotoAction)
+        self.goto_goal = gotoGoal()
+        rospy.loginfo("Navigation Servers loaded ")
 
+        n = 50
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        # Plot a helix along the x-axis
+        theta_max = 4 * np.pi
+        theta = np.linspace(0, theta_max, n)
+        #Point calculations
+        self.x = theta
+        self.z = np.sin(theta)
+        self.y = np.cos(theta)
+        ax.plot(self.x, self.y, self.z, 'b', lw=2)
+        # An line through the centre of the helix
+        ax.plot((-theta_max*0.2, theta_max * 1.2), (0,0), (0,0), color='k', lw=2)
+        ax.plot(self.x, self.y, 0, color='r', lw=1, alpha=0.5)
+        ax.plot(self.x, [0]*n, self.z, color='m', lw=1, alpha=0.5)
+        # Remove axis planes, ticks and labels
+        ax.set_axis_off()
+        plt.show()
+
+
+    def helicoidal(self):
+        for i in range(len(self.x)):
+            self.goto_goal.goto_point.x = self.x[i]
+            self.goto_goal.goto_point.y = self.y[i]
+            self.goto_goal.goto_point.z = self.z[i]
+            self.goto_client.send_goal(self.goto_goal)
+            self.goto_client.wait_for_result()
     
-    ogoal = oclustGoal()
-    oclient.send_goal(ogoal)
-    oclient.wait_for_result()
-    rospy.logwarn("Acabe")
+    def main(self):
+        self.helicoidal()
     
-    # ggoal = gotoGoal()
-    # rospy.loginfo(ggoal)
-    # ggoal.goto_point.x = 10
-    # ggoal.goto_point.y = 0
-    # ggoal.goto_point.z = 0
-    # # rgoal.goal_angle = 0
-    # print(ggoal)
-    # oclient.send_goal(ggoal)
-    # oclient.wait_for_result()
-    # time.sleep(2)
 
-    # rgoal = rotateGoal()
-    # rgoal.goal_angle = math.pi/2
-    # # rgoal.goal_angle = 0
-    # print(rgoal)
-    # rclient.send_goal(rgoal)
-    # rclient.wait_for_result()
-    # time.sleep(2)
 
-    # wgoal = walkGoal()
-    # wgoal.walk_dis = 3
-    # print(wgoal)
-    # # Fill in the goal here
-    # wclient.send_goal(wgoal)
-    # wclient.wait_for_result()
+if __name__ == "__main__":
+    try:
+        rospy.init_node("ActionClient", anonymous=False)
+        i = client()
+        i.main()
+    except rospy.ROSInterruptException:     
+        pass
