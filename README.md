@@ -42,3 +42,6 @@ catkin_make
  rosrun uuv_perception gate_detector_node
 ```
 ___
+
+ ## To do:
+- Make yaml files to load vehicle specific parameters to the parameter server. To be determined if it is really useful.

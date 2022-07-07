@@ -111,8 +111,8 @@ class AutoNav:
         x3 = x_list[ind_g2]
         y3 = -1*y_list[ind_g2]
         if (self.choose_side == 'left'):
-            xc = min([x1,x2]) + abs(x1 - x2)/2 - self.distance_away
-            yc = min([y1,y2]) + abs(y1 - y2)/2
+            xc = min([x1,x2]) + fabs(x1 - x2)/2 - self.distance_away
+            yc = min([y1,y2]) + fabs(y1 - y2)/2
             if y1 < y2:
                 yl = y1
                 xl = x1
@@ -124,8 +124,8 @@ class AutoNav:
                 yr = y1
                 xr = x1
         else:
-            xc = min([x2,x3]) + abs(x2 - x3)/2 - self.distance_away
-            yc = min([y2,y3]) + abs(y2 - y3)/2
+            xc = min([x2,x3]) + fabs(x2 - x3)/2 - self.distance_away
+            yc = min([y2,y3]) + fabs(y2 - y3)/2
             if y2 < y3:
                 yl = y2
                 xl = x2
@@ -190,8 +190,8 @@ class AutoNav:
         y3 = -1*y_list[ind_g2]
 
         if (self.choose_side == 'left'):
-            xc = min([x1,x2]) + abs(x1 - x2)/2 
-            yc = min([y1,y2]) + abs(y1 - y2)/2
+            xc = min([x1,x2]) + fabs(x1 - x2)/2 
+            yc = min([y1,y2]) + fabs(y1 - y2)/2
             if y1 < y2:
                 yl = y1
                 xl = x1
@@ -203,8 +203,8 @@ class AutoNav:
                 yr = y1
                 xr = x1
         else:
-            xc = min([x2,x3]) + abs(x2 - x3)/2
-            yc = min([y2,y3]) + abs(y2 - y3)/2
+            xc = min([x2,x3]) + fabs(x2 - x3)/2
+            yc = min([y2,y3]) + fabs(y2 - y3)/2
             if y2 < y3:
                 yl = y2
                 xl = x2

@@ -31,6 +31,7 @@ class ASMC_GUIDANCE : public ASMC
         // Destructor
         ~ASMC_GUIDANCE();
 
+        void Reset();
         void Manipulation(double _current);
 };
 

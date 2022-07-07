@@ -11,16 +11,10 @@
 #ifndef __PID_CONTROLLER_H__
 #define __PID_CONTROLLER_H__
 
+#include "uuv_common.hpp"
+#include "vanttec_uuv/EtaPose.h"
 #include <std_msgs/Float32.h>
 #include <cmath>
-
-const float PI = 3.1416;
-
-typedef enum DOFControllerType_E
-{
-    LINEAR_DOF_PID = 0,
-    ANGULAR_DOF_PID = 1,
-} DOFControllerType_E;
 
 class PIDController
 {
@@ -36,15 +30,16 @@ class PIDController
         float k_i;
         float k_d;
         
-        float f_x;
-        float g_x;
+        // float f_x;
+        // float g_x;
 
         DOFControllerType_E controller_type;
         
-        PIDController(float _sample_time_s, const float _k_pid[3], const DOFControllerType_E _type);
+        PIDController(const float _sample_time_s, const float _k_p, const float _k_i, const float _k_d, const DOFControllerType_E _type);
         ~PIDController();
         
-        void CalculateManipulation(float _current_value);
+        void UpdateSetPoint(const float& _set_point);
+        void CalculateManipulation(const float _current_value);
 };
 
 #endif

@@ -30,15 +30,17 @@ add_definitions(${PCL_DEFINITIONS})
 
 add_message_files(
    FILES
+   EtaPose.msg
    ThrustControl.msg
    GuidanceWaypoints.msg
    MasterStatus.msg
    Obstacle.msg
    DetectedObstacles.msg
    MissionStatus.msg
-   obj_detected.msg
-   obj_detected_list.msg
+   Obj_detected.msg
+   Obj_detected_list.msg
    Gate.msg
+   SystemDynamics.msg
 )
 
 add_service_files(
@@ -78,25 +80,33 @@ add_executable(uuv_odometry_node
 add_dependencies(uuv_odometry_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_odometry_node ${catkin_LIBRARIES})
 
-add_executable(uuv_control_node 
-    src/uuv_control_node.cpp 
-    lib/uuv_control/src/uuv_4dof_controller.cpp 
-    lib/uuv_control/src/pid_controller.cpp
-)
-add_dependencies(uuv_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(uuv_control_node ${catkin_LIBRARIES})
+add_executable(uuv_pid_control_node 
+    src/uuv_pid_control_node.cpp 
+    lib/uuv_control/src/uuv_6dof_pid.cpp 
+    lib/uuv_control/src/pid_controller.cpp)
+add_dependencies(uuv_pid_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_pid_control_node ${catkin_LIBRARIES})
 
-add_executable(asmc_guidance_unit_test 
-    tests/asmc_guidance_unit_test.cpp
-    lib/uuv_control/src/asmc.cpp
-    lib/uuv_guidance/src/asmc_guidance.cpp
-    lib/uuv_guidance/src/asmc_guidance_4dof.cpp)
-add_dependencies(asmc_guidance_unit_test ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(asmc_guidance_unit_test ${catkin_LIBRARIES})
+add_executable(uuv_asmc_node 
+    src/uuv_asmc_node.cpp 
+    lib/uuv_control/src/uuv_6dof_asmc.cpp 
+    lib/uuv_control/src/asmc.cpp)
+add_dependencies(uuv_asmc_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_asmc_node ${catkin_LIBRARIES})
+
+# add_executable(asmc_guidance_unit_test 
+#     tests/asmc_guidance_unit_test.cpp
+#     lib/uuv_control/src/asmc.cpp
+#     lib/uuv_guidance/src/asmc_guidance.cpp
+#     lib/uuv_guidance/src/asmc_guidance_4dof.cpp)
+# add_dependencies(asmc_guidance_unit_test ${${PROJECT_NAME}_EXPORTED_TARGETS})
+# target_link_libraries(asmc_guidance_unit_test ${catkin_LIBRARIES})
 
 add_executable(uuv_simulation_node 
     src/uuv_simulation_node.cpp 
-    lib/uuv_simulation/src/uuv_dynamic_4dof_model.cpp)
+    lib/uuv_common/src/vtec_u4_6dof_dynamic_model.cpp
+    lib/uuv_common/src/generic_6dof_uuv_dynamic_model.cpp
+    lib/uuv_common/src/uuv_common.cpp)
 add_dependencies(uuv_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_simulation_node ${catkin_LIBRARIES})
 
@@ -115,11 +125,11 @@ add_executable(uuv_shootout_simulation_node
 add_dependencies(uuv_shootout_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_shootout_simulation_node ${catkin_LIBRARIES})
 
-add_executable(uuv_tf_broadcast_node 
-    src/uuv_tf_broadcast_node.cpp 
-    lib/uuv_simulation/src/tf_broadcaster.cpp)
-add_dependencies(uuv_tf_broadcast_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(uuv_tf_broadcast_node ${catkin_LIBRARIES})
+add_executable(uuv_tf2_broadcast_node 
+    src/uuv_tf2_broadcast_node.cpp 
+    lib/uuv_simulation/src/tf2_broadcaster.cpp)
+add_dependencies(uuv_tf2_broadcast_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_tf2_broadcast_node ${catkin_LIBRARIES})
 
 add_executable(uuv_master_node 
     src/uuv_master_node.cpp 
@@ -130,19 +140,18 @@ target_link_libraries(uuv_master_node ${catkin_LIBRARIES})
 add_executable(uuv_waypoint_publisher_node 
     src/uuv_waypoint_publisher_node.cpp
     lib/uuv_motion_planning/src/waypoint_publisher.cpp
-    lib/uuv_common/src/uuv_common.cpp
-)
+    lib/uuv_common/src/uuv_common.cpp)
 add_dependencies(uuv_waypoint_publisher_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_waypoint_publisher_node ${catkin_LIBRARIES})
 
-add_executable(uuv_guidance_node 
-    src/uuv_guidance_node.cpp 
-    lib/uuv_guidance/src/uuv_guidance_controller.cpp
-    lib/uuv_control/src/asmc.cpp
-    lib/uuv_guidance/src/asmc_guidance.cpp
-    lib/uuv_guidance/src/asmc_guidance_4dof.cpp)
-add_dependencies(uuv_guidance_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(uuv_guidance_node ${catkin_LIBRARIES})
+# add_executable(uuv_guidance_node 
+#     src/uuv_guidance_node.cpp 
+#     lib/uuv_guidance/src/uuv_guidance_controller.cpp
+#     lib/uuv_control/src/asmc.cpp
+#     lib/uuv_guidance/src/asmc_guidance.cpp
+#     lib/uuv_guidance/src/asmc_guidance_4dof.cpp)
+# add_dependencies(uuv_guidance_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+# target_link_libraries(uuv_guidance_node ${catkin_LIBRARIES})
 
 add_executable(uuv_mission_manager_node 
     src/uuv_mission_manager_node.cpp 

@@ -1,6 +1,7 @@
 /** ----------------------------------------------------------------------------
  * @file: asmc.cpp
  * @date: June 17, 2021
+ * @date: June 4, 2022
  * @author: Sebas Mtz
  * @email: sebas.martp@gmail.com
  * 
@@ -10,61 +11,88 @@
 
 #include "asmc.hpp"
 
-ASMC::ASMC(double _sample_time_s, const double _K2, const double _Kalpha, const double _Kmin, const double _miu, const DOFControllerType_E _type)
+ASMC::ASMC(const float sample_time_s, const float lambda, const float K2, const float K_alpha, const float K1_init, const float K_min, const float mu, const DOFControllerType_E type)
 {
-    sample_time_s = _sample_time_s;
-    K1 = 0;
-    dot_K1 = 0;
-    K2 = _K2;
-    Kalpha = _Kalpha;
-    Kmin = _Kmin;
-    miu = miu;
-    controller_type = _type;
-    error = 0.0;
-    dot_error = 0.0;
-    manipulation = 0.0;
+    _sample_time_s = sample_time_s;
+    _q_d = 0.0;
+    _q_dot_d = 0.0;
+    _error1 = 0.0;
+    _error2 = 0.0;
+    _prev_error1 = 0.0;
+    _prev_error2 = 0.0;
+    
+    // Auxiliar control
+    _ua = 0.0;
+
+    // Sliding surface
+    _lambda = lambda;
+    _s = 0.0;
+
+    // Gains
+    _K1 = K1_init;
+    _K2 = K2;
+    _dot_K1 = 0.0;
+    _prev_dot_K1 = 0.0;
+
+    // Adaptive law
+    _K_min = K_min;
+    _K_alpha = K_alpha;
+    _mu = mu;
+
+    _controller_type = type;
 }
 
 ASMC::~ASMC(){}
 
-void ASMC::SetAdaptiveParams(const double _Kmin, const double _Kalpha, const double _miu)
+void ASMC::Reset()
 {
-    Kalpha = _Kalpha;
-    Kmin = _Kmin;
-    miu = miu;
+    _error1 = 0.0;
+    _prev_error1 = 0.0;
+    _error2 = 0.0;
+    _prev_error2 = 0.0;
+    _ua = 0.0;
+    _K1 = 0.0;
 }
 
-void ASMC::Manipulation(double _current)
+void ASMC::UpdateSetPoint(const float q_d, const float q_dot_d)
 {
-    double sign = 0.0;
-    prev_error = error;
-    prev_dot_error = dot_error;
-    prev_dot_K1 = dot_K1;
+    _q_d = q_d;
+    _q_dot_d = q_dot_d;
+}
 
-    error = set_point - _current;
-    dot_error = (error - prev_error)/sample_time_s;
+void ASMC::CalculateAuxControl(float q, float q_dot)
+{
+    float sign = 0.0;
+    _prev_error1 = _error1;
+    _prev_error2 = _error2;
+    _prev_dot_K1 = _dot_K1;
 
-    if (controller_type == ANGULAR_DOF)
+    _error1 = _q_d - q;
+    _error2 = _q_dot_d - q_dot;
+
+    if (_controller_type == ANGULAR_DOF)
     {
-        if (std::abs(error) > PI)
+        if (fabs(_error1) > M_PI)
         {
-            error = (error / std::abs(error)) * (std::abs(error) - 2 * PI);
+            _error1 = (_error1 / fabs(_error1)) * (fabs(_error1) - 2 * M_PI);
         }
-        if (std::abs(dot_error) > PI)
+        if (fabs(_error2) > M_PI)
         {
-            dot_error = (dot_error / std::abs(dot_error)) * (std::abs(dot_error) - 2 * PI);
+            _error2 = (_error2 / fabs(_error2)) * (fabs(_error2) - 2 * M_PI);
         }
     }
 
-    sigma = dot_error + lambda*error;
-    if (std::abs(sigma) - miu != 0)
+    // Error 2 siendo la velocidad, error 1 se debe de integrar o est[a] bien poner directo la posici[o]n?
+    _s = _error2 + _lambda*_error1;
+    if (fabs(_s) - _mu != 0.0)
     {
-        sign = (std::abs(sigma) - miu) / (std::abs(sigma) - miu);
+        sign = (_s - _mu) / (fabs(_s) - _mu);
     } else
     {
         sign = 0;
     }
-    dot_K1 = K1>Kmin ?  Kalpha*sign:Kmin;
-    K1 += (dot_K1+prev_dot_K1)/2*sample_time_s;
-    manipulation = K1*sign + K2*sigma; // Checar sign
+
+    _dot_K1 = _K1 > _K_min ?  _K_alpha*sign : _K_min;
+    _K1 += (_dot_K1 + _prev_dot_K1) / 2 * _sample_time_s;
+    _ua = -_K1*sign - _K2*_s;
 }
