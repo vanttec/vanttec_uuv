@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     ros::Rate               cycle_rate(int(1 / SAMPLE_TIME_S));
     GuidanceController      guidance_controller(SAMPLE_TIME_S);
     
-    ros::Publisher  uuv_desired_setpoints       = nh.advertise<geometry_msgs::Twist>("/uuv_control/uuv_control_node/setpoint", 1000);
+    ros::Publisher  uuv_desired_set_points       = nh.advertise<geometry_msgs::Twist>("/uuv_control/uuv_control_node/set_point", 1000);
 
     ros::Subscriber uuv_pose                    = nh.subscribe("/uuv_simulation/dynamic_model/pose",
                                                                 1000,
@@ -52,13 +52,13 @@ int main(int argc, char **argv)
         /* Run Queued Callbacks */ 
         ros::spinOnce();
 
-        /* Update Parameters with new info */ 
-        guidance_controller.UpdateStateMachines();
+        /* update Parameters with new info */ 
+        guidance_controller.updateStateMachines();
 
         /* Publish Odometry */ 
         if (guidance_controller.uuv_status.status == 1)
         {
-            uuv_desired_setpoints.publish(guidance_controller.desired_setpoints);
+            uuv_desired_set_points.publish(guidance_controller.desired_set_points);
         }
 
         /* Slee for 10ms */

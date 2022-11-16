@@ -58,8 +58,8 @@ Visualization Manager:
       Enabled: true
       Links:
         All Links Enabled: true
-        Expand Joint Details: false
-        Expand Link Details: false
+        Expand Joint Deta_ils: false
+        Expand Link Deta_ils: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
         uuv:
@@ -70,7 +70,7 @@ Visualization Manager:
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
-      Update Interval: 0
+      update Interval: 0
       Value: true
       Visual Enabled: true
     - Alpha: 1
@@ -111,7 +111,7 @@ Visualization Manager:
     - Class: rviz/FocusCamera
     - Class: rviz/Measure
     - Class: rviz/SetInitialPose
-      Theta std deviation: 0.2617993950843811
+      Theta_ std deviation: 0.2617993950843811
       Topic: /initialpose
       X std deviation: 0.5
       Y std deviation: 0.5

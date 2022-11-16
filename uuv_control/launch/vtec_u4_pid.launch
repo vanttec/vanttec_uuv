@@ -1,0 +1,18 @@
+<launch>
+
+    <node name="vtec_u4_simulation_node" pkg="uuv_control" type="vtec_u4_simulation_node"/>
+
+    <node name="vtec_u4_pid_node" pkg="uuv_control" type="vtec_u4_pid_node">
+        <rosparam file="$(find uuv_control)/config/VTec_U4_PID_Gains.yaml"/>
+    </node>
+
+    <param name="robot_description" textfile="$(find uuv_control)/models/vtec_u3.urdf" />
+
+    <node name="tf2_broadcaster_node" pkg="uuv_control" type="tf2_broadcaster_node">
+        <param name="parent_frame" value="world" />
+        <param name="child_frame" value="uuv" />
+    </node>
+
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uuv_control)/launch/rviz_cfg/uuv.rviz" />
+
+</launch>

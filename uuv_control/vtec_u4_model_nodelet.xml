@@ -1,0 +1,7 @@
+<library path="lib/libvtec_u4_model_plugin">
+    <class name="vtec_u4_nodelet" type="VTecU4ModelNodelet" base_class_type="nodelet::Nodelet">
+        <description>
+            VTec U4 model nodelet
+        </description>
+    </class>
+</library>
