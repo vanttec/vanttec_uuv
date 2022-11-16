@@ -7,7 +7,8 @@ project(uuv_motion_planning)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS geometry_msgs nav_msgs roscpp)
+find_package(ompl REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -101,7 +102,7 @@ find_package(catkin REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES uuv_motion_planning
-#  CATKIN_DEPENDS other_catkin_pkg
+#  CATKIN_DEPENDS roscpp
 #  DEPENDS system_lib
 )
 
@@ -112,8 +113,11 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-# ${catkin_INCLUDE_DIRS}
+    include
+    vanttec_motion_planners/ompl_auxiliar/include
+    vanttec_motion_planners/path_planners/rrt_star/include
+    ${catkin_INCLUDE_DIRS}
+    ${OMPL_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -131,6 +135,14 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/uuv_motion_planning_node.cpp)
 
+add_executable(rrt_star_node
+                src/rrt_star_node.cpp
+                vanttec_motion_planners/path_planners/rrt_star/src/RRT_star_2D.cpp
+                vanttec_motion_planners/ompl_auxiliar/src/ompl_auxiliars.cpp)
+target_link_libraries(rrt_star_node ${catkin_LIBRARIES} ${OMPL_LIBRARIES})
+
+# add_executable(tutorial_node src/tutorial.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -139,12 +151,14 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(rrt_star_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+# target_link_libraries(tutorial_node ${OMPL_LIBRARIES})
+
 
 #############
 ## Install ##
