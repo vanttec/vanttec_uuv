@@ -14,7 +14,7 @@
 #include <nav_msgs/Path.h> 
 #include <nav_msgs/OccupancyGrid.h>
 
-#include "../vanttec_motion_planners/path_planners/rrt_star/include/RRT_star_2D.hpp"
+#include "../vanttec_motion_planners/path_planners/include/RRT_star_2D.hpp"
 
 nav_msgs::OccupancyGrid global_map;
 
@@ -22,7 +22,6 @@ nav_msgs::OccupancyGrid global_map;
 void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& mapMsg) {
     global_map = *mapMsg;
 }
-
 
 int main(int argc, char** argv)
 {
@@ -38,7 +37,9 @@ int main(int argc, char** argv)
     std::array<float, 3> start = {-1.0, -1.0, -0.5};
     std::array<float, 3> goal =  { 1.0,  1.0,  0.5};
 
-    RRTStar2D planner(node_handle, x_limits, y_limits, 1.0);
+    float MAX_TIME = 1.0;
+
+    RRTStar2D planner(x_limits, y_limits, MAX_TIME);
 
     // Setup the ROS loop rate
     ros::Rate loop_rate(100);
