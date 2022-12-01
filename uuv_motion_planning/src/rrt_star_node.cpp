@@ -9,37 +9,36 @@
  **/
 
 #include <ros/ros.h>
-
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Path.h> 
 #include <nav_msgs/OccupancyGrid.h>
 
-#include "../vanttec_motion_planners/path_planners/include/RRT_star_2D.hpp"
-
-nav_msgs::OccupancyGrid global_map;
-
-// occupancy map callback
-void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr& mapMsg) {
-    global_map = *mapMsg;
-}
+#include "RRT_star.hpp"
 
 int main(int argc, char** argv)
 {
     // Init ROS node
-    ros::init(argc, argv, "RRTStar2D");
+    ros::init(argc, argv, "RRTStar");
 
     // Create node handler
     ros::NodeHandle node_handle("~");
 
-    std::array<float, 2> x_limits = {-1.0, 1.0}; // Low, High
-    std::array<float, 2> y_limits = {-1.0, 1.0}; // Low, High
+    std::vector<float> SO3_bounds; // Low, High
 
-    std::array<float, 3> start = {-1.0, -1.0, -0.5};
-    std::array<float, 3> goal =  { 1.0,  1.0,  0.5};
+    std::vector<float> start;
+    std::vector<float> goal;
 
     float MAX_TIME = 1.0;
+    int dim;
+    bool use_map;
 
-    RRTStar2D planner(x_limits, y_limits, MAX_TIME);
+    // node_handle.getParam("use_map", use_map);
+    node_handle.getParam("state_space_dimension", dim);
+    node_handle.getParam("SO3_space_bounds", SO3_bounds);
+    node_handle.getParam("planner_frame_start", start);
+    node_handle.getParam("planner_frame_goal", goal);
+
+    RRTStar planner(dim, SO3_bounds, MAX_TIME);
 
     // Setup the ROS loop rate
     ros::Rate loop_rate(100);
@@ -48,7 +47,7 @@ int main(int argc, char** argv)
     ros::Publisher path_pub = node_handle.advertise<nav_msgs::Path>("planned_path", 1000);
 
     // Occupancy map subscriber
-    ros::Subscriber map_sub = node_handle.subscribe("/map", 10, mapCallback);
+    ros::Subscriber map_sub = node_handle.subscribe("/map", 10, &RRTStar::save2DMap, &planner);
 
     while (ros::ok()){
         nav_msgs::Path plannedPath;
