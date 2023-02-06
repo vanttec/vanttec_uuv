@@ -13,10 +13,15 @@
 #include <nav_msgs/Path.h> 
 #include <nav_msgs/OccupancyGrid.h>
 
-#include "RRT_star.hpp"
+#include "vanttec_motion_planners/path_planners/include/RRT_star.hpp"
 
 int main(int argc, char** argv)
 {
+    float MAX_TIME = 1.0;
+    // bool use_map;
+    int frequency = 100;
+    int dim;
+
     // Init ROS node
     ros::init(argc, argv, "RRTStar");
 
@@ -24,39 +29,39 @@ int main(int argc, char** argv)
     ros::NodeHandle node_handle("~");
 
     std::vector<float> SO3_bounds; // Low, High
-
     std::vector<float> start;
     std::vector<float> goal;
-
-    float MAX_TIME = 1.0;
-    int dim;
-    bool use_map;
 
     // node_handle.getParam("use_map", use_map);
     node_handle.getParam("state_space_dimension", dim);
     node_handle.getParam("SO3_space_bounds", SO3_bounds);
-    node_handle.getParam("planner_frame_start", start);
-    node_handle.getParam("planner_frame_goal", goal);
+    node_handle.getParam("start_point", start);
+    node_handle.getParam("goal_point", goal);
 
     RRTStar planner(dim, SO3_bounds, MAX_TIME);
 
     // Setup the ROS loop rate
-    ros::Rate loop_rate(100);
+    ros::Rate loop_rate(frequency);
 
     // Planned path publisher
-    ros::Publisher path_pub = node_handle.advertise<nav_msgs::Path>("planned_path", 1000);
+    ros::Publisher path_pub = node_handle.advertise<nav_msgs::Path>("/planned_path", 1);
 
     // Occupancy map subscriber
-    ros::Subscriber map_sub = node_handle.subscribe("/map", 10, &RRTStar::save2DMap, &planner);
+    ros::Subscriber map_sub = node_handle.subscribe("/map", 1, &RRTStar::save2DMap, &planner);
 
-    while (ros::ok()){
-        nav_msgs::Path plannedPath;
-        plannedPath = planner.planPath(start, goal);
+    // while (ros::ok()){
+    nav_msgs::Path planned_path;
 
-        // Publish the planned path
-        path_pub.publish(plannedPath);
+    planner.setStartAndGoal(start, goal);
 
+    while(ros::ok()){
         ros::spinOnce();
+        if(planner.solution_found_){
+            planned_path = planner.getPath();
+            // Publish the planned path
+            // if(planned_path != std::nullopt)
+            path_pub.publish(planned_path);
+        }
         loop_rate.sleep();
     }
 

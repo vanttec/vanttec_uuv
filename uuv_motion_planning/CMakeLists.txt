@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(uuv_motion_planning)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++17)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -118,8 +118,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-    vanttec_motion_planners/path_planners/include
-    vanttec_motion_planners/trajectory_planners/include
+    lib
+    # vanttec_motion_planners/path_planners/include
+    # vanttec_motion_planners/trajectory_planners/include
     ${catkin_INCLUDE_DIRS}
     ${OMPL_INCLUDE_DIRS}
 )
@@ -141,14 +142,14 @@ include_directories(
 
 add_executable(rrt_star_node
                 src/rrt_star_node.cpp
-                vanttec_motion_planners/path_planners/src/RRT_star.cpp)
+                lib/vanttec_motion_planners/path_planners/src/motion_validator.cpp
+                lib/vanttec_motion_planners/path_planners/src/RRT_star.cpp)
 target_link_libraries(rrt_star_node ${catkin_LIBRARIES} ${OMPL_LIBRARIES})
 
-# add_executable(s_curve_trajectory
-#                 src/s_curve_trajectory.cpp
-#                 vanttec_motion_planners/trajectory_planners/src/s_curve.cpp
-#                 vanttec_motion_planners/path_planners/auxiliars/src/auxiliars.cpp)
-# target_link_libraries(s_curve_trajectory ${catkin_LIBRARIES})
+# add_executable(s_curve_planner_node
+#                 src/s_curve_node.cpp
+#                 lib/vanttec_motion_planners/trajectory_planners/src/s_curve.cpp)
+# target_link_libraries(s_curve_planner_node ${catkin_LIBRARIES})
 
 # add_executable(tutorial_node src/tutorial.cpp)
 
