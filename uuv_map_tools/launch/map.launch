@@ -1,4 +1,4 @@
 <launch>
     <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uuv_map_tools)/launch/rviz_cfg/map.rviz" />
-    <node name="map_server" pkg="map_server" type="map_server" args="$(find uuv_map_tools)/maps/map.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find uuv_map_tools)/maps/map2.yaml"/>
 </launch>

@@ -61,6 +61,7 @@ class PlannerMotionValidator : public ompl::base::MotionValidator{
 
         // Description: implements Bresenham Line Algorithm to check grids under the line
         // formed by two points
+        // https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
         //
         // @param x1: first state x coordinate
         // @param y1: first state y coordinate
@@ -71,6 +72,17 @@ class PlannerMotionValidator : public ompl::base::MotionValidator{
         // @param decide: 0 if dx > dy, 1 otherwise
         // @retval: true if there are only white grids
         bool bresenhams(int x1, int y1, int x2, int y2, int dx, int dy, int decide) const;
+
+        // Description: implements Discrete Differential Analyzer to check grids under the line
+        // formed by two points. This covers all the cells under the line.
+        // http://eugen.dedu.free.fr/projects/bresenham/
+        //
+        // @param x1: first state x coordinate
+        // @param y1: first state y coordinate
+        // @param x2: second state x coordinate
+        // @param y2: second state y coordinate
+        // @retval: true if there are only white grids
+        bool DDA(int x1, int y1, int x2, int y2) const;
 
         // Description: checks grid value from map
         //

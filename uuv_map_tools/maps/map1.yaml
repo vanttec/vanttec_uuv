@@ -1,4 +1,4 @@
-image: map_no_detail.png
+image: map1.png
 resolution: 0.02
 # origin: [-15.0, -15.0, 0.0]
 origin: [-5, -5, 0]

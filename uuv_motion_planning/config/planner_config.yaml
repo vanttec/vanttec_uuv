@@ -2,4 +2,5 @@ state_space_dimension: 3
 use_map: false
 SO3_space_bounds: [-10, 10] # Low, High for x, y and z
 start_point: [-2.5, 3.3, 0]  # x, y, z
-goal_point: [2.5, -2.5, 0]  # x, y, z
+# goal_point: [2.5, -2.5, 0]  # x, y, z
+goal_point: [3, 0, 0]  # x, y, z

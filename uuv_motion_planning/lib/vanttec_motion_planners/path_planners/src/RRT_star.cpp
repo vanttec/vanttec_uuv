@@ -43,9 +43,9 @@ void RRTStar::configure(){
 
     ss_->setStateValidityChecker([this](const ompl::base::State *state) { return isValid(state); });
 
-    // std::shared_ptr<PlannerMotionValidator> motion_validator = std::make_shared<PlannerMotionValidator>(ss_->getSpaceInformation());
-    // motion_validator->setMap(map_);
-    // ss_->getSpaceInformation()->setMotionValidator(motion_validator);
+    std::shared_ptr<PlannerMotionValidator> motion_validator = std::make_shared<PlannerMotionValidator>(ss_->getSpaceInformation());
+    motion_validator->setMap(map_);
+    ss_->getSpaceInformation()->setMotionValidator(motion_validator);
     
     ss_->getSpaceInformation()->setStateValidityCheckingResolution(resolution_);
 
@@ -132,9 +132,9 @@ ompl::base::OptimizationObjectivePtr RRTStar::getPathLengthObjective() {
 void RRTStar::save2DMap(const nav_msgs::OccupancyGrid::ConstPtr map){
     map_arrived_ = true;
     map_ = *map;
-    map_resolution_ = map_.info.resolution;  // m/pixel
-    map_width_ = (int) map_.info.width;
-    map_height_ = (int) map_.info.height;
+    map_resolution_ = map_.info.resolution;  // m/cell (cell = pixel)
+    map_width_ = (int) map_.info.width;      // cells
+    map_height_ = (int) map_.info.height;    // cells
     map_origin_ = map_.info.origin;
 
     float x_limits[2]; // Low, High
@@ -183,7 +183,7 @@ bool RRTStar::isValid(const ompl::base::State *state) const {
     int i = int((x - map_origin_.position.x) / map_resolution_);
     int j = int((y - map_origin_.position.y) / map_resolution_);
 
-    int pixel_radius = collision_safety_radius_ / map_resolution_;
+    int cell_radius = collision_safety_radius_ / map_resolution_;
     int cell;
 
     // ROS_INFO_STREAM("i:" << i);
@@ -191,22 +191,22 @@ bool RRTStar::isValid(const ompl::base::State *state) const {
     // ROS_INFO_STREAM("x:" << x);
     // ROS_INFO_STREAM("y:" << y);
     // ROS_INFO_STREAM("Map resolution: " << map_resolution_);
-    // ROS_INFO_STREAM("Pixel radius: " << pixel_radius);
-    // ROS_INFO_STREAM("Map width (pixels)= " << map_width_);
-    // ROS_INFO_STREAM("Map height (pixels)= " << map_height_);
+    // ROS_INFO_STREAM("cell radius: " << cell_radius);
+    // ROS_INFO_STREAM("Map width (cells)= " << map_width_);
+    // ROS_INFO_STREAM("Map height (cells)= " << map_height_);
     // ROS_INFO_STREAM("Map origin x:" << map_origin_.position.x);
     // ROS_INFO_STREAM("Map origin y:" << map_origin_.position.y);
     // ROS_INFO_STREAM("Map X coord (m). Low = " << bounds_->low[0] << " high = " << bounds_->high[0]);
     // ROS_INFO_STREAM("Map Y coord (m). Low = " << bounds_->low[1] << " high = " << bounds_->high[1]);
 
-    // Iterate over the state surrounding pixels to check for obstacles
-    for(int m = i-pixel_radius; m <= i+pixel_radius; m++){
-        for(int n = j-pixel_radius; n <= j+pixel_radius; n++){
+    // Iterate over the state surrounding cells to check for obstacles
+    for(int m = i-cell_radius; m <= i+cell_radius; m++){
+        for(int n = j-cell_radius; n <= j+cell_radius; n++){
             if(m > 0 && m < map_width_){  
                 if(n > 0 && n < map_height_){
                     // ROS_INFO_STREAM("m:" << m);
                     // ROS_INFO_STREAM("n:" << n);
-                    // ROS_INFO_STREAM("pixel #: " << m*map_width_ + n);
+                    // ROS_INFO_STREAM("cell #: " << m*map_width_ + n);
                     cell = map_.data[m*map_width_ + n];
                     // ROS_INFO_STREAM("Cell value: " << cell);
                     if (cell != 0)
