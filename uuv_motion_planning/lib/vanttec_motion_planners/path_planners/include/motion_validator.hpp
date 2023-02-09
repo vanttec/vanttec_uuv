@@ -84,6 +84,17 @@ class PlannerMotionValidator : public ompl::base::MotionValidator{
         // @retval: true if there are only white grids
         bool DDA(int x1, int y1, int x2, int y2) const;
 
+        // Description: implements raytracing algorithm to check grids under the line
+        // formed by two points. This covers all the cells under the line.
+        // https://playtechs.blogspot.com/2007/03/raytracing-on-grid.html
+        //
+        // @param x1: first state x coordinate
+        // @param y1: first state y coordinate
+        // @param x2: second state x coordinate
+        // @param y2: second state y coordinate
+        // @retval: true if there are only white grids
+        bool raytrace(int x1, int y1, int x2, int y2) const;
+
         // Description: checks grid value from map
         //
         // @param x: state x coordinate

@@ -58,10 +58,41 @@ bool PlannerMotionValidator::checkMotion(const ompl::base::State *s1, const ompl
     //     // passing argument as 1 to plot (y,x)
     //     return bresenhams(j1, i1, j2, i2, dy, dx, 1);
     // }
-    return DDA(i1, j1, i2, j2);
+    return raytrace(i1, j1, i2, j2);
+}
+
+bool PlannerMotionValidator::raytrace(int x0, int y0, int x1, int y1) const {
+    int grid_value = 0;
+    
+    int dx = abs(x1 - x0);
+    int dy = abs(y1 - y0);
+    int x = x0;
+    int y = y0;
+    int n = 1 + dx + dy;
+    int x_inc = (x1 > x0) ? 1 : -1;
+    int y_inc = (y1 > y0) ? 1 : -1;
+    int error = dx - dy;
+    dx *= 2;
+    dy *= 2;
+
+    for (; n > 0; --n) {
+        grid_value = checkGridValue(y,x); // y is x, and x is y. That is why they are interchanged
+        if(grid_value != 0)
+            return false;
+
+        if (error > 0) {
+            x += x_inc;
+            error -= dy;
+        } else {
+            y += y_inc;
+            error += dx;
+        }
+    }
+    return true;
 }
 
 bool PlannerMotionValidator::DDA(int x1, int y1, int x2, int y2) const {
+    // There is a bug in straigh lines (slope = 0 or infinite)
     int grid_value = 0;
 
     int i;                  // loop counter
@@ -104,7 +135,7 @@ bool PlannerMotionValidator::DDA(int x1, int y1, int x2, int y2) const {
                 else if (error + error_prev > ddx)  // left square also
                     grid_value = checkGridValue(y, x-x_step);
                 else {  // corner: bottom and left squares also
-                    grid_value = checkGridValue(y-y_step, x);
+                    grid_value = checkGridValue(y-y_step, x)    ;
                     if(grid_value != 0)
                         return false;
                     grid_value = checkGridValue(y, x-x_step);
