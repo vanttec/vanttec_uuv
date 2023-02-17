@@ -22,14 +22,14 @@ int main(int argc, char** argv){
     // Create node handler
     ros::NodeHandle node_handle("~");
 
-    const float SAMPLE_TIME = 0.00001;
+    const float SAMPLE_TIME = 0.01;
     SCurve trajectory_planner(SAMPLE_TIME);
 
-    std::array<float, 3> start = {-1.0, -1.0, 0};
+    std::array<float, 3> start = {-1, -1, 0};
     std::array<float, 3> goal =  { 1.0,  1.0, 0};
 
     const std::array<float, 5> X_MAX = {0, 1.08, 3.112, 7, 17.3};
-    // const std::array<float, 5> Y_MAX =,{0 0,.8752 0.769 0.51 1.19};
+    // const std::array<float, 5> Y_MAX =,{0 0.8752 0.769 0.51 1.19};
     const std::array<float, 5> Y_MAX = {0, 0.5, 0.5, 0.5, 0.5};
     const std::array<float, 5> Z_MAX = {0, 0.88, 1.96, 3.7, 21};
     

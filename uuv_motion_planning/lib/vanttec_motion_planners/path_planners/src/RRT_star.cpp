@@ -98,7 +98,7 @@ nav_msgs::Path RRTStar::getPath(){
     // Get the obtained path
     ompl::geometric::PathGeometric path = ss_->getSolutionPath();
     // Print the path to screen
-    path.print(std::cout);
+    // path.print(std::cout);
     // iterate over each position
     for(unsigned int i=0; i<path.getStateCount(); ++i){
         // Get state

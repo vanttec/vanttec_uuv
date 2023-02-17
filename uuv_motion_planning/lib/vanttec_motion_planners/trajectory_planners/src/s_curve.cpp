@@ -56,6 +56,9 @@ SCurve::~SCurve(){}
 void SCurve::setStartAndGoal(const std::array<float,3>& start, const std::array<float,3>& goal){
     start_ = start;
     goal_  = goal;
+    x_[0] = start[0];
+    y_[0] = start[1];
+    z_[0] = start[2];
 }
 
 
@@ -74,7 +77,23 @@ void SCurve::setKinematicConstraints(const std::array<float,5>& x_max, const std
 
 void SCurve::calculateTimeIntervals(const KinematicVar_& var){
 
-    float distance;
+    float distance = 0;
+
+    double Ts = 0.0;
+    double Tj = 0.0;
+    double Ta = 0.0;
+    double Tv = 0.0;
+    double T_exe = 0.0;
+
+    float j_max = 0.0;
+    float a_max = 0.0;
+    float v_max = 0.0;
+
+    float V_max = Kine_MIN_[1];
+    float A_max = Kine_MIN_[2];
+    float J_max = Kine_MIN_[3];
+    float S_max = Kine_MIN_[4];
+    
     // At this point, kinematic values of all DOFs should be the same, so
     // using the limits of the first DOF is valid, except for the distance
     switch(var){
@@ -90,120 +109,114 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
         default:
             break;
     }
-    float V_max = Kine_MIN_[1];
-    float A_max = Kine_MIN_[2];
-    float J_max = Kine_MIN_[3];
-    float S_max = Kine_MIN_[4];
+    
+    if(distance > 0){
 
-    /* Calculation of time parameters */
-    // STEP 1: Determination of the varying jerk phase duration Ts
-    float j_max = 0;
+        /* Calculation of time parameters */
+        // STEP 1: Determination of the varying jerk phase duration Ts
 
-    double Ts = 0.0;
-    double Tj = 0.0;
-    double Ta = 0.0;
-    double Tv = 0.0;
+        double Ta_d = 0;
+        double Tv_d = 0;
+        double Ta_v = 0;
+        double Tj_d = 0;
+        double Tj_v = 0;
+        double Tj_a = 0;
 
-    double Ta_d = 0;
-    double Tv_d = 0;
-    double Ta_v = 0;
-    double Tj_d = 0;
-    double Tj_v = 0;
-    double Tj_a = 0;
+        double Ts_d = std::pow(std::sqrt(3)*std::fabs(distance)/(8*S_max), 0.25);
+        double Ts_v = std::cbrt(std::sqrt(3)*V_max/(2*S_max));
+        double Ts_a = std::sqrt(std::sqrt(3)*A_max/S_max);
+        double Ts_j = std::sqrt(3)*J_max/S_max;
+        Ts = std::min({Ts_d, Ts_v, Ts_a, Ts_j});
 
-    double Ts_d = std::pow(std::sqrt(3)*std::fabs(distance)/(8*S_max), 0.25);
-    double Ts_v = std::cbrt(std::sqrt(3)*V_max/(2*S_max));
-    double Ts_a = std::sqrt(std::sqrt(3)*A_max/S_max);
-    double Ts_j = std::sqrt(3)*J_max/S_max;
-    Ts = std::min({Ts_d, Ts_v, Ts_a, Ts_j});
-
-    // ROS_INFO_STREAM("Ts_v = " << Ts_v << ", Ts_a = " << Ts_a << ", Ts_s = " << Ts_j);
-    // ROS_INFO_STREAM("Ts = " << Ts_);
-
-    // Case 1
-    if(Ts == Ts_d){
-        Tj = 0;
-        Ta = 0;
-        Tv = 0;
-        j_max = S_max*Ts_d/std::sqrt(3);
-    }
-    // Case 2
-    else if(Ts == Ts_v){
-        Tj = 0;
-        Ta = 0;
-        j_max = S_max*Ts_v/std::sqrt(3);
-        // Step 4
-        Tv = (std::fabs(distance)/V_max) - (4*Ts + 2*Tj + Ta);
-    }
-    // Case 3
-    else if(Ts == Ts_a){
-        Tj = 0;
-        j_max = S_max*Ts_a/std::sqrt(3);
-        // Step 3
-        Ta_d = (-(6*Ts + 3*Tj) + std::sqrt(std::pow(2*Ts + Tj,2) + 4*std::fabs(distance)/A_max))/2;
-        Ta_v = V_max/A_max - 2*Ts - Tj;
-        Ta = std::min({Ta_d, Ta_v});
+        // ROS_INFO_STREAM("Ts_v = " << Ts_v << ", Ts_a = " << Ts_a << ", Ts_s = " << Ts_j);
+        // ROS_INFO_STREAM("Ts = " << Ts_);
 
         // Case 1
-        if(Ta == Ta_d){
-            Tv = 0;
-        }
-        // Case 2
-        else{
-        // Step 4
-            Tv = (std::fabs(distance)/V_max) - (4*Ts + 2*Tj + Ta);
-        }
-    }
-    // Case 4
-    else {
-        float term1 = std::cbrt(std::pow(Ts,3)/27 + std::fabs(distance)/(4*J_max)
-                     + std::sqrt(std::fabs(distance)*std::pow(Ts,3)/(54*J_max)
-                     + std::pow(distance,2)/(16*std::pow(J_max,2))));
-        float term2 = std::cbrt(std::pow(Ts,3)/27 + std::fabs(distance)/(4*J_max)
-                     - std::sqrt(std::fabs(distance)*std::pow(Ts,3)/(54*J_max)
-                     + std::pow(distance,2)/(16*std::pow(J_max,2))));
-        Tj_d = term1 + term2 - 5*Ts/3;
-        j_max = J_max;
-        Tj_v = -3*Ts/2 + std::sqrt(std::pow(Ts,2)/4 + V_max/J_max);
-        Tj_a = A_max/J_max - Ts;
-        Tj = std::min({Tj_d, Tj_v, Tj_a});
-
-        // Case 1
-        if(Tj == Tj_d){
+        if(Ts == Ts_d){
+            Tj = 0;
             Ta = 0;
             Tv = 0;
+            j_max = S_max*Ts_d/std::sqrt(3);
         }
         // Case 2
-        else if(Tj == Tj_v){
+        else if(Ts == Ts_v){
+            Tj = 0;
+            Ta = 0;
+            j_max = S_max*Ts_v/std::sqrt(3);
             // Step 4
-            Ta = 0;
             Tv = (std::fabs(distance)/V_max) - (4*Ts + 2*Tj + Ta);
         }
         // Case 3
-        else {
+        else if(Ts == Ts_a){
+            Tj = 0;
+            j_max = S_max*Ts_a/std::sqrt(3);
             // Step 3
             Ta_d = (-(6*Ts + 3*Tj) + std::sqrt(std::pow(2*Ts + Tj,2) + 4*std::fabs(distance)/A_max))/2;
             Ta_v = V_max/A_max - 2*Ts - Tj;
             Ta = std::min({Ta_d, Ta_v});
+
             // Case 1
             if(Ta == Ta_d){
                 Tv = 0;
-            // Case 2
             }
+            // Case 2
             else{
-                // Step 4
+            // Step 4
                 Tv = (std::fabs(distance)/V_max) - (4*Ts + 2*Tj + Ta);
             }
         }
+        // Case 4
+        else {
+            float term1 = std::cbrt(std::pow(Ts,3)/27 + std::fabs(distance)/(4*J_max)
+                        + std::sqrt(std::fabs(distance)*std::pow(Ts,3)/(54*J_max)
+                        + std::pow(distance,2)/(16*std::pow(J_max,2))));
+            float term2 = std::cbrt(std::pow(Ts,3)/27 + std::fabs(distance)/(4*J_max)
+                        - std::sqrt(std::fabs(distance)*std::pow(Ts,3)/(54*J_max)
+                        + std::pow(distance,2)/(16*std::pow(J_max,2))));
+            Tj_d = term1 + term2 - 5*Ts/3;
+            j_max = J_max;
+            Tj_v = -3*Ts/2 + std::sqrt(std::pow(Ts,2)/4 + V_max/J_max);
+            Tj_a = A_max/J_max - Ts;
+            Tj = std::min({Tj_d, Tj_v, Tj_a});
+
+            // Case 1
+            if(Tj == Tj_d){
+                Ta = 0;
+                Tv = 0;
+            }
+            // Case 2
+            else if(Tj == Tj_v){
+                // Step 4
+                Ta = 0;
+                Tv = (std::fabs(distance)/V_max) - (4*Ts + 2*Tj + Ta);
+            }
+            // Case 3
+            else {
+                // Step 3
+                Ta_d = (-(6*Ts + 3*Tj) + std::sqrt(std::pow(2*Ts + Tj,2) + 4*std::fabs(distance)/A_max))/2;
+                Ta_v = V_max/A_max - 2*Ts - Tj;
+                Ta = std::min({Ta_d, Ta_v});
+                // Case 1
+                if(Ta == Ta_d){
+                    Tv = 0;
+                // Case 2
+                }
+                else{
+                    // Step 4
+                    Tv = (std::fabs(distance)/V_max) - (4*Ts + 2*Tj + Ta);
+                }
+            }
+        }
+
+        T_exe = 8*Ts + 4*Tj + 2*Ta + Tv;
+
+        // Calculation of kinematic values
+        // j_max = S_max*Ts/std::sqrt(3);
+        a_max = S_max*Ts*(Ts + Tj)/std::sqrt(3);
+        v_max = S_max*Ts*(Ts + Tj)*(2*Ts + Tj + Ta)/std::sqrt(3);
+        // %d_max = sign(distance)S_max*Ts(Ts + Tj)(2*Ts + Tj + Ta)(4*Ts + 2*Tj + Ta + Tv)/std::sqrt(3);
+
     }
-
-    double T_exe = 8*Ts + 4*Tj + 2*Ta + Tv;
-
-    // Calculation of kinematic values
-    // j_max = S_max*Ts/std::sqrt(3);
-    float a_max = S_max*Ts*(Ts + Tj)/std::sqrt(3);
-    float v_max = S_max*Ts*(Ts + Tj)*(2*Ts + Tj + Ta)/std::sqrt(3);
-    // %d_max = sign(distance)S_max*Ts(Ts + Tj)(2*Ts + Tj + Ta)(4*Ts + 2*Tj + Ta + Tv)/std::sqrt(3);
 
     switch(var){
         case SURGE:
@@ -221,7 +234,7 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
         default:
             break;
     }
-
+    
     // ROS_INFO_STREAM("For kinematic " << var);
     // ROS_INFO_STREAM("T exe = " << T_exe << ", T_v = " << Tv << ", T_a = " << Ta << ", T_j = " << Tj << ", Ts = " << Ts);
 }
@@ -245,6 +258,7 @@ float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
             Tj = T_x_[3];
             Ta = T_x_[2];
             Tv = T_x_[1];
+            distance = X_MAX_[0];
             break;
         case SWAY:
             J_max = Y_MAX_[3];
@@ -252,6 +266,7 @@ float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
             Tj = T_y_[3];
             Ta = T_y_[2];
             Tv = T_y_[1];
+            distance = Y_MAX_[0];
             break;
         case HEAVE:
             J_max = Z_MAX_[3];
@@ -259,10 +274,14 @@ float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
             Tj = T_z_[3];
             Ta = T_z_[2];
             Tv = T_z_[1];
+            distance = Z_MAX_[0];
             break;
         default:
             break;
     }
+
+    if(distance == 0)
+        return 0;
 
     float a = std::sqrt(3)/2;
 
@@ -371,22 +390,9 @@ float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
         // ROS_INFO_STREAM("15");
     }
 
-    switch(var){
-        case SURGE:
-            distance = X_MAX_[0];
-            break;
-        case SWAY:
-            distance = Y_MAX_[0];
-            break;
-        case HEAVE:
-            distance = Z_MAX_[0];
-            break;
-        default:
-            break;
-    }
-    j = distance/std::abs(distance)*j;
+    j *= distance/std::abs(distance);
 
-    // ROS_INFO_STREAM("J = " << j);
+    // ROS_INFO_STREAM("For kinematic " << var << ", jerk = " << j);
     // ROS_INFO_STREAM("Distance = " << distance);
     return j;
 }
@@ -407,9 +413,9 @@ void SCurve::calculateTrajectory(const double current_time){
     prev_z_ = z_;
 
     // Calculate trajectories (it is the same jerk for every DOF)
-    x_[3] += calculateJerk(current_time, SURGE);
-    y_[3] += calculateJerk(current_time, SWAY);
-    z_[3] += calculateJerk(current_time, HEAVE);
+    x_[3] = calculateJerk(current_time, SURGE);
+    y_[3] = calculateJerk(current_time, SWAY);
+    z_[3] = calculateJerk(current_time, HEAVE);
 
     // ROS_INFO_STREAM("jx = " << x_[3] << ", jy = " << y_[3] << ", jz = " << z_[3]);
 
@@ -424,6 +430,8 @@ void SCurve::calculateTrajectory(const double current_time){
     x_[1] += (prev_x_[2] + x_[2])/2*SAMPLE_TIME_;
     y_[1] += (prev_y_[2] + y_[2])/2*SAMPLE_TIME_;
     z_[1] += (prev_z_[2] + z_[2])/2*SAMPLE_TIME_;
+
+    // ROS_INFO_STREAM("vx = " << x_[1] << ", vy = " << y_[1] << ", vz = " << z_[1]);
 
     // Calculate position
     x_[0] += (prev_x_[1] + x_[1])/2*SAMPLE_TIME_;

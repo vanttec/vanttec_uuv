@@ -15,6 +15,8 @@
 // INCLUDES --------------------------------------------------------------------
 #include <ros/console.h>
 
+#include "vanttec_motion_planners/path_planners/include/RRT_star.hpp"
+
 #include "vanttec_msgs/Trajectory.h"
 
 // CLASS DECLARATION -----------------------------------------------------------
@@ -65,6 +67,9 @@ class SCurve {
             PITCH,
             YAW
         } KinematicVar_;
+
+        // Planner
+        
 
         // METHODS -------------------------------------------------------------
         // Description: calculate time intervals and kinematics

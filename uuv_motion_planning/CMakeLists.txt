@@ -146,10 +146,10 @@ add_executable(rrt_star_node
                 lib/vanttec_motion_planners/path_planners/src/RRT_star.cpp)
 target_link_libraries(rrt_star_node ${catkin_LIBRARIES} ${OMPL_LIBRARIES})
 
-# add_executable(s_curve_planner_node
-#                 src/s_curve_node.cpp
-#                 lib/vanttec_motion_planners/trajectory_planners/src/s_curve.cpp)
-# target_link_libraries(s_curve_planner_node ${catkin_LIBRARIES})
+add_executable(s_curve_planner_node
+                src/s_curve_node.cpp
+                lib/vanttec_motion_planners/trajectory_planners/src/s_curve.cpp)
+target_link_libraries(s_curve_planner_node ${catkin_LIBRARIES})
 
 # add_executable(tutorial_node src/tutorial.cpp)
 
