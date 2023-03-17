@@ -10,7 +10,7 @@ import rospy
 from std_msgs.msg import Float32MultiArray, Int32, String
 from geometry_msgs.msg import Pose, PoseStamped
 from vanttec_uuv.msg import GuidanceWaypoints
-from usv_perception.msg import obj_detected, obj_detected_list
+from vanttec_uuv.msgimport obj_detected, obj_detected_list
 from nav_msgs.msg import Path
 
 # Class Definition
