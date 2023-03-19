@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+<include file="$(find uv_worlds)/launch/lake.launch"/>
+<include file="$(find vehicle_descriptions)/launch/vtec_u3.launch"/>
+
+<node name="gazebo_interface" pkg="vehicle_descriptions" type="gazebo_interface"/> 
+
+<include file="$(find vanttec_uuv)/launch/uuv_simulation.launch"/>
+
+<include file="$(find vanttec_uuv)/launch/sim2.launch"/>
+
+</launch>  
