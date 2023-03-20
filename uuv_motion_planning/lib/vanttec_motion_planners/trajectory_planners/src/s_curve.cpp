@@ -21,6 +21,10 @@ SCurve::SCurve(const float sample_time) {
     // predefined_path_.push_back({-1.5, 1.5, 0});
     // predefined_path_.push_back({3, -3, 3});
 
+    // predefined_path_.push_back({0, -1, 3});
+    // predefined_path_.push_back({-1, 1.5, 0});
+    // predefined_path_.push_back({3, -2, -3});
+
     // Kinematics limits
     X_MAX_ = {0, 0, 0, 0, 0};
     Y_MAX_ = {0, 0, 0, 0, 0};
@@ -81,8 +85,6 @@ void SCurve::updateStartAndGoal(const double current_time){
         bool y_reached;
         bool z_reached;
 
-        T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
-        
         if(idx_ == 0){
             current_time_ = current_time;
             start_[0] = path_.poses[idx_].pose.position.x;
@@ -107,6 +109,7 @@ void SCurve::updateStartAndGoal(const double current_time){
             idx_++;
             // ROS_INFO_STREAM("T sync = " << T_sync_);
         } else {
+            T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
             if (T_sync_ > 0 && idx_ < path_size_-1) {
                 current_time_ = current_time;
                 x_reached = std::fabs(goal_[0] - x_[0]) < waypoint_tolerance;    // Maybe not required as the method ensures that at Tsync the ref is reached 
@@ -152,15 +155,17 @@ void SCurve::updateStartAndGoal(const double current_time){
 
 void SCurve::setKinematicConstraints(const std::array<float,5>& x_max, const std::array<float,5>& y_max, const std::array<float,5>& z_max){
     // SURGE kinematics limits
-    X_MAX_ = x_max;
+    // X_MAX_ = x_max;
+    X_MAX_ = y_max; // Y is the DOF with the minimum kinematics
 
     // Sway kinematics limits
     Y_MAX_ = y_max;
 
     // Heave kinematics limits
-    Z_MAX_ = z_max;
+    // Z_MAX_ = z_max;
+    Z_MAX_ = y_max; // Y is the DOF with the minimum kinematics
 
-    Kine_MIN_ = Y_MAX_; // Y is the DOF with the minimum kinematics
+    // Kine_MIN_ = Y_MAX_; 
 }
 
 void SCurve::calculateTimeIntervals(const KinematicVar_& var){
@@ -177,22 +182,34 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
     float a_max = 0.0;
     float v_max = 0.0;
 
-    float V_max = Kine_MIN_[1];
-    float A_max = Kine_MIN_[2];
-    float J_max = Kine_MIN_[3];
-    float S_max = Kine_MIN_[4];
+    float V_max = 0.0;
+    float A_max = 0.0;
+    float J_max = 0.0;
+    float S_max = 0.0;
     
     // At this point, kinematic values of all DOFs should be the same, so
     // using the limits of the first DOF is valid, except for the distance
     switch(var){
         case SURGE:
             distance = X_MAX_[0];
+            V_max = X_MAX_[1];
+            A_max = X_MAX_[2];
+            J_max = X_MAX_[3];
+            S_max = X_MAX_[4];
             break;
         case SWAY:
             distance = Y_MAX_[0];
+            V_max = Y_MAX_[1];
+            A_max = Y_MAX_[2];
+            J_max = Y_MAX_[3];
+            S_max = Y_MAX_[4];
             break;
         case HEAVE:
             distance = Z_MAX_[0];
+            V_max = Z_MAX_[1];
+            A_max = Z_MAX_[2];
+            J_max = Z_MAX_[3];
+            S_max = Z_MAX_[4];
             break;
         default:
             break;
@@ -488,21 +505,32 @@ float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
 }
 
 void SCurve::timeSynchronization(){
+    T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
+
     lambda_x = T_sync_ / T_x_[0];
-    lambda_y = T_sync_ / T_y_[1];
-    lambda_z = T_sync_ / T_z_[2];
+    lambda_y = T_sync_ / T_y_[0];
+    lambda_z = T_sync_ / T_z_[0];
 
     // T = {T_exe, Tv, Ta, Tj, Ts};
 
-    // T_x_[3]
+    X_MAX_[3] /= std::pow(lambda_x,3);  // j
+    X_MAX_[2] /= std::pow(lambda_x,2);  // a
+    X_MAX_[1] /= lambda_x;              // v
 
+    Y_MAX_[3] /= std::pow(lambda_y,3);  // j
+    Y_MAX_[2] /= std::pow(lambda_y,2);  // a
+    Y_MAX_[1] /= lambda_y;              // v
+
+    Z_MAX_[3] /= std::pow(lambda_z,3);  // j
+    Z_MAX_[2] /= std::pow(lambda_z,2);  // a
+    Z_MAX_[1] /= lambda_z;              // v
 }
 
 void SCurve::calculateTrajectory(const double current_time){
     updateStartAndGoal(current_time);
 
-    ROS_INFO_STREAM("START (" << start_[0] << ", " << start_[1] << ", " << start_[2] << ")");
-    ROS_INFO_STREAM("GOAL (" << goal_[0] << ", " << goal_[1] << ", " << goal_[2] << ")");
+    // ROS_INFO_STREAM("START (" << start_[0] << ", " << start_[1] << ", " << start_[2] << ")");
+    // ROS_INFO_STREAM("GOAL (" << goal_[0] << ", " << goal_[1] << ", " << goal_[2] << ")");
     
     X_MAX_[0] = goal_[0] - start_[0];
     Y_MAX_[0] = goal_[1] - start_[1];
