@@ -1,0 +1,10 @@
+<launch>
+
+    <node pkg="rqt_plot" name="rqt_plot" type="rqt_plot"/>
+    
+    <node pkg="uuv_motion_planning" name="s_curve_trajectory_planner" type="s_curve_trajectory_planner_node" output="screen">
+        <rosparam file="$(find uuv_motion_planning)/config/planner_config.yaml"/>
+    </node>
+
+
+</launch>

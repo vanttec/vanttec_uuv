@@ -14,6 +14,8 @@
 
 // INCLUDES --------------------------------------------------------------------
 #include <ros/console.h>
+#include <nav_msgs/Path.h>
+#include <geometry_msgs/Pose.h>
 
 #include "vanttec_motion_planners/path_planners/include/RRT_star.hpp"
 
@@ -27,6 +29,7 @@ class SCurve {
 
         /* Start time */
         double start_time_;
+        double current_time_;
 
         // Kinematics limits (D Vmax Amax Jmax Smax)
         std::array<float,5> X_MAX_;
@@ -69,7 +72,16 @@ class SCurve {
         } KinematicVar_;
 
         // Planner
-        
+        nav_msgs::Path path_;
+        std::vector<std::array<float, 3>> predefined_path_;
+        int path_size_;
+        bool with_path_;
+        double T_sync_;
+        int idx_;
+
+        float lambda_x;
+        float lambda_y;
+        float lambda_z;
 
         // METHODS -------------------------------------------------------------
         // Description: calculate time intervals and kinematics
@@ -82,6 +94,8 @@ class SCurve {
         // @param var: Lineal DOF to be calculated
         // @return: jerk value associated
         float calculateJerk(double current_time, const KinematicVar_& var);
+
+        void updateStartAndGoal(const double current_time);
 
     public:
         // CONSTRUCTOR AND DESTRUCTOR ------------------------------------------
@@ -114,6 +128,10 @@ class SCurve {
         //
         //
         void setStartTime(const double start_time);
+
+        void setPath(const nav_msgs::Path& path);
+
+        void timeSynchronization();
 
         // Description: return trajectory as ros msg
         //

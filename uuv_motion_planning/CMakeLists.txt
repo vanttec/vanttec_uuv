@@ -151,6 +151,13 @@ add_executable(s_curve_planner_node
                 lib/vanttec_motion_planners/trajectory_planners/src/s_curve.cpp)
 target_link_libraries(s_curve_planner_node ${catkin_LIBRARIES})
 
+add_executable(s_curve_trajectory_planner_node
+                src/s_curve_trajectory_node.cpp
+                lib/vanttec_motion_planners/path_planners/src/RRT_star.cpp
+                lib/vanttec_motion_planners/path_planners/src/motion_validator.cpp
+                lib/vanttec_motion_planners/trajectory_planners/src/s_curve.cpp)
+target_link_libraries(s_curve_trajectory_planner_node ${catkin_LIBRARIES} ${OMPL_LIBRARIES})
+
 # add_executable(tutorial_node src/tutorial.cpp)
 
 ## Rename C++ executable without prefix

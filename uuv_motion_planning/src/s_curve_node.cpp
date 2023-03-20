@@ -25,8 +25,11 @@ int main(int argc, char** argv){
     const float SAMPLE_TIME = 0.01;
     SCurve trajectory_planner(SAMPLE_TIME);
 
-    std::array<float, 3> start = {-1, -1, 0};
-    std::array<float, 3> goal =  { 1.0,  1.0, 0};
+    // std::array<float, 3> start = {-1, -2, -1};
+    // std::array<float, 3> goal =  { 1.05489,  1.10891, 1.0};
+
+    std::array<float, 3> start = {0, 0, 0};
+    std::array<float, 3> goal =  {1.5, 1.5, 1.5};
 
     const std::array<float, 5> X_MAX = {0, 1.08, 3.112, 7, 17.3};
     // const std::array<float, 5> Y_MAX =,{0 0.8752 0.769 0.51 1.19};

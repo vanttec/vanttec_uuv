@@ -53,9 +53,8 @@ int main(int argc, char** argv)
     nav_msgs::Path planned_path;
 
     planner.setStartAndGoal(start, goal);
-
     while(ros::ok()){
-        ros::spinOnce();
+        ros::spinOnce(); // So map messages are received before processing solution
         if(planner.solution_found_){
             planned_path = planner.getPath();
             // Publish the planned path

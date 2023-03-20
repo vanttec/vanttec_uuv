@@ -17,6 +17,10 @@ SCurve::SCurve(const float sample_time) {
 
     start_time_ = 0;
 
+    // predefined_path_.push_back({1, -1, 0});
+    // predefined_path_.push_back({-1.5, 1.5, 0});
+    // predefined_path_.push_back({3, -3, 3});
+
     // Kinematics limits
     X_MAX_ = {0, 0, 0, 0, 0};
     Y_MAX_ = {0, 0, 0, 0, 0};
@@ -37,9 +41,9 @@ SCurve::SCurve(const float sample_time) {
     T_z_ = {0, 0, 0, 0, 0};
 
     // Kinematic profiles (Jerk, Acceleration, Velocity, Position)
-    T_x_ = {0, 0, 0, 0};
-    T_y_ = {0, 0, 0, 0};
-    T_z_ = {0, 0, 0, 0};
+    K_x_ = {0, 0, 0, 0};
+    K_y_ = {0, 0, 0, 0};
+    K_z_ = {0, 0, 0, 0};
     
     // Starting point
     start_ = {0, 0, 0};
@@ -47,6 +51,13 @@ SCurve::SCurve(const float sample_time) {
     // Goal point
     goal_ = {0, 0, 0};
 
+    with_path_ = false;
+    path_size_ = 0;
+    idx_ = 0;
+
+    lambda_x = 0;
+    lambda_y = 0;
+    lambda_z = 0;
 }
 
 // DESCTRUCTOR ------------------------------------------
@@ -61,6 +72,83 @@ void SCurve::setStartAndGoal(const std::array<float,3>& start, const std::array<
     z_[0] = start[2];
 }
 
+void SCurve::updateStartAndGoal(const double current_time){
+    float waypoint_tolerance = 0.01;
+    if(!with_path_)
+        current_time_ = current_time;
+    else {
+        bool x_reached;
+        bool y_reached;
+        bool z_reached;
+
+        T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
+        
+        if(idx_ == 0){
+            current_time_ = current_time;
+            start_[0] = path_.poses[idx_].pose.position.x;
+            start_[1] = path_.poses[idx_].pose.position.y;
+            start_[2] = path_.poses[idx_].pose.position.z;
+
+            goal_[0] = path_.poses[idx_+1].pose.position.x;
+            goal_[1] = path_.poses[idx_+1].pose.position.y;
+            goal_[2] = path_.poses[idx_+1].pose.position.z;
+
+            // start_[0] = predefined_path_[idx_][0];
+            // start_[1] = predefined_path_[idx_][1];
+            // start_[2] = predefined_path_[idx_][2];
+
+            // goal_[0] = predefined_path_[idx_+1][0];
+            // goal_[1] = predefined_path_[idx_+1][1];
+            // goal_[2] = predefined_path_[idx_+1][2];
+
+            x_[0] = start_[0];
+            y_[0] = start_[1];
+            z_[0] = start_[2];
+            idx_++;
+            // ROS_INFO_STREAM("T sync = " << T_sync_);
+        } else {
+            if (T_sync_ > 0 && idx_ < path_size_-1) {
+                current_time_ = current_time;
+                x_reached = std::fabs(goal_[0] - x_[0]) < waypoint_tolerance;    // Maybe not required as the method ensures that at Tsync the ref is reached 
+                y_reached = std::fabs(goal_[1] - y_[0]) < waypoint_tolerance;    // Maybe not required as the method ensures that at Tsync the ref is reached
+                z_reached = std::fabs(goal_[2] - z_[0]) < waypoint_tolerance;    // Maybe not required as the method ensures that at Tsync the ref is reached
+                if (std::abs(current_time_ - start_time_ - T_sync_) < SAMPLE_TIME_){ //&& x_reached && y_reached && z_reached) {
+                    // ROS_INFO_STREAM("T sync = " << T_sync_);
+                    start_[0] = path_.poses[idx_].pose.position.x;
+                    start_[1] = path_.poses[idx_].pose.position.y;
+                    start_[2] = path_.poses[idx_].pose.position.z;
+
+                    goal_[0] = path_.poses[idx_+1].pose.position.x;
+                    goal_[1] = path_.poses[idx_+1].pose.position.y;
+                    goal_[2] = path_.poses[idx_+1].pose.position.z;
+        
+                    // start_[0] = predefined_path_[idx_][0];
+                    // start_[1] = predefined_path_[idx_][1];
+                    // start_[2] = predefined_path_[idx_][2];
+        
+                    // goal_[0] = predefined_path_[idx_+1][0];
+                    // goal_[1] = predefined_path_[idx_+1][1];
+                    // goal_[2] = predefined_path_[idx_+1][2];
+
+                    x_[0] = start_[0];
+                    y_[0] = start_[1];
+                    z_[0] = start_[2];
+
+                    // x_[1] = 0;
+                    // y_[1] = 0;
+                    // z_[1] = 0;
+
+                    // x_[2] = 0;
+                    // y_[2] = 0;
+                    // z_[2] = 0;
+
+                    idx_++;
+                    start_time_ = current_time;
+                }
+            }
+        }
+    }
+}
 
 void SCurve::setKinematicConstraints(const std::array<float,5>& x_max, const std::array<float,5>& y_max, const std::array<float,5>& z_max){
     // SURGE kinematics limits
@@ -109,8 +197,10 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
         default:
             break;
     }
+
+    // ROS_INFO_STREAM("Distance = " << distance);
     
-    if(distance > 0){
+    if(std::fabs(distance) > 0){
 
         /* Calculation of time parameters */
         // STEP 1: Determination of the varying jerk phase duration Ts
@@ -397,7 +487,22 @@ float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
     return j;
 }
 
+void SCurve::timeSynchronization(){
+    lambda_x = T_sync_ / T_x_[0];
+    lambda_y = T_sync_ / T_y_[1];
+    lambda_z = T_sync_ / T_z_[2];
+
+    // T = {T_exe, Tv, Ta, Tj, Ts};
+
+    // T_x_[3]
+
+}
+
 void SCurve::calculateTrajectory(const double current_time){
+    updateStartAndGoal(current_time);
+
+    ROS_INFO_STREAM("START (" << start_[0] << ", " << start_[1] << ", " << start_[2] << ")");
+    ROS_INFO_STREAM("GOAL (" << goal_[0] << ", " << goal_[1] << ", " << goal_[2] << ")");
     
     X_MAX_[0] = goal_[0] - start_[0];
     Y_MAX_[0] = goal_[1] - start_[1];
@@ -408,6 +513,9 @@ void SCurve::calculateTrajectory(const double current_time){
     calculateTimeIntervals(SWAY);
     calculateTimeIntervals(HEAVE);
 
+    //Synchronization
+    timeSynchronization();
+
     prev_x_ = x_;
     prev_y_ = y_;
     prev_z_ = z_;
@@ -417,7 +525,7 @@ void SCurve::calculateTrajectory(const double current_time){
     y_[3] = calculateJerk(current_time, SWAY);
     z_[3] = calculateJerk(current_time, HEAVE);
 
-    // ROS_INFO_STREAM("jx = " << x_[3] << ", jy = " << y_[3] << ", jz = " << z_[3]);
+    // ROS_INFO_STREAM("t = " << current_time - start_time_ << ", jx = " << x_[3] << ", jy = " << y_[3] << ", jz = " << z_[3]);
 
     // Calculate acceleration
     x_[2] += (prev_x_[3] + x_[3])/2*SAMPLE_TIME_;
@@ -438,7 +546,8 @@ void SCurve::calculateTrajectory(const double current_time){
     y_[0] += (prev_y_[1] + y_[1])/2*SAMPLE_TIME_;
     z_[0] += (prev_z_[1] + z_[1])/2*SAMPLE_TIME_;
 
-    // Tsync = std::max([Tx(1), Ty(1), Tz(1)]);
+    // ROS_INFO_STREAM("x = " << x_[0] << ", y = " << y_[0] << ", z = " << z_[0]);
+
 }
 
 vanttec_msgs::Trajectory SCurve::getTrajectory(){
@@ -465,4 +574,11 @@ vanttec_msgs::Trajectory SCurve::getTrajectory(){
 
 void SCurve::setStartTime(const double start_time){
     start_time_ = start_time;
+}
+
+void SCurve::setPath(const nav_msgs::Path& path){
+    with_path_ = true;
+    path_ = path;
+    path_size_ = path_.poses.size();
+    // path_size_ = predefined_path_.size();
 }
