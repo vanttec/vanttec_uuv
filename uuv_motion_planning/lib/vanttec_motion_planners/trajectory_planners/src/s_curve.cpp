@@ -13,8 +13,13 @@
 
 // CONSTRUCTOR ------------------------------------------
 SCurve::SCurve(const float sample_time) {
-    SAMPLE_TIME_ = sample_time;
 
+    SAMPLE_TIME_ = sample_time;
+    total_execution_time_ = SAMPLE_TIME_;
+    time_ptr_ = &total_execution_time_;
+    wpnts_change_ = false;
+    two_wpnts_ = true;
+    T_sync_ = 0.0;
     start_time_ = 0;
 
     // predefined_path_.push_back({1, -1, 0});
@@ -77,16 +82,8 @@ void SCurve::setStartAndGoal(const std::array<float,3>& start, const std::array<
 }
 
 void SCurve::updateStartAndGoal(const double current_time){
-    float waypoint_tolerance = 0.01;
-    if(!with_path_)
-        current_time_ = current_time;
-    else {
-        bool x_reached;
-        bool y_reached;
-        bool z_reached;
-
+    if(with_path_) {
         if(idx_ == 0){
-            current_time_ = current_time;
             start_[0] = path_.poses[idx_].pose.position.x;
             start_[1] = path_.poses[idx_].pose.position.y;
             start_[2] = path_.poses[idx_].pose.position.z;
@@ -107,15 +104,10 @@ void SCurve::updateStartAndGoal(const double current_time){
             y_[0] = start_[1];
             z_[0] = start_[2];
             idx_++;
-            // ROS_INFO_STREAM("T sync = " << T_sync_);
+            wpnts_change_ = true;
         } else {
-            T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
             if (T_sync_ > 0 && idx_ < path_size_-1) {
-                current_time_ = current_time;
-                x_reached = std::fabs(goal_[0] - x_[0]) < waypoint_tolerance;    // Maybe not required as the method ensures that at Tsync the ref is reached 
-                y_reached = std::fabs(goal_[1] - y_[0]) < waypoint_tolerance;    // Maybe not required as the method ensures that at Tsync the ref is reached
-                z_reached = std::fabs(goal_[2] - z_[0]) < waypoint_tolerance;    // Maybe not required as the method ensures that at Tsync the ref is reached
-                if (std::abs(current_time_ - start_time_ - T_sync_) < SAMPLE_TIME_){ //&& x_reached && y_reached && z_reached) {
+                if (std::abs(current_time - start_time_ - T_sync_) < SAMPLE_TIME_){
                     // ROS_INFO_STREAM("T sync = " << T_sync_);
                     start_[0] = path_.poses[idx_].pose.position.x;
                     start_[1] = path_.poses[idx_].pose.position.y;
@@ -137,16 +129,9 @@ void SCurve::updateStartAndGoal(const double current_time){
                     y_[0] = start_[1];
                     z_[0] = start_[2];
 
-                    // x_[1] = 0;
-                    // y_[1] = 0;
-                    // z_[1] = 0;
-
-                    // x_[2] = 0;
-                    // y_[2] = 0;
-                    // z_[2] = 0;
-
                     idx_++;
                     start_time_ = current_time;
+                    wpnts_change_ = true;
                 }
             }
         }
@@ -191,6 +176,7 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
     // using the limits of the first DOF is valid, except for the distance
     switch(var){
         case SURGE:
+            // ROS_INFO_STREAM("SURGE");
             distance = X_MAX_[0];
             V_max = X_MAX_[1];
             A_max = X_MAX_[2];
@@ -198,6 +184,7 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
             S_max = X_MAX_[4];
             break;
         case SWAY:
+            // ROS_INFO_STREAM("SWAY");
             distance = Y_MAX_[0];
             V_max = Y_MAX_[1];
             A_max = Y_MAX_[2];
@@ -205,6 +192,7 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
             S_max = Y_MAX_[4];
             break;
         case HEAVE:
+            // ROS_INFO_STREAM("HEAVE");
             distance = Z_MAX_[0];
             V_max = Z_MAX_[1];
             A_max = Z_MAX_[2];
@@ -214,7 +202,7 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
         default:
             break;
     }
-
+    // ROS_INFO_STREAM("V_max = " << V_max << ", A_max = " << A_max << ", J_max = " << J_max << ", S_max = " << S_max);
     // ROS_INFO_STREAM("Distance = " << distance);
     
     if(std::fabs(distance) > 0){
@@ -235,18 +223,18 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
         double Ts_j = std::sqrt(3)*J_max/S_max;
         Ts = std::min({Ts_d, Ts_v, Ts_a, Ts_j});
 
-        // ROS_INFO_STREAM("Ts_v = " << Ts_v << ", Ts_a = " << Ts_a << ", Ts_s = " << Ts_j);
+        // ROS_INFO_STREAM("Ts_v = " << Ts_v << ", Ts_a = " << Ts_a << ", Ts_j = " << Ts_j);
         // ROS_INFO_STREAM("Ts = " << Ts_);
 
         // Case 1
-        if(Ts == Ts_d){
+        if(fabs(Ts - Ts_d) < DBL_EPSILON){
             Tj = 0;
             Ta = 0;
             Tv = 0;
             j_max = S_max*Ts_d/std::sqrt(3);
         }
         // Case 2
-        else if(Ts == Ts_v){
+        else if(fabs(Ts - Ts_v) < DBL_EPSILON){
             Tj = 0;
             Ta = 0;
             j_max = S_max*Ts_v/std::sqrt(3);
@@ -254,7 +242,7 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
             Tv = (std::fabs(distance)/V_max) - (4*Ts + 2*Tj + Ta);
         }
         // Case 3
-        else if(Ts == Ts_a){
+        else if(fabs(Ts - Ts_a) < DBL_EPSILON){
             Tj = 0;
             j_max = S_max*Ts_a/std::sqrt(3);
             // Step 3
@@ -263,7 +251,7 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
             Ta = std::min({Ta_d, Ta_v});
 
             // Case 1
-            if(Ta == Ta_d){
+            if(fabs(Ta - Ta_d) < DBL_EPSILON){
                 Tv = 0;
             }
             // Case 2
@@ -287,12 +275,12 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
             Tj = std::min({Tj_d, Tj_v, Tj_a});
 
             // Case 1
-            if(Tj == Tj_d){
+            if(fabs(Tj - Tj_d) < DBL_EPSILON){
                 Ta = 0;
                 Tv = 0;
             }
             // Case 2
-            else if(Tj == Tj_v){
+            else if(fabs(Tj - Tj_v) < DBL_EPSILON){
                 // Step 4
                 Ta = 0;
                 Tv = (std::fabs(distance)/V_max) - (4*Ts + 2*Tj + Ta);
@@ -304,7 +292,7 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
                 Ta_v = V_max/A_max - 2*Ts - Tj;
                 Ta = std::min({Ta_d, Ta_v});
                 // Case 1
-                if(Ta == Ta_d){
+                if(fabs(Ta - Ta_d) < DBL_EPSILON){
                     Tv = 0;
                 // Case 2
                 }
@@ -322,7 +310,6 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
         a_max = S_max*Ts*(Ts + Tj)/std::sqrt(3);
         v_max = S_max*Ts*(Ts + Tj)*(2*Ts + Tj + Ta)/std::sqrt(3);
         // %d_max = sign(distance)S_max*Ts(Ts + Tj)(2*Ts + Tj + Ta)(4*Ts + 2*Tj + Ta + Tv)/std::sqrt(3);
-
     }
 
     switch(var){
@@ -344,6 +331,8 @@ void SCurve::calculateTimeIntervals(const KinematicVar_& var){
     
     // ROS_INFO_STREAM("For kinematic " << var);
     // ROS_INFO_STREAM("T exe = " << T_exe << ", T_v = " << Tv << ", T_a = " << Ta << ", T_j = " << Tj << ", Ts = " << Ts);
+    T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
+    // ROS_INFO_STREAM("T sync = " << T_sync_);
 }
 
 float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
@@ -505,7 +494,7 @@ float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
 }
 
 void SCurve::timeSynchronization(){
-    T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
+    // T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
 
     lambda_x = T_sync_ / T_x_[0];
     lambda_y = T_sync_ / T_y_[0];
@@ -526,56 +515,71 @@ void SCurve::timeSynchronization(){
     Z_MAX_[1] /= lambda_z;              // v
 }
 
-void SCurve::calculateTrajectory(const double current_time){
-    updateStartAndGoal(current_time);
+void SCurve::calculateTrajectory(){
+    double t = 0.0;
 
-    // ROS_INFO_STREAM("START (" << start_[0] << ", " << start_[1] << ", " << start_[2] << ")");
-    // ROS_INFO_STREAM("GOAL (" << goal_[0] << ", " << goal_[1] << ", " << goal_[2] << ")");
-    
-    X_MAX_[0] = goal_[0] - start_[0];
-    Y_MAX_[0] = goal_[1] - start_[1];
-    Z_MAX_[0] = goal_[2] - start_[2];
+    // double start = ros::Time::now().toSec();
+    // double end;
 
-    // Calculate times for all DOF
-    calculateTimeIntervals(SURGE);
-    calculateTimeIntervals(SWAY);
-    calculateTimeIntervals(HEAVE);
+    for(t = 0.0; t < *time_ptr_; t+=SAMPLE_TIME_){
+        updateStartAndGoal(t);
 
-    //Synchronization
-    timeSynchronization();
+        X_MAX_[0] = goal_[0] - start_[0];
+        Y_MAX_[0] = goal_[1] - start_[1];
+        Z_MAX_[0] = goal_[2] - start_[2];
 
-    prev_x_ = x_;
-    prev_y_ = y_;
-    prev_z_ = z_;
+        // Calculate times for all DOF
+        calculateTimeIntervals(SURGE);
+        calculateTimeIntervals(SWAY);
+        calculateTimeIntervals(HEAVE);
 
-    // Calculate trajectories (it is the same jerk for every DOF)
-    x_[3] = calculateJerk(current_time, SURGE);
-    y_[3] = calculateJerk(current_time, SWAY);
-    z_[3] = calculateJerk(current_time, HEAVE);
+        //Synchronization
+        timeSynchronization();
 
-    // ROS_INFO_STREAM("t = " << current_time - start_time_ << ", jx = " << x_[3] << ", jy = " << y_[3] << ", jz = " << z_[3]);
+        prev_x_ = x_;
+        prev_y_ = y_;
+        prev_z_ = z_;
 
-    // Calculate acceleration
-    x_[2] += (prev_x_[3] + x_[3])/2*SAMPLE_TIME_;
-    y_[2] += (prev_y_[3] + y_[3])/2*SAMPLE_TIME_;
-    z_[2] += (prev_z_[3] + z_[3])/2*SAMPLE_TIME_;
+        // Calculate trajectories (it is the same jerk for every DOF)
+        x_[3] = calculateJerk(t, SURGE);
+        y_[3] = calculateJerk(t, SWAY);
+        z_[3] = calculateJerk(t, HEAVE);
 
-    // ROS_INFO_STREAM("ax = " << x_[2] << ", ay = " << y_[2] << ", az = " << z_[2]);
+        // ROS_INFO_STREAM("t = " << t - start_time_ << ", jx = " << x_[3] << ", jy = " << y_[3] << ", jz = " << z_[3]);
 
-    // Calculate velocity
-    x_[1] += (prev_x_[2] + x_[2])/2*SAMPLE_TIME_;
-    y_[1] += (prev_y_[2] + y_[2])/2*SAMPLE_TIME_;
-    z_[1] += (prev_z_[2] + z_[2])/2*SAMPLE_TIME_;
+        // Calculate acceleration
+        x_[2] += (prev_x_[3] + x_[3])/2*SAMPLE_TIME_;
+        y_[2] += (prev_y_[3] + y_[3])/2*SAMPLE_TIME_;
+        z_[2] += (prev_z_[3] + z_[3])/2*SAMPLE_TIME_;
 
-    // ROS_INFO_STREAM("vx = " << x_[1] << ", vy = " << y_[1] << ", vz = " << z_[1]);
+        // ROS_INFO_STREAM("ax = " << x_[2] << ", ay = " << y_[2] << ", az = " << z_[2]);
 
-    // Calculate position
-    x_[0] += (prev_x_[1] + x_[1])/2*SAMPLE_TIME_;
-    y_[0] += (prev_y_[1] + y_[1])/2*SAMPLE_TIME_;
-    z_[0] += (prev_z_[1] + z_[1])/2*SAMPLE_TIME_;
+        // Calculate velocity
+        x_[1] += (prev_x_[2] + x_[2])/2*SAMPLE_TIME_;
+        y_[1] += (prev_y_[2] + y_[2])/2*SAMPLE_TIME_;
+        z_[1] += (prev_z_[2] + z_[2])/2*SAMPLE_TIME_;
 
-    // ROS_INFO_STREAM("x = " << x_[0] << ", y = " << y_[0] << ", z = " << z_[0]);
+        // ROS_INFO_STREAM("vx = " << x_[1] << ", vy = " << y_[1] << ", vz = " << z_[1]);
 
+        // Calculate position
+        x_[0] += (prev_x_[1] + x_[1])/2*SAMPLE_TIME_;
+        y_[0] += (prev_y_[1] + y_[1])/2*SAMPLE_TIME_;
+        z_[0] += (prev_z_[1] + z_[1])/2*SAMPLE_TIME_;
+
+        // ROS_INFO_STREAM("x = " << x_[0] << ", y = " << y_[0] << ", z = " << z_[0]);
+
+        if (wpnts_change_ || two_wpnts_) {
+            *time_ptr_ += T_sync_;
+            // ROS_INFO_STREAM("START (" << start_[0] << ", " << start_[1] << ", " << start_[2] << ")");
+            // ROS_INFO_STREAM("GOAL (" << goal_[0] << ", " << goal_[1] << ", " << goal_[2] << ")");
+            // ROS_INFO_STREAM("T sync = " << T_sync_);
+            // ROS_INFO_STREAM("Total exec time = " << *time_ptr_);
+            wpnts_change_ = false;
+            two_wpnts_ = false;
+        }
+    }
+    // end = ros::Time::now().toSec();
+    // ROS_INFO_STREAM("Computation time = " << end-start);
 }
 
 vanttec_msgs::Trajectory SCurve::getTrajectory(){

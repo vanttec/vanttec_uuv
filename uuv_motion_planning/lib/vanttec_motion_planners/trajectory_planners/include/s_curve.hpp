@@ -25,11 +25,22 @@
 class SCurve {
     private:
         // MEMBERS -------------------------------------------------------------
+        /* Time */
         float SAMPLE_TIME_;
-
-        /* Start time */
+        double total_execution_time_;
+        double *time_ptr_;
         double start_time_;
         double current_time_;
+        double T_sync_;
+
+        // Update total time
+        bool wpnts_change_;
+        bool two_wpnts_;
+
+        // Time synchronization
+        float lambda_x;
+        float lambda_y;
+        float lambda_z;
 
         // Kinematics limits (D Vmax Amax Jmax Smax)
         std::array<float,5> X_MAX_;
@@ -71,22 +82,18 @@ class SCurve {
             YAW
         } KinematicVar_;
 
-        // Planner
+        // Path
         nav_msgs::Path path_;
         std::vector<std::array<float, 3>> predefined_path_;
+        int idx_;
         int path_size_;
         bool with_path_;
-        double T_sync_;
-        int idx_;
-
-        float lambda_x;
-        float lambda_y;
-        float lambda_z;
 
         // METHODS -------------------------------------------------------------
         // Description: calculate time intervals and kinematics
         //
         // @param var: Lineal DOF to be calculated
+        // @return: none
         void calculateTimeIntervals(const KinematicVar_& var);
 
         // Description: calculate jerk
@@ -95,6 +102,10 @@ class SCurve {
         // @return: jerk value associated
         float calculateJerk(double current_time, const KinematicVar_& var);
 
+        // Description: update start and goal positions
+        //
+        // @param current_time: current time
+        // @return: none
         void updateStartAndGoal(const double current_time);
 
     public:
@@ -117,20 +128,25 @@ class SCurve {
         // @param y_max_: y maximum kinematic constraints (Distance, Velocity, Acceleration, Jerk, Snap)
         // @param z_max_: z maximum kinematic constraints (Distance, Velocity, Acceleration, Jerk, Snap)
         void setKinematicConstraints(const std::array<float,5>& x_max, const std::array<float,5>& y_max, const std::array<float,5>& z_max);
-        // void velocitySynchronization();
 
         // Description: calculate acceleration and velocity profiles
         //
         //
-        void calculateTrajectory(const double current_time);
+        void calculateTrajectory();
 
         // Description: set starting time
         //
         //
         void setStartTime(const double start_time);
 
+        // Description: set path
+        //
+        //
         void setPath(const nav_msgs::Path& path);
 
+        // Description: apply time synchronization technique to scale all kinematics
+        //
+        //
         void timeSynchronization();
 
         // Description: return trajectory as ros msg

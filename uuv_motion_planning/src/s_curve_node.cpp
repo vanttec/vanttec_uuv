@@ -45,11 +45,12 @@ int main(int argc, char** argv){
     // Planned path publisher
     ros::Publisher trajectory_pub = node_handle.advertise<vanttec_msgs::Trajectory>("/uuv_motion_planning/trajectory_planner/s_curve", 1);
 
-    trajectory_planner.setStartTime(ros::Time::now().toSec());
+    // trajectory_planner.setStartTime(ros::Time::now().toSec());
+    trajectory_planner.calculateTrajectory();
     while (ros::ok()){
         vanttec_msgs::Trajectory trajectory;
         // ROS_INFO_STREAM(ros::Time::now());
-        trajectory_planner.calculateTrajectory(ros::Time::now().toSec());
+        // trajectory_planner.calculateTrajectory(ros::Time::now().toSec());
         trajectory = trajectory_planner.getTrajectory();
 
         trajectory_pub.publish(trajectory);

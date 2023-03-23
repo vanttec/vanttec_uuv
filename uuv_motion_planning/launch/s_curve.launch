@@ -3,5 +3,5 @@
         <rosparam file="$(find uuv_motion_planning)/config/planner_config.yaml"/>
     </node>
 
-    <node pkg="rqt_plot" name="rqt_plot" type="rqt_plot"/>
+    <!-- <node pkg="rqt_plot" name="rqt_plot" type="rqt_plot"/> -->
 </launch>
