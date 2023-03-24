@@ -74,17 +74,13 @@ int main(int argc, char** argv){
         // trajectory_planner.setStartTime(ros::Time::now().toSec());  // VERY IMPORTANT TO SET THIS JUST BEFORE ENTERING THE WHILE LOOP. WONT WORK IF NOT
         trajectory_planner.calculateTrajectory();
         planned_trajectory_path.header.frame_id = "/map";
-        while (ros::ok()){
+        trajectory = trajectory_planner.getTrajectory();
 
-            // trajectory_planner.calculateTrajectory(ros::Time::now().toSec());
-            trajectory = trajectory_planner.getTrajectory();
-            path_pub.publish(planned_path);
-            trajectory_pub.publish(trajectory);
-
+        for(int i = 0; i < trajectory.eta_pose.size(); ++i){
             geometry_msgs::PoseStamped pose;
-            pose.pose.position.x = trajectory.eta_pose.x;
-            pose.pose.position.y = trajectory.eta_pose.y;
-            pose.pose.position.z = trajectory.eta_pose.z;
+            pose.pose.position.x = trajectory.eta_pose[i].x;
+            pose.pose.position.y = trajectory.eta_pose[i].y;
+            pose.pose.position.z = trajectory.eta_pose[i].z;
             pose.pose.orientation.x = 0.0;
             pose.pose.orientation.y = 0.0;
             pose.pose.orientation.z = 0.0;
@@ -92,8 +88,13 @@ int main(int argc, char** argv){
             pose.header.frame_id = "/map";
             pose.header.stamp = ros::Time::now();
             planned_trajectory_path.poses.push_back(pose);
+        }
+
+        while (ros::ok()){
+            // trajectory_planner.calculateTrajectory(ros::Time::now().toSec());
+            path_pub.publish(planned_path);
+            trajectory_pub.publish(trajectory);
             trajectory_path_pub.publish(planned_trajectory_path);
-            
             loop_rate.sleep();
         }
     } else

@@ -64,9 +64,9 @@ SCurve::SCurve(const float sample_time) {
     path_size_ = 0;
     idx_ = 0;
 
-    lambda_x = 0;
-    lambda_y = 0;
-    lambda_z = 0;
+    lambda_x_ = 0;
+    lambda_y_ = 0;
+    lambda_z_ = 0;
 }
 
 // DESCTRUCTOR ------------------------------------------
@@ -125,9 +125,9 @@ void SCurve::updateStartAndGoal(const double current_time){
                     // goal_[1] = predefined_path_[idx_+1][1];
                     // goal_[2] = predefined_path_[idx_+1][2];
 
-                    x_[0] = start_[0];
-                    y_[0] = start_[1];
-                    z_[0] = start_[2];
+                    // x_[0] = start_[0];
+                    // y_[0] = start_[1];
+                    // z_[0] = start_[2];
 
                     idx_++;
                     start_time_ = current_time;
@@ -496,23 +496,23 @@ float SCurve::calculateJerk(double current_time, const KinematicVar_& var){
 void SCurve::timeSynchronization(){
     // T_sync_ = std::max({T_x_[0], T_y_[0], T_z_[0]});
 
-    lambda_x = T_sync_ / T_x_[0];
-    lambda_y = T_sync_ / T_y_[0];
-    lambda_z = T_sync_ / T_z_[0];
+    lambda_x_ = T_sync_ / T_x_[0];
+    lambda_y_ = T_sync_ / T_y_[0];
+    lambda_z_ = T_sync_ / T_z_[0];
 
     // T = {T_exe, Tv, Ta, Tj, Ts};
 
-    X_MAX_[3] /= std::pow(lambda_x,3);  // j
-    X_MAX_[2] /= std::pow(lambda_x,2);  // a
-    X_MAX_[1] /= lambda_x;              // v
+    X_MAX_[3] /= std::pow(lambda_x_,3);  // j
+    X_MAX_[2] /= std::pow(lambda_x_,2);  // a
+    X_MAX_[1] /= lambda_x_;              // v
 
-    Y_MAX_[3] /= std::pow(lambda_y,3);  // j
-    Y_MAX_[2] /= std::pow(lambda_y,2);  // a
-    Y_MAX_[1] /= lambda_y;              // v
+    Y_MAX_[3] /= std::pow(lambda_y_,3);  // j
+    Y_MAX_[2] /= std::pow(lambda_y_,2);  // a
+    Y_MAX_[1] /= lambda_y_;              // v
 
-    Z_MAX_[3] /= std::pow(lambda_z,3);  // j
-    Z_MAX_[2] /= std::pow(lambda_z,2);  // a
-    Z_MAX_[1] /= lambda_z;              // v
+    Z_MAX_[3] /= std::pow(lambda_z_,3);  // j
+    Z_MAX_[2] /= std::pow(lambda_z_,2);  // a
+    Z_MAX_[1] /= lambda_z_;              // v
 }
 
 void SCurve::calculateTrajectory(){
@@ -568,6 +568,7 @@ void SCurve::calculateTrajectory(){
 
         // ROS_INFO_STREAM("x = " << x_[0] << ", y = " << y_[0] << ", z = " << z_[0]);
 
+        saveTrajectory();
         if (wpnts_change_ || two_wpnts_) {
             *time_ptr_ += T_sync_;
             // ROS_INFO_STREAM("START (" << start_[0] << ", " << start_[1] << ", " << start_[2] << ")");
@@ -582,26 +583,36 @@ void SCurve::calculateTrajectory(){
     // ROS_INFO_STREAM("Computation time = " << end-start);
 }
 
+void SCurve::saveTrajectory(){
+    geometry_msgs::Twist jerk;
+    geometry_msgs::Accel accel;
+    geometry_msgs::Twist vel;
+    vanttec_msgs::EtaPose pose;
+
+    jerk.linear.x = x_[3];
+    jerk.linear.y = y_[3];
+    jerk.linear.z = z_[3];
+
+    accel.linear.x = x_[2];
+    accel.linear.y = y_[2];
+    accel.linear.z = z_[2];
+
+    vel.linear.x = x_[1];
+    vel.linear.y = y_[1];
+    vel.linear.z = z_[1];
+
+    pose.x = x_[0];
+    pose.y = y_[0];
+    pose.z = z_[0];
+
+    trajectory_.jerk.push_back(jerk);
+    trajectory_.accel.push_back(accel);
+    trajectory_.vel.push_back(vel);
+    trajectory_.eta_pose.push_back(pose);
+}
+
 vanttec_msgs::Trajectory SCurve::getTrajectory(){
-    vanttec_msgs::Trajectory trajectory;
-    
-    trajectory.jerk.linear.x = x_[3];
-    trajectory.jerk.linear.y = y_[3];
-    trajectory.jerk.linear.z = z_[3];
-
-    trajectory.accel.linear.x = x_[2];
-    trajectory.accel.linear.y = y_[2];
-    trajectory.accel.linear.z = z_[2];
-
-    trajectory.vel.linear.x = x_[1];
-    trajectory.vel.linear.y = y_[1];
-    trajectory.vel.linear.z = z_[1];
-
-    trajectory.eta_pose.x = x_[0];
-    trajectory.eta_pose.y = y_[0];
-    trajectory.eta_pose.z = z_[0];
-
-    return trajectory;
+    return trajectory_;
 }
 
 void SCurve::setStartTime(const double start_time){

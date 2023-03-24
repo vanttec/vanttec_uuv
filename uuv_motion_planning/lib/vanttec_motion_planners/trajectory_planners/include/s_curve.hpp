@@ -38,9 +38,9 @@ class SCurve {
         bool two_wpnts_;
 
         // Time synchronization
-        float lambda_x;
-        float lambda_y;
-        float lambda_z;
+        float lambda_x_;
+        float lambda_y_;
+        float lambda_z_;
 
         // Kinematics limits (D Vmax Amax Jmax Smax)
         std::array<float,5> X_MAX_;
@@ -84,6 +84,7 @@ class SCurve {
 
         // Path
         nav_msgs::Path path_;
+        vanttec_msgs::Trajectory trajectory_;
         std::vector<std::array<float, 3>> predefined_path_;
         int idx_;
         int path_size_;
@@ -153,6 +154,8 @@ class SCurve {
         //
         // @return: trajectory
         vanttec_msgs::Trajectory getTrajectory();
+
+        void saveTrajectory();
 };
 
 #endif
