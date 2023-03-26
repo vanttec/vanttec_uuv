@@ -19,7 +19,10 @@
 ##  Nvidia Drivers ##
  - Abrir en Ubuntu Apps Software & Updates
  - Entrar en Additional Drivers
- - Seleccionar lo siguiente: ![Nvidia Drivers]()
+ - Seleccionar lo siguiente:
+<p align="center">
+  <img src=https://github.com/vanttec/vanttec_uuv/blob/master/docs/Drivers.png align="center"/>
+</p>
     
 ### Si no tienes tarjeta gráfica Nvidia correr en lugar del uuv.build ###
 
@@ -33,7 +36,9 @@ sudo make uuv.intelcreate
     
 ## Posible error de drivers ###
 
-(Foto del error)
+<p align="center">
+  <img src=https://github.com/vanttec/vanttec_uuv/blob/master/docs/ErrorIMG.jpeg align="center"/>
+</p>
 
  - Desactivar secure boot en la BIOS
 
