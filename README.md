@@ -2,11 +2,11 @@
 <p align="center">
   <img src=https://github.com/vanttec/vanttec_uuv/blob/master/docs/LogoNegro_Azul.png width="400" height="240" align="center"/>
 </p>
-###
+
 Autores:
  
 - Jorge Askur Vázquez Fernández
-- Jos
+- José Miguel Flores González
 
 
 ## Requerimientos iniciales ###
