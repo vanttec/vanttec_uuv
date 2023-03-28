@@ -97,8 +97,8 @@ cd ../
  - Cuando termine borra las carpeta de build y devel
  - Para poder compilar de nuevo primero hay que sourcear la terminal
 ```
-source /ws/devel/setup.bash
 catkin build
+source /ws/devel/setup.bash
 ```
 
 ## Configuraciones iniciales ###
