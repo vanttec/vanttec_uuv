@@ -220,7 +220,11 @@ roslaunch vanttec_uuv sim.launch
     -"e" para activar el control manual.
     -"w,a,s,d" para moverse en el simulador
 
-### Para correr YOLO usar el siguiente comando
+### Para correr YOLO sigue los siguientes pasos
+- Pedir acceso al Drive de Jorge Askur
+- Descargar el archivo yolo_zed.py y colocarlo en /ws/src/vanttec_uuv/scripts
+- Hacerlo ejecutable
+- Descargar la carpeta yolo-config y colocala en /ws/src/vanttec_uuv/scripts
 ```
 rosrun vanttec_uuv yolo_zed.py
 ```
