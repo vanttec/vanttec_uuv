@@ -29,7 +29,8 @@ Autores:
 <p align="center">
   <img src=https://github.com/vanttec/vanttec_uuv/blob/master/docs/Drivers.png align="center"/>
 </p>
-- Descargar el CUDA Toolkit [CUDA](https://developer.nvidia.com/cuda-downloads?target_os=Linux)
+- Descargar el CUDA Toolkit 
+[**CUDA**](https://developer.nvidia.com/cuda-downloads?target_os=Linux)
 
 ### Si no tienes tarjeta gráfica Nvidia correr en lugar del uuv.build ###
 
