@@ -221,7 +221,7 @@ roslaunch vanttec_uuv sim.launch
     -"w,a,s,d" para moverse en el simulador
 
 ### Para correr YOLO sigue los siguientes pasos
-- Pedir acceso al Drive de Jorge Askur
+- Entrar a la carpeta de drive [SUB File](https://drive.google.com/drive/folders/1n8lwIeKVj_f0X7uYxjpccCf6gE2nJSBr?usp=sharing)
 - Descargar el archivo yolo_zed.py y colocarlo en /ws/src/vanttec_uuv/scripts
 - Hacerlo ejecutable
 - Descargar la carpeta yolo-config y colocala en /ws/src/vanttec_uuv/scripts
