@@ -29,7 +29,8 @@ Autores:
 <p align="center">
   <img src=https://github.com/vanttec/vanttec_uuv/blob/master/docs/Drivers.png align="center"/>
 </p>
-    
+- Descargar el CUDA Toolkit [CUDA](https://developer.nvidia.com/cuda-downloads?target_os=Linux)
+
 ### Si no tienes tarjeta gráfica Nvidia correr en lugar del uuv.build ###
 
  - Escribe los siguientes comandos:
@@ -84,6 +85,8 @@ cd vanttec_uuv
 git checkout retos
 cd ../
 ```
+ - vanttec_uuv_sim
+Descargar del drive de VantTec
  - vehicle_user_control
 ```
 git clone https://github.com/vanttec/vehicle_user_control
