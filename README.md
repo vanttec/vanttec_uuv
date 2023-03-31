@@ -170,6 +170,15 @@ pip install imutils
 
 ```
 
+## Archivos Faltantes ###
+Estos archivos se encuentran en el drive [SUB File](https://drive.google.com/drive/folders/1n8lwIeKVj_f0X7uYxjpccCf6gE2nJSBr?usp=sharing)
+
+- Colocar el camera2.yaml en octomap_mapping/octomap_server/cfg/common
+- Colocar el RoboSub2021.launch en darknet_ros/launch 
+- Poner el robosub_2021_tiny3.cfg en darknet_ros/yolo_network_config/cfg
+- Poner robosub2021_96_98.weights en darknet_ros/yolo_network_config/weights
+
+
 ## Known Issues ###
 
 Error: El submarino se carga en la superficie en lugar de bajo el agua.
