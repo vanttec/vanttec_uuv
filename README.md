@@ -35,6 +35,7 @@ Autores:
 [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads?target_os=Linux)
 - Abrir la app "NVIDIA X Server Settings"
 - En la ventana de PRIME Profiles seleccionar la opción "NVIDIA Performance Mode"
+- Reiniciar la computadora
 
 ### Si no tienes tarjeta gráfica Nvidia correr en lugar del uuv.build ###
 
