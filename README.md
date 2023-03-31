@@ -22,13 +22,15 @@ Autores:
 
  - Seguir los pasos descritos en la siguiente pagina: [nvidia-docker installation](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
 
-##  Nvidia Drivers ##
+##  Nvidia Drivers ###
  - Abrir en Ubuntu Apps Software & Updates
  - Entrar en Additional Drivers
  - Seleccionar lo siguiente:
 <p align="center">
   <img src=https://github.com/vanttec/vanttec_uuv/blob/master/docs/Drivers.png align="center"/>
 </p>
+
+## CUDA Installation ###
 - Descargar el CUDA Toolkit: 
 [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads?target_os=Linux)
 - Abrir la app "NVIDIA X Server Settings"
