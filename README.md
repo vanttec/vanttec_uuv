@@ -164,6 +164,8 @@ pip3 install joblib==1.0.0
 
 pip3 install --upgrade opencv-python
 pip3 install opencv-contrib-python 
+pip2 install opencv-contrib-python
+pip2 install opencv-python
 pip install opencv-contrib-python
 pip install opencv-python
 pip install imutils
@@ -188,9 +190,11 @@ Error: darknet_ros imprime “waiting for image” y no carga YOLO.
 **Solución:** Dentro de /ws/src/darknet_ros/darknet_ros/config/ros.yaml en la línea 4 sustituir “/camera/rgb/image_raw” por “/invert_image” y dentro de  /ws/src/darknet_ros/darknet_ros/launch/RoboSub2021.launch en la línea 26 cambiar el default por “false”.
 
 Error: Error response from daemon: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error running hook #0: error running hook: exit status 1, stdout: , stderr: Auto-detected mode as 'legacy'
-
 **Solucion:**
 Correr los siguientes comandos, al final debería salir un recuadro con la información de tu tarjeta gráfica.
+
+Error: El submarino se voltea 180° en roll (cámara apuntando hacia arriba).
+**Solución:** En /ws/src/vanttec_uv_sim/vehicle_descriptions/lib/mobility/src/gazebo_interface.cpp, cambiar el valor de roll (línea 30) por M_PI, guardar y hacer catkin build.
 
 ```
 sudo apt install libnvidia-cfg1-515
