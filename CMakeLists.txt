@@ -44,6 +44,8 @@ add_message_files(
    Gate.msg
    TargetsCentroids.msg
    ColorRanges.msg
+   poses.msg
+   poseList.msg
 )
 
 add_service_files(
