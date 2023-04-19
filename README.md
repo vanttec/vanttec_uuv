@@ -193,14 +193,14 @@ Error: Error response from daemon: failed to create shim task: OCI runtime creat
 **Solucion:**
 Correr los siguientes comandos, al final debería salir un recuadro con la información de tu tarjeta gráfica.
 
-Error: El submarino se voltea 180° en roll (cámara apuntando hacia arriba).
-**Solución:** En /ws/src/vanttec_uv_sim/vehicle_descriptions/lib/mobility/src/gazebo_interface.cpp, cambiar el valor de roll (línea 30) por M_PI, guardar y hacer catkin build.
-
 ```
 sudo apt install libnvidia-cfg1-515
 sudo nvidia-persistenced --user USER #reemplaza USER con tu nombre de usuario de Ubuntu
 sudo nvidia-smi
 ```
+Error: El submarino se voltea 180° en roll (cámara apuntando hacia arriba).
+**Solución:** En /ws/src/vanttec_uv_sim/vehicle_descriptions/lib/mobility/src/gazebo_interface.cpp, cambiar el valor de roll (línea 30) por M_PI, guardar y hacer catkin build.
+
 
 # Instrucciones para correr el simulador
 
