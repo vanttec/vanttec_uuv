@@ -66,18 +66,18 @@ int main(int argc, char **argv)
     {
         /* Run Queued Callbacks */ 
         ros::spinOnce();
-        t_cur = t_init - ros::Time::now().toSec();
+        // t_cur = t_init - ros::Time::now().toSec();
 
-        /* update Trajectory */
-        q_d.x = 2*std::sin(t_cur/4) + 0.5;
-        q_d.y = 2*std::cos(t_cur/4);
-        q_d.z = 2*std::cos(t_cur/80 + 0.5);
-        q_d.phi = 0.0;
-        q_d.theta = 0.0;
-        q_d.psi = 0.0;
+        // /* update Trajectory */
+        // q_d.x = 2*std::sin(t_cur/4) + 0.5;
+        // q_d.y = 2*std::cos(t_cur/4);
+        // q_d.z = 2*std::cos(t_cur/80 + 0.5);
+        // q_d.phi = 0.0;
+        // q_d.theta = 0.0;
+        // q_d.psi = 0.0;
 
-        /* update Parameters with new info */ 
-        system_controller.updateSetPoints(q_d);
+        // /* update Parameters with new info */ 
+        // system_controller.updateSetPoints(q_d);
         system_controller.calculateManipulations();
        
         /* Publish Odometry */

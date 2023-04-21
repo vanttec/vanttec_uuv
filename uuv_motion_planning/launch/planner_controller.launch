@@ -9,6 +9,6 @@
         <rosparam file="$(find uuv_motion_planning)/config/planner_config.yaml"/>
     </node>
 
-    <include file="$(find uuv_control)/launch/vtec_u4_model.launch"/>
+    <include file="$(find uuv_control)/launch/vtec_u4_pid.launch"/>
 
 </launch>

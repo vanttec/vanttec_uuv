@@ -2,7 +2,9 @@
 
     <!-- Choose if inertial or non-inertial model is desired -->
     <!-- <node name="vtec_u4_simulation_node" pkg="uuv_control" type="vtec_u4_simulation_node"/> -->
-    <node name="vtec_u4_simulation_node" pkg="uuv_control" type="inertial_vtec_u4_simulation_node"/>
+    <node name="vtec_u4_simulation_node" pkg="uuv_control" type="inertial_vtec_u4_simulation_node">
+        <rosparam file="$(find uuv_control)/config/uuv_init_cond.yaml"/>
+    </node>
 
     <node name="vtec_u4_asmc_node" pkg="uuv_control" type="vtec_u4_asmc_node">
         <rosparam file="$(find uuv_control)/config/VTec_U4_ASMC_Gains.yaml"/>
