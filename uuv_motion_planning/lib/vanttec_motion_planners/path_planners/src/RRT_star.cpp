@@ -91,9 +91,9 @@ void RRTStar::planPath(){
     // return std::nullopt;
 }
 
-nav_msgs::Path RRTStar::getPath(){
+nav_msgs::Path RRTStar::getPath(std::string frame_id){
     nav_msgs::Path planned_path;
-    planned_path.header.frame_id = "/map";
+    planned_path.header.frame_id = frame_id;
 
     // Get the obtained path
     ompl::geometric::PathGeometric path = ss_->getSolutionPath();

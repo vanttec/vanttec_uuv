@@ -35,29 +35,33 @@ int main(int argc, char** argv){
     std::vector<float> start;
     std::vector<float> goal;
 
+    std::string frame_id;
+
     // Init ROS node
     ros::init(argc, argv, "trajectory_planner_node");
 
     // Create node handler
-    ros::NodeHandle node_handle("~");
+    ros::NodeHandle private_nh("~");
 
     // Setup the ROS loop rate
     ros::Rate loop_rate(frequency);
 
-    // node_handle.getParam("use_map", use_map);
-    node_handle.getParam("state_space_dimension", dim);
-    node_handle.getParam("SO3_space_bounds", SO3_bounds);
-    node_handle.getParam("start_point", start);
-    node_handle.getParam("goal_point", goal);
+    // private_nh.getParam("use_map", use_map);
+    private_nh.getParam("state_space_dimension", dim);
+    private_nh.getParam("SO3_space_bounds", SO3_bounds);
+    private_nh.getParam("start_point", start);
+    private_nh.getParam("goal_point", goal);
+    // private_nh.param("frame_id", frame_id, std::string("map"));
+    private_nh.param("frame_id", frame_id, std::string("map"));
 
     RRTStar path_planner(dim, SO3_bounds, MAX_TIME);
     SCurve trajectory_planner(SAMPLE_TIME);
     
     // Planned path publisher
-    ros::Publisher trajectory_pub = node_handle.advertise<vanttec_msgs::Trajectory>("/uuv_motion_planning/trajectory_planner/s_curve", 1);
-    ros::Publisher path_pub = node_handle.advertise<nav_msgs::Path>("/planned_path", 1);
-    ros::Publisher trajectory_path_pub = node_handle.advertise<nav_msgs::Path>("/planned_trajectory_path", 1);
-    ros::Subscriber map_sub = node_handle.subscribe("/map", 1, &RRTStar::save2DMap, &path_planner);
+    ros::Publisher trajectory_pub = private_nh.advertise<vanttec_msgs::Trajectory>("/uuv_motion_planning/trajectory_planner/s_curve", 1);
+    ros::Publisher path_pub = private_nh.advertise<nav_msgs::Path>("/planned_path", 1);
+    ros::Publisher trajectory_path_pub = private_nh.advertise<nav_msgs::Path>("/planned_trajectory_path", 1);
+    ros::Subscriber map_sub = private_nh.subscribe("/map", 1, &RRTStar::save2DMap, &path_planner);
 
     trajectory_planner.setKinematicConstraints(X_MAX, Y_MAX, Z_MAX);
 
@@ -68,12 +72,12 @@ int main(int argc, char** argv){
     }
 
     if(path_planner.solution_found_){
-        planned_path = path_planner.getPath();
+        planned_path = path_planner.getPath(frame_id);
         trajectory_planner.setPath(planned_path);
         // ROS_INFO_STREAM("Path found");
         // trajectory_planner.setStartTime(ros::Time::now().toSec());  // VERY IMPORTANT TO SET THIS JUST BEFORE ENTERING THE WHILE LOOP. WONT WORK IF NOT
         trajectory_planner.calculateTrajectory();
-        planned_trajectory_path.header.frame_id = "/map";
+        planned_trajectory_path.header.frame_id = frame_id;
         trajectory = trajectory_planner.getTrajectory();
 
         for(int i = 0; i < trajectory.eta_pose.size(); ++i){
@@ -85,7 +89,7 @@ int main(int argc, char** argv){
             pose.pose.orientation.y = 0.0;
             pose.pose.orientation.z = 0.0;
             pose.pose.orientation.w = 1.0;
-            pose.header.frame_id = "/map";
+            pose.header.frame_id = frame_id;
             pose.header.stamp = ros::Time::now();
             planned_trajectory_path.poses.push_back(pose);
         }

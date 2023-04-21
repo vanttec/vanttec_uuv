@@ -20,7 +20,7 @@ int main(int argc, char** argv){
     ros::init(argc, argv, "s_curve_node");
 
     // Create node handler
-    ros::NodeHandle node_handle("~");
+    ros::NodeHandle private_nh("~");
 
     const float SAMPLE_TIME = 0.01;
     SCurve trajectory_planner(SAMPLE_TIME);
@@ -42,7 +42,7 @@ int main(int argc, char** argv){
     ros::Rate loop_rate(frequency);
 
     // Planned path publisher
-    ros::Publisher trajectory_pub = node_handle.advertise<vanttec_msgs::Trajectory>("/uuv_motion_planning/trajectory_planner/s_curve", 1);
+    ros::Publisher trajectory_pub = private_nh.advertise<vanttec_msgs::Trajectory>("/uuv_motion_planning/trajectory_planner/s_curve", 1);
 
     // trajectory_planner.setStartTime(ros::Time::now().toSec());
     trajectory_planner.calculateTrajectory(start, goal);

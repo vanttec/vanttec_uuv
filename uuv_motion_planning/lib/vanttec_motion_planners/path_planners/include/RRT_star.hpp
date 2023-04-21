@@ -83,7 +83,7 @@ class RRTStar /*: public base::MotionValidator*/{
         // Description: return computed path.
         //
         // @retval: planned path
-        nav_msgs::Path getPath();
+        nav_msgs::Path getPath(std::string frame_id);
 
         // Description: get path length optimization objective for RRT*
         //

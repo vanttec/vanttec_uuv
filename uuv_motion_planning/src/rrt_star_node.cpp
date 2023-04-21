@@ -26,28 +26,31 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "RRTStar");
 
     // Create node handler
-    ros::NodeHandle node_handle("~");
+    ros::NodeHandle private_nh("~");
 
     std::vector<float> SO3_bounds; // Low, High
     std::vector<float> start;
     std::vector<float> goal;
 
-    // node_handle.getParam("use_map", use_map);
-    node_handle.getParam("state_space_dimension", dim);
-    node_handle.getParam("SO3_space_bounds", SO3_bounds);
-    node_handle.getParam("start_point", start);
-    node_handle.getParam("goal_point", goal);
+    std::string frame_id;
 
+    // private_nh.getParam("use_map", use_map);
+    private_nh.getParam("state_space_dimension", dim);
+    private_nh.getParam("SO3_space_bounds", SO3_bounds);
+    private_nh.getParam("start_point", start);
+    private_nh.getParam("goal_point", goal);
+    private_nh.param("frame_id", frame_id, std::string("map"));
+    
     RRTStar planner(dim, SO3_bounds, MAX_TIME);
 
     // Setup the ROS loop rate
     ros::Rate loop_rate(frequency);
 
     // Planned path publisher
-    ros::Publisher path_pub = node_handle.advertise<nav_msgs::Path>("/planned_path", 1);
+    ros::Publisher path_pub = private_nh.advertise<nav_msgs::Path>("/planned_path", 1);
 
     // Occupancy map subscriber
-    ros::Subscriber map_sub = node_handle.subscribe("/map", 1, &RRTStar::save2DMap, &planner);
+    ros::Subscriber map_sub = private_nh.subscribe("/map", 1, &RRTStar::save2DMap, &planner);
 
     // while (ros::ok()){
     nav_msgs::Path planned_path;
@@ -56,7 +59,7 @@ int main(int argc, char** argv)
     while(ros::ok()){
         ros::spinOnce(); // So map messages are received before processing solution
         if(planner.solution_found_){
-            planned_path = planner.getPath();
+            planned_path = planner.getPath(frame_id);
             // Publish the planned path
             // if(planned_path != std::nullopt)
             path_pub.publish(planned_path);

@@ -1,0 +1,12 @@
+<launch>
+    
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uuv_motion_planning)/launch/rviz_cfg/map_uuv.rviz" />
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find uuv_map_tools)/maps/map2.yaml">
+        <param name="frame_id" value="world"/>
+    </node>
+
+    <include file="$(find uuv_motion_planning)/launch/trajectory_planner.launch"/>
+
+    <include file="$(find uuv_control)/launch/vtec_u4_model.launch"/>
+
+</launch>
