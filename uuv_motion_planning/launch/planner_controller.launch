@@ -5,7 +5,9 @@
         <param name="frame_id" value="world"/>
     </node>
 
-    <include file="$(find uuv_motion_planning)/launch/trajectory_planner.launch"/>
+    <node pkg="uuv_motion_planning" name="s_curve_trajectory_planner" type="s_curve_trajectory_planner_node">
+        <rosparam file="$(find uuv_motion_planning)/config/planner_config.yaml"/>
+    </node>
 
     <include file="$(find uuv_control)/launch/vtec_u4_model.launch"/>
 

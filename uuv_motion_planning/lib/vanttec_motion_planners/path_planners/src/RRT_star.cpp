@@ -118,7 +118,7 @@ nav_msgs::Path RRTStar::getPath(std::string frame_id){
         pose.pose.orientation.y = 0.0;
         pose.pose.orientation.z = 0.0;
         pose.pose.orientation.w = 1.0;
-        pose.header.frame_id = "/map";
+        pose.header.frame_id = frame_id;
         pose.header.stamp = ros::Time::now();
         planned_path.poses.push_back(pose);
     }

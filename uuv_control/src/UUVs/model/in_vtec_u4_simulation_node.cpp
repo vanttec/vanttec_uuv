@@ -27,18 +27,21 @@ static const float SAMPLE_TIME_S = 0.01;
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "inert_vtec_u4_simulation_node");
-    ros::NodeHandle nh;
+    ros::NodeHandle private_nh("~");
         
     ros::Rate               cycle_rate(int(1 / SAMPLE_TIME_S));
     VTecU4InDynamicModel      uuv_model(SAMPLE_TIME_S);
     vanttec_msgs::SystemDynamics  uuv_functions;
-    
-    ros::Publisher  uuv_accel     = nh.advertise<geometry_msgs::Vector3>("/vectornav/ins_3d/ins_acc", 10);
-    ros::Publisher  uuv_vel       = nh.advertise<geometry_msgs::Twist>("/uuv_simulation/dynamic_model/vel", 10);
-    ros::Publisher  uuv_eta_pose_  = nh.advertise<vanttec_msgs::EtaPose>("/uuv_simulation/dynamic_model/eta_pose_", 10);
-    ros::Publisher  uuv_dynamics  = nh.advertise<vanttec_msgs::SystemDynamics>("/uuv_simulation/dynamic_model/non_linear_functions", 10);
 
-    ros::Subscriber uuv_thrust_input = nh.subscribe("/uuv_control/uuv_control_node/thrust", 
+    std::vector<float> init_pose;
+    private_nh.param("init_pose", init_pose, {0,0,0});
+    
+    ros::Publisher  uuv_accel     = private_nh.advertise<geometry_msgs::Vector3>("/vectornav/ins_3d/ins_acc", 10);
+    ros::Publisher  uuv_vel       = private_nh.advertise<geometry_msgs::Twist>("/uuv_simulation/dynamic_model/vel", 10);
+    ros::Publisher  uuv_eta_pose_  = private_nh.advertise<vanttec_msgs::EtaPose>("/uuv_simulation/dynamic_model/eta_pose_", 10);
+    ros::Publisher  uuv_dynamics  = private_nh.advertise<vanttec_msgs::SystemDynamics>("/uuv_simulation/dynamic_model/non_linear_functions", 10);
+
+    ros::Subscriber uuv_thrust_input = private_nh.subscribe("/uuv_control/uuv_control_node/thrust", 
                                                     10, 
                                                     &GenericIn6DOFUUVDynamicModel::thrustCallbacK,
                                                     dynamic_cast<GenericIn6DOFUUVDynamicModel*> (&uuv_model));
@@ -52,6 +55,7 @@ int main(int argc, char **argv)
     uuv_functions.g.layout.dim[0].stride = 6;
     uuv_functions.g.layout.data_offset = 0;
 
+    uuv_model.setInitPose(init_pose);
     while(ros::ok())
     {
         /* Run Queued Callbacks */

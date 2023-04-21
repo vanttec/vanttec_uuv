@@ -579,10 +579,31 @@ void SCurve::saveTrajectory(){
     trajectory_.accel.push_back(accel);
     trajectory_.vel.push_back(vel);
     trajectory_.eta_pose.push_back(pose);
+
+    jerk.linear.y = -y_[3];
+    jerk.linear.z = -z_[3];
+
+    accel.linear.y = -y_[2];
+    accel.linear.z = -z_[2];
+
+    vel.linear.y = -y_[1];
+    vel.linear.z = -z_[1];
+
+    pose.y = -y_[0];
+    pose.z = -z_[0];
+
+    ned_trajectory_.jerk.push_back(jerk);
+    ned_trajectory_.accel.push_back(accel);
+    ned_trajectory_.vel.push_back(vel);
+    ned_trajectory_.eta_pose.push_back(pose);
 }
 
 vanttec_msgs::Trajectory SCurve::getTrajectory(){
     return trajectory_;
+}
+
+vanttec_msgs::Trajectory SCurve::getNEDTrajectory(){
+    return ned_trajectory_;
 }
 
 // void SCurve::setStartTime(const double start_time){

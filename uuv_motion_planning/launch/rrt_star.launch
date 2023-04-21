@@ -1,4 +1,6 @@
 <launch>
+    <include file="$(find uuv_map_tools)/launch/map.launch"/>
+
     <node pkg="uuv_motion_planning" name="rrt_star" type="rrt_star_node" output="screen">
         <rosparam file="$(find uuv_motion_planning)/config/planner_config.yaml"/>
     </node>

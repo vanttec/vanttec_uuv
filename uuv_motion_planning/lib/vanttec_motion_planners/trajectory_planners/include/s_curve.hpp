@@ -81,7 +81,9 @@ class SCurve {
         // std::vector<std::array<float, 3>> predefined_path_;
         size_t path_size_;
 
-        vanttec_msgs::Trajectory trajectory_;
+        vanttec_msgs::Trajectory trajectory_;   // in world (NWU) frame, for rviz
+
+        vanttec_msgs::Trajectory ned_trajectory_; //in ned frame, for control
 
         // METHODS -------------------------------------------------------------
         // Description: calculate time intervals and kinematics
@@ -163,6 +165,11 @@ class SCurve {
         //
         // @return: trajectory
         vanttec_msgs::Trajectory getTrajectory();
+
+        // Description: return NED trajectory as ros msg
+        //
+        // @return: trajectory
+        vanttec_msgs::Trajectory getNEDTrajectory();
 
 };
 

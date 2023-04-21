@@ -4,7 +4,8 @@
  * @author: Sebastian Martinez
  * @email: sebas.martp@gmail.com
  * 
- * @brief: 2D s-curve trajectory planner node.
+ * @brief: 2D s-curve trajectory planner node.The path is in the NWU frame (def in rviz)
+ *         as the collisions are found in this frame 
  * -----------------------------------------------------------------------------
  **/
 
@@ -25,6 +26,7 @@ int main(int argc, char** argv){
     nav_msgs::Path planned_path;
     nav_msgs::Path planned_trajectory_path;
     vanttec_msgs::Trajectory trajectory;
+    vanttec_msgs::Trajectory trajectory_ned; // to send to controller
 
     const std::array<float, 5> X_MAX = {0, 1.08, 3.112, 7, 17.3};
     // const std::array<float, 5> Y_MAX =,{0 0.8752 0.769 0.51 1.19};
@@ -51,8 +53,7 @@ int main(int argc, char** argv){
     private_nh.getParam("SO3_space_bounds", SO3_bounds);
     private_nh.getParam("start_point", start);
     private_nh.getParam("goal_point", goal);
-    // private_nh.param("frame_id", frame_id, std::string("map"));
-    private_nh.param("frame_id", frame_id, std::string("map"));
+    private_nh.getParam("frame_id", frame_id);
 
     RRTStar path_planner(dim, SO3_bounds, MAX_TIME);
     SCurve trajectory_planner(SAMPLE_TIME);
@@ -65,6 +66,12 @@ int main(int argc, char** argv){
 
     trajectory_planner.setKinematicConstraints(X_MAX, Y_MAX, Z_MAX);
 
+    // NED TO NWU (default in rviz) to visualize in rviz.
+    // Path must be calculated in this frame as collisions are found in this frame
+    start[1] = -start[1];
+    start[2] = -start[2];
+    goal[1] = -goal[1];
+    goal[2] = -goal[2];
     path_planner.setStartAndGoal(start, goal);
 
     while(!path_planner.map_arrived_){
@@ -73,12 +80,11 @@ int main(int argc, char** argv){
 
     if(path_planner.solution_found_){
         planned_path = path_planner.getPath(frame_id);
-        trajectory_planner.setPath(planned_path);
-        // ROS_INFO_STREAM("Path found");
-        // trajectory_planner.setStartTime(ros::Time::now().toSec());  // VERY IMPORTANT TO SET THIS JUST BEFORE ENTERING THE WHILE LOOP. WONT WORK IF NOT
-        trajectory_planner.calculateTrajectory();
+        trajectory_planner.setPath(planned_path); // this path is in the world frame (NWU)
+        trajectory_planner.calculateTrajectory(); // this trajectory is in the world frame (NWU)
         planned_trajectory_path.header.frame_id = frame_id;
-        trajectory = trajectory_planner.getTrajectory();
+        trajectory = trajectory_planner.getTrajectory(); // in the world frame (NWU)
+        trajectory_ned = trajectory_planner.getNEDTrajectory(); // in NED frame
 
         for(int i = 0; i < trajectory.eta_pose.size(); ++i){
             geometry_msgs::PoseStamped pose;
@@ -95,14 +101,14 @@ int main(int argc, char** argv){
         }
 
         while (ros::ok()){
-            // trajectory_planner.calculateTrajectory(ros::Time::now().toSec());
-            path_pub.publish(planned_path);
-            trajectory_pub.publish(trajectory);
-            trajectory_path_pub.publish(planned_trajectory_path);
+            path_pub.publish(planned_path); // to visualize in rviz
+            trajectory_path_pub.publish(planned_trajectory_path); // to visualize in rviz
+            trajectory_pub.publish(trajectory_ned); // for controller
+
             loop_rate.sleep();
         }
     } else
-        ROS_INFO_STREAM("Path not found");
+        ROS_ERROR_STREAM("Path not found");
 
     return 0;
 }

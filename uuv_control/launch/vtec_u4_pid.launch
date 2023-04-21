@@ -9,6 +9,7 @@
     <param name="robot_description" textfile="$(find uuv_control)/models/vtec_u3.urdf" />
 
     <node name="tf2_broadcaster_node" pkg="uuv_control" type="tf2_broadcaster_node">
+        <!-- world is NWU -->
         <param name="parent_frame" value="world" />
         <param name="child_frame" value="uuv" />
     </node>

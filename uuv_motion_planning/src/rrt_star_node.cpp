@@ -4,7 +4,8 @@
  * @author: Sebastian Martinez
  * @email: sebas.martp@gmail.com
  * 
- * @brief: 2D RRT* path planner node.
+ * @brief: 2D RRT* path planner node. The path is in the NWU frame (def in rviz)
+ *         as the collisions are found in this frame 
  * -----------------------------------------------------------------------------
  **/
 
@@ -32,14 +33,14 @@ int main(int argc, char** argv)
     std::vector<float> start;
     std::vector<float> goal;
 
-    std::string frame_id;
+    std::string frame_id;// = "NWU";
 
     // private_nh.getParam("use_map", use_map);
     private_nh.getParam("state_space_dimension", dim);
     private_nh.getParam("SO3_space_bounds", SO3_bounds);
     private_nh.getParam("start_point", start);
     private_nh.getParam("goal_point", goal);
-    private_nh.param("frame_id", frame_id, std::string("map"));
+    private_nh.getParam("frame_id", frame_id);
     
     RRTStar planner(dim, SO3_bounds, MAX_TIME);
 
@@ -55,6 +56,13 @@ int main(int argc, char** argv)
     // while (ros::ok()){
     nav_msgs::Path planned_path;
 
+    // NED TO NWU (default in rviz) to visualize in rviz.
+    // Path must be calculated in this frame as collisions are found in this frame
+    start[1] = -start[1];
+    start[2] = -start[2];
+    goal[1] = -goal[1];
+    goal[2] = -goal[2];
+
     planner.setStartAndGoal(start, goal);
     while(ros::ok()){
         ros::spinOnce(); // So map messages are received before processing solution
@@ -62,6 +70,7 @@ int main(int argc, char** argv)
             planned_path = planner.getPath(frame_id);
             // Publish the planned path
             // if(planned_path != std::nullopt)
+            
             path_pub.publish(planned_path);
         }
         loop_rate.sleep();
