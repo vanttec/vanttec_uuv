@@ -28,9 +28,7 @@ class SCurve {
         /* Time */
         float SAMPLE_TIME_;
         double total_execution_time_;
-        double *time_ptr_;
         double start_time_;
-        double current_time_;
         double T_sync_;
 
         // Update total time
@@ -46,7 +44,10 @@ class SCurve {
         std::array<float,5> X_MAX_;
         std::array<float,5> Y_MAX_;
         std::array<float,5> Z_MAX_;
-        std::array<float,5> Kine_MIN_;  // minimum kinematics among all the max
+        std::array<float,5> ABS_X_MAX_;
+        std::array<float,5> ABS_Y_MAX_;
+        std::array<float,5> ABS_Z_MAX_;
+        // std::array<float,5> Kine_MIN_;  // minimum kinematics among all the max
 
         // Kinematics (D V A J S)
         std::array<float,5> x_;
@@ -65,13 +66,7 @@ class SCurve {
         std::array<float,4> K_x_;
         std::array<float,4> K_y_;
         std::array<float,4> K_z_;
-
-        // Starting point
-        std::array<float,3> start_;
-
-        // Goal point
-        std::array<float,3> goal_;
-
+        
         // Kinematic var identifier
         typedef enum {
             SURGE,
@@ -82,13 +77,11 @@ class SCurve {
             YAW
         } KinematicVar_;
 
-        // Path
         nav_msgs::Path path_;
+        // std::vector<std::array<float, 3>> predefined_path_;
+        size_t path_size_;
+
         vanttec_msgs::Trajectory trajectory_;
-        std::vector<std::array<float, 3>> predefined_path_;
-        int idx_;
-        int path_size_;
-        bool with_path_;
 
         // METHODS -------------------------------------------------------------
         // Description: calculate time intervals and kinematics
@@ -107,7 +100,22 @@ class SCurve {
         //
         // @param current_time: current time
         // @return: none
-        void updateStartAndGoal(const double current_time);
+        void updatePathSegment(std::array<float,3> start, std::array<float,3> goal);
+
+        // Description: save complete trajectory
+        //
+        //
+        void saveTrajectory();
+
+        // Description: apply time synchronization technique to scale all kinematics
+        //
+        //
+        void timeSynchronization();
+
+        // Description: calculate acceleration and velocity profiles for path segment (two waypoints)
+        //
+        // @param t: current time
+        void calculateTrajectorySegment(double t);
 
     public:
         // CONSTRUCTOR AND DESTRUCTOR ------------------------------------------
@@ -121,7 +129,7 @@ class SCurve {
         //
         // @param start: start pose
         // @param goal: goal pose
-        void setStartAndGoal(const std::array<float,3>& start, const std::array<float,3>& goal);
+        // void updatePathSegment(const std::array<float,3>& start, const std::array<float,3>& goal);
 
         // Description: set kinematic constraints for all degrees of freedom
         //
@@ -135,27 +143,27 @@ class SCurve {
         //
         void calculateTrajectory();
 
+        // Description: calculate acceleration and velocity profiles for path segment (two waypoints)
+        //
+        // @param start: start point
+        // @param goal: goal point
+        void calculateTrajectory(std::array<float,3> start, std::array<float,3> goal);
+
         // Description: set starting time
         //
         //
-        void setStartTime(const double start_time);
+        // void setStartTime(const double start_time);
 
         // Description: set path
         //
         //
         void setPath(const nav_msgs::Path& path);
 
-        // Description: apply time synchronization technique to scale all kinematics
-        //
-        //
-        void timeSynchronization();
-
         // Description: return trajectory as ros msg
         //
         // @return: trajectory
         vanttec_msgs::Trajectory getTrajectory();
 
-        void saveTrajectory();
 };
 
 #endif

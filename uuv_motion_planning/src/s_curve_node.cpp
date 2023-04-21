@@ -36,7 +36,6 @@ int main(int argc, char** argv){
     const std::array<float, 5> Y_MAX = {0, 0.5, 0.5, 0.5, 0.5};
     const std::array<float, 5> Z_MAX = {0, 0.88, 1.96, 3.7, 21};
     
-    trajectory_planner.setStartAndGoal(start, goal);
     trajectory_planner.setKinematicConstraints(X_MAX, Y_MAX, Z_MAX);
 
     // Setup the ROS loop rate
@@ -46,7 +45,7 @@ int main(int argc, char** argv){
     ros::Publisher trajectory_pub = node_handle.advertise<vanttec_msgs::Trajectory>("/uuv_motion_planning/trajectory_planner/s_curve", 1);
 
     // trajectory_planner.setStartTime(ros::Time::now().toSec());
-    trajectory_planner.calculateTrajectory();
+    trajectory_planner.calculateTrajectory(start, goal);
     while (ros::ok()){
         vanttec_msgs::Trajectory trajectory;
         // ROS_INFO_STREAM(ros::Time::now());
