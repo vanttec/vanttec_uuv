@@ -10,6 +10,6 @@
 [submodule "uuv_control/vanttec_controllers"]
 	path = uuv_control/lib/vanttec_controllers
 	url = git@github.com:vanttec/vanttec_controllers.git
-[submodule "uuv_motion_planning/vanttec_motion_planners"]
-	path = uuv_motion_planning/vanttec_motion_planners
+[submodule "uuv_motion_planning/lib/vanttec_motion_planners"]
+	path = uuv_motion_planning/lib/vanttec_motion_planners
 	url = https://github.com/vanttec/vanttec_motion_planners.git
