@@ -34,7 +34,7 @@ TEST(ControlSuite, regulationObjective)
                                                     &SixDOFPID::updateDynamics,
                                                     &system_controller);
 
-    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose_", 10,
+    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose", 10,
                                                     &SixDOFPID::updatePose,
                                                     &system_controller);
 

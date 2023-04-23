@@ -60,7 +60,7 @@ int main(int argc, char **argv)
                                                     &ASMC6DOF::updateDynamics,
                                                     &system_controller);
 
-    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose_", 1,
+    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose", 1,
                                                     &ASMC6DOF::updatePose,
                                                     &system_controller);
 

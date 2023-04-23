@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     
     ros::Publisher  uuv_accel     = private_nh.advertise<geometry_msgs::Vector3>("/vectornav/ins_3d/ins_acc", 10);
     ros::Publisher  uuv_vel       = private_nh.advertise<geometry_msgs::Twist>("/uuv_simulation/dynamic_model/vel", 10);
-    ros::Publisher  uuv_eta_pose_  = private_nh.advertise<vanttec_msgs::EtaPose>("/uuv_simulation/dynamic_model/eta_pose_", 10);
+    ros::Publisher  uuv_eta_pose_  = private_nh.advertise<vanttec_msgs::EtaPose>("/uuv_simulation/dynamic_model/eta_pose", 10);
     ros::Publisher  uuv_dynamics  = private_nh.advertise<vanttec_msgs::SystemDynamics>("/uuv_simulation/dynamic_model/non_linear_functions", 10);
 
     ros::Subscriber uuv_thrust_input = private_nh.subscribe("/uuv_control/uuv_control_node/thrust", 

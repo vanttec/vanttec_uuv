@@ -1,6 +1,9 @@
 <launch>
 
-    <node name="vtec_u4_simulation_node" pkg="uuv_control" type="vtec_u4_simulation_node"/>
+    <!-- <node name="vtec_u4_simulation_node" pkg="uuv_control" type="vtec_u4_simulation_node"/> -->
+    <node name="vtec_u4_simulation_node" pkg="uuv_control" type="inertial_vtec_u4_simulation_node">
+        <rosparam file="$(find uuv_control)/config/uuv_init_cond.yaml"/>
+    </node>
 
     <node name="vtec_u4_pid_node" pkg="uuv_control" type="vtec_u4_pid_node">
         <rosparam file="$(find uuv_control)/config/VTec_U4_PID_Gains.yaml"/>
@@ -14,6 +17,6 @@
         <param name="child_frame" value="uuv" />
     </node>
 
-    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uuv_control)/launch/rviz_cfg/uuv.rviz" />
+    <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uuv_control)/launch/rviz_cfg/uuv.rviz" /> -->
 
 </launch>

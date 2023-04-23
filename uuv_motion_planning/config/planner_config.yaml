@@ -7,7 +7,7 @@ SO3_space_bounds: [-10, 10] # Low, High for x, y and z
 
 # THESE ARE IN NED
 start_point: [6, -5, 0]  # x, y, z
-goal_point: [6, 1, 0]  # x, y, z  
+goal_point: [-6, 5, 0]  # x, y, z  
 
 # THESE ARE IN N-W-U (default in RVIZ). 
 # MUST BE GIVEN IN THIS FRAME AS COLLISIONS ARE MANAGED IN THIS FRAME

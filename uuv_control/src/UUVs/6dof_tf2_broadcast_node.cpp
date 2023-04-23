@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     
     ros::Publisher  uuv_path    = nh.advertise<nav_msgs::Path>("/uuv_simulation/uuv_tf_broadcast/uuv_path", 1000);
     
-    ros::Subscriber uuv_pose    = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose_", 
+    ros::Subscriber uuv_pose    = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose", 
                                                10, 
                                                &TF2Broadcaster::BroadcastTransform, 
                                                &tf_broadcaster);

@@ -52,7 +52,7 @@ int main(int argc, char **argv)
                                                     &PID6DOF::updateDynamics,
                                                     &system_controller);
 
-    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose_", 1,
+    ros::Subscriber uuv_pose        = nh.subscribe("/uuv_simulation/dynamic_model/eta_pose", 1,
                                                     &PID6DOF::updatePose,
                                                     &system_controller);
 
