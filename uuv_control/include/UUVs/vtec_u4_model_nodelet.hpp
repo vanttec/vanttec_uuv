@@ -11,7 +11,7 @@
 #ifndef __VTEC_U4_MODEL_NODELET_H__
 #define __VTEC_U4_MODEL_NODELET_H__
 
-#include "generic_6dof_uuv_dynamic_model.hpp"
+#include "uuv_6dof_dynamic_model.hpp"
 #include "vtec_u4_6dof_dynamic_model.hpp"
 // #include "vanttec_msgs/EtaPose.h"
 #include "vanttec_msgs/SystemDynamics.h"

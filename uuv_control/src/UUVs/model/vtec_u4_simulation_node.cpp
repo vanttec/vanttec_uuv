@@ -13,7 +13,6 @@
  * -----------------------------------------------------------------------------
  **/
 
-#include "generic_6dof_uuv_dynamic_model.hpp"
 #include "vtec_u4_6dof_dynamic_model.hpp"
 #include "vanttec_msgs/EtaPose.h"
 #include "vanttec_msgs/SystemDynamics.h"
@@ -71,13 +70,13 @@ int main(int argc, char **argv)
         
         /* Publish nonlinear functions */
 
-        uuv_functions.f = {uuv_model.f_(0), uuv_model.f_(1), uuv_model.f_(2), uuv_model.f_(3), uuv_model.f_(4), uuv_model.f_(5)};
-        uuv_functions.g.data = { uuv_model.g_(0,0), uuv_model.g_(0,1), uuv_model.g_(0,2), uuv_model.g_(0,3), uuv_model.g_(0,4), uuv_model.g_(0,5),
-                                 uuv_model.g_(1,0), uuv_model.g_(1,1), uuv_model.g_(1,2), uuv_model.g_(1,3), uuv_model.g_(1,4), uuv_model.g_(1,5),
-                                 uuv_model.g_(2,0), uuv_model.g_(2,1), uuv_model.g_(2,2), uuv_model.g_(2,3), uuv_model.g_(2,4), uuv_model.g_(2,5),
-                                 uuv_model.g_(3,0), uuv_model.g_(3,1), uuv_model.g_(3,2), uuv_model.g_(3,3), uuv_model.g_(3,4), uuv_model.g_(3,5),
-                                 uuv_model.g_(4,0), uuv_model.g_(4,1), uuv_model.g_(4,2), uuv_model.g_(4,3), uuv_model.g_(4,4), uuv_model.g_(4,5),
-                                 uuv_model.g_(5,0), uuv_model.g_(5,1), uuv_model.g_(5,2), uuv_model.g_(5,3), uuv_model.g_(5,4), uuv_model.g_(5,5) };
+        // uuv_functions.f = {uuv_model.f_(0), uuv_model.f_(1), uuv_model.f_(2), uuv_model.f_(3), uuv_model.f_(4), uuv_model.f_(5)};
+        // uuv_functions.g.data = { uuv_model.g_(0,0), uuv_model.g_(0,1), uuv_model.g_(0,2), uuv_model.g_(0,3), uuv_model.g_(0,4), uuv_model.g_(0,5),
+        //                          uuv_model.g_(1,0), uuv_model.g_(1,1), uuv_model.g_(1,2), uuv_model.g_(1,3), uuv_model.g_(1,4), uuv_model.g_(1,5),
+        //                          uuv_model.g_(2,0), uuv_model.g_(2,1), uuv_model.g_(2,2), uuv_model.g_(2,3), uuv_model.g_(2,4), uuv_model.g_(2,5),
+        //                          uuv_model.g_(3,0), uuv_model.g_(3,1), uuv_model.g_(3,2), uuv_model.g_(3,3), uuv_model.g_(3,4), uuv_model.g_(3,5),
+        //                          uuv_model.g_(4,0), uuv_model.g_(4,1), uuv_model.g_(4,2), uuv_model.g_(4,3), uuv_model.g_(4,4), uuv_model.g_(4,5),
+        //                          uuv_model.g_(5,0), uuv_model.g_(5,1), uuv_model.g_(5,2), uuv_model.g_(5,3), uuv_model.g_(5,4), uuv_model.g_(5,5) };
         
         uuv_dynamics.publish(uuv_functions);
 
