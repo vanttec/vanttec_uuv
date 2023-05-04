@@ -1,0 +1,5 @@
+<launch>
+    <!-- <node name="gate_detector" pkg="vanttec_uuv" type="object_detector_node"  /> -->
+    <node name="yolo_zed"      pkg="vanttec_uuv" type="yolo_zed.py"  />
+    <node name="color_srv"     pkg="vanttec_uuv" type="color_srv.py"  />
+</launch>

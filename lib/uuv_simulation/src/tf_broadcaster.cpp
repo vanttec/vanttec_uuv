@@ -37,6 +37,12 @@ void TfBroadcaster::BroadcastTransform(const geometry_msgs::Pose& _pose)
     transformStamped.transform.rotation.z = q.z();
     transformStamped.transform.rotation.w = q.w();
 
+    // For NED to ENU: swap x and y and negate z
+    // transformStamped.transform.rotation.x = _pose.orientation.y;
+    // transformStamped.transform.rotation.y = _pose.orientation.x;
+    // transformStamped.transform.rotation.z = -_pose.orientation.z;
+    // transformStamped.transform.rotation.w = _pose.orientation.w;
+
     this->br.sendTransform(transformStamped);
 
     geometry_msgs::PoseStamped      pose;

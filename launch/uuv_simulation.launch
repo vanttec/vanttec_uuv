@@ -1,14 +1,16 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- upload urdf -->
-    <param name="robot_description"          textfile="$(find vanttec_uuv)/models/uuv_gamma.urdf"/>
     <!-- ROS Nodes -->
-    <node name="rviz"                        pkg="rviz"                  type="rviz"/>
-    <node name="uuv_master_node"             pkg="vanttec_uuv"           type="uuv_master_node" />
-    <node name="uuv_waypoint_publisher_node" pkg="vanttec_uuv"           type="uuv_waypoint_publisher_node" />
-    <node name="uuv_guidance_node"           pkg="vanttec_uuv"           type="uuv_guidance_node" />
+    <node name="uuv_master_node"             pkg="vanttec_uuv"           type="uuv_master_node" /> 
+    <node name="uuv_waypoint_publisher_node" pkg="vanttec_uuv"           type="uuv_waypoint_publisher_node" /> 
+    <node name="uuv_guidance_node"           pkg="vanttec_uuv"           type="uuv_guidance_node" /> 
     <node name="uuv_control_node"            pkg="vanttec_uuv"           type="uuv_control_node" />
     <node name="uuv_tf_broadcast_node"       pkg="vanttec_uuv"           type="uuv_tf_broadcast_node" />
     <node name="uuv_simulation_node"         pkg="vanttec_uuv"           type="uuv_simulation_node" />
-    <node name="vehicle_user_control"        pkg="vehicle_user_control"  type="vehicle_user_control" />
-</launch>
+    <!--<node name="uuv_mission_manager_node"    pkg="vanttec_uuv"           type="uuv_mission_manager_node" />-->
+    <node name="vehicle_user_control"        pkg="vehicle_user_control"  type="vehicle_user_control" /> 
+
+    <include file="$(find vanttec_uuv)/launch/rviz.launch"/>
+
+
+</launch>  

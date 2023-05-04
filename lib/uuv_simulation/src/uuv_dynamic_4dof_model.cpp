@@ -12,6 +12,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <iostream>
 
 UUVDynamic4DOFModel::UUVDynamic4DOFModel(float _sample_time_s)
 {
@@ -178,6 +179,72 @@ void UUVDynamic4DOFModel::CalculateStates()
         this->eta(3) = (this->eta(3) / fabs(this->eta(3))) * (this->eta(3) - 2 * pi);
     }
 
+    /* Transform Euler Angles to Quaternions : 3-2-1 convention */
+    // double psi = this->eta(3);  // yaw
+    // double theta = 0.0;         // pitch
+    // double phi = 0.0;           // roll
+
+    // double C_11 = cos(theta)*cos(psi);
+    // double C_12 = cos(theta)*sin(psi);
+    // double C_13 = -sin(theta);
+    // double C_21 = sin(phi)*sin(theta)*cos(psi)-cos(phi)*sin(psi);
+    // double C_22 = sin(phi)*sin(theta)*sin(psi)+cos(phi)*cos(psi);
+    // double C_23 = sin(phi)*cos(theta);
+    // double C_31 = cos(phi)*sin(theta)*cos(psi)+sin(phi)*sin(psi);
+    // double C_32 = cos(phi)*sin(theta)*sin(psi)-sin(phi)*cos(psi);
+    // double C_33 = cos(phi)*cos(theta);
+    // double trace = C_11+C_22+C_33;
+    
+    // this->C_rot <<  C_11, C_12, C_13,
+    //                 C_21, C_22, C_23,
+    //                 C_31, C_32, C_33;
+
+    // Elements are squared their value
+    // this->quat << 0.25*(1+trace),
+    //               0.25*(1+2*C_11-trace),
+    //               0.25*(1+2*C_22-trace),
+    //               0.25*(1+2*C_33-trace);
+    
+    // char i;
+    // quat.maxCoeff(&i);
+
+    // switch (i){
+    // case 0:
+    //     this->quat(0) = sqrt(this->quat(0));
+    //     this->quat(1) = (C_23-C_32)/4/quat(0);
+    //     this->quat(2) = (C_31-C_13)/4/quat(0);
+    //     this->quat(3) = (C_12-C_21)/4/quat(0);
+    //     break;
+    // case 1:
+    //     this->quat(1) = sqrt(this->quat(1));
+    //     this->quat(0) = (C_23-C_32)/4/quat(1);
+    //     this->quat(2) = (C_12+C_21)/4/quat(1);
+    //     this->quat(3) = (C_31+C_13)/4/quat(1);
+    //     break;
+    // case 2:
+    //     this->quat(2) = sqrt(this->quat(2));
+    //     this->quat(0) = (C_31-C_13)/4/quat(2);
+    //     this->quat(1) = (C_12+C_21)/4/quat(2);
+    //     this->quat(3) = (C_23+C_32)/4/quat(2);
+    //     break;
+    // case 3:
+    //     this->quat(3) = sqrt(this->quat(3));
+    //     this->quat(0) = (C_12-C_21)/4/quat(3);
+    //     this->quat(1) = (C_31+C_13)/4/quat(3);
+    //     this->quat(2) = (C_23+C_32)/4/quat(3);
+    //     break;
+    // default:
+    //     break;
+    // }
+
+    // std::cout << "Cuaterniones:" <<std::endl;
+    // std::cout << this->quat[1] << std::endl;
+    // std::cout << this->quat[2] << std::endl;
+    // std::cout << this->quat[3] << std::endl;
+    // std::cout << this->quat[0] << std::endl;
+    // std::cout << "Yaw:" <<std::endl;
+    // std::cout << this->eta(3) << std::endl;
+
     /* Update ROS Messages */
 
     this->linear_acceleration.x = this->upsilon_dot(0);
@@ -200,5 +267,8 @@ void UUVDynamic4DOFModel::CalculateStates()
     this->pose.position.x = this->eta(0);
     this->pose.position.y = this->eta(1);
     this->pose.position.z = this->eta(2);
-    this->pose.orientation.z = this->eta(3);
+    // this->pose.orientation.x = this->quat(1);
+    // this->pose.orientation.y = this->quat(2);
+    this->pose.orientation.z = this->eta(3); //this->quat(3);
+    // this->pose.orientation.w = this->quat(0);
 }

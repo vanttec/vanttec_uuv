@@ -37,11 +37,11 @@ void WaypointPublisher::WaypointSelection()
         switch((int) this->trajectory_selector)
         {
             case 0:
-                this->waypoints = uuv_common::GenerateCircle(this->circle_radius, 2, 5, 2);
+                this->waypoints = uuv_common::GenerateCircle(this->circle_radius, 2, 5, 2, 0);
                 this->waypoints.guidance_law = 1;
                 break;
             case 1:
-                this->waypoints = uuv_common::GenerateCircle(this->circle_radius, 1.2, 2.7, 0);
+                this->waypoints = uuv_common::GenerateCircle(this->circle_radius, 1.2, 2.7, 0, 2);
                 this->waypoints.guidance_law = 2;
                 break; 
             case 2:
@@ -56,7 +56,7 @@ void WaypointPublisher::WaypointSelection()
         }
         
         this->path.header.stamp     = ros::Time::now();
-        this->path.header.frame_id  = "world";
+        this->path.header.frame_id  = "world_ned";
         this->path.poses.clear();
 
         for (int i = 0; i < this->waypoints.waypoint_list_length; i++)
@@ -64,7 +64,7 @@ void WaypointPublisher::WaypointSelection()
             geometry_msgs::PoseStamped      pose;
 
             pose.header.stamp       = ros::Time::now();
-            pose.header.frame_id    = "world";
+            pose.header.frame_id    = "world_ned";
             pose.pose.position.x    = waypoints.waypoint_list_x[i];
             pose.pose.position.y    = -waypoints.waypoint_list_y[i];
             pose.pose.position.z    = -waypoints.waypoint_list_z[i];

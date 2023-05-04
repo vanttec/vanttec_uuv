@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+
+<include file="$(find uv_worlds)/launch/task_obstacles.launch"/>
+<include file="$(find octomap_server)/launch/octomap_tracking_server.launch"/>
+
+</launch>  

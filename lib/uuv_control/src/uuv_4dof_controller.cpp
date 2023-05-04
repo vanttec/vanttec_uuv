@@ -35,11 +35,45 @@ UUV4DOFController::UUV4DOFController(float _sample_time_s, const float _kpid_u[3
 
 UUV4DOFController::~UUV4DOFController(){}
 
+void UUV4DOFController::PublishAccel(){
+    // ros::Rate loop_rate(10);
+
+    geometry_msgs::Twist v_dot_msg;
+    v_dot_msg.linear.x =  this->f_x(0); 
+    v_dot_msg.linear.y =  this->f_x(1); 
+    v_dot_msg.linear.z =  this->f_x(2); 
+    v_dot_msg.angular.x =  0; 
+    v_dot_msg.angular.y =  0; 
+    v_dot_msg.angular.z =  this->f_x(3); 
+
+    // while (ros::ok())
+    // {
+    v_dot_pub.publish(v_dot_msg);
+    //     loop_rate.sleep();
+    // }
+}
+
 void UUV4DOFController::UpdatePose(const geometry_msgs::Pose& _pose)
 {
     this->local_pose.position.x     = _pose.position.x;
     this->local_pose.position.y     = _pose.position.y;
     this->local_pose.position.z     = _pose.position.z;
+    
+    // double w = _pose.orientation.w; 
+    // double x = _pose.orientation.x; 
+    // double y = _pose.orientation.y; 
+    // double z = _pose.orientation.z; 
+    // double C_11 = pow(w,2)+pow(x,2)-pow(y,2)-pow(z,2);
+    // double C_12 = 2*(x*y + w*z);
+    // double C_13 = 2*(x*z - w*y);
+    // double C_23 = 2*(y*z + w*x);
+    // double C_33 = pow(w,2)-pow(x,2)-pow(y,2)+pow(z,2);
+    // //3-2-1 convention
+    // double yaw = atan2(C_12,C_11);
+    // double pitch = -asin(C_13);
+    // double roll = atan2(C_23,C_33);
+    // this->yaw_psi_angle = yaw;
+
     this->yaw_psi_angle             = _pose.orientation.z;
 }
 

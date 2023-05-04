@@ -1,0 +1,5 @@
+geometry_msgs/Point gate_position
+geometry_msgs/Point left_side
+geometry_msgs/Point right_side
+geometry_msgs/Point upper_corner
+geometry_msgs/Point lower_corner

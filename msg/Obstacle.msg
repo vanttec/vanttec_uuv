@@ -1,4 +1,3 @@
-Header header
-string class
-geometry_msgs/Pose pose
-float32 radio
+string              type
+geometry_msgs/Pose  pose
+float32             radius

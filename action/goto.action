@@ -1,0 +1,8 @@
+# Define the goal
+geometry_msgs/Point goto_point  # Specify which dishwasher we want to use
+---
+# Define the result
+uint32 goto_done
+---
+# Define a feedback message
+float32 goto_status

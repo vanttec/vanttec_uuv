@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+<arg name="node_start_delay" default="1.0" />  
+<include file="$(find uv_worlds)/launch/lake.launch"/>
+
+<node name="gazebo_interface" pkg="vehicle_descriptions" type="gazebo_interface"/> 
+
+<node pkg="vanttec_uuv" type="timed_roslaunch.sh" args="1 vehicle_descriptions vtec_u3.launch" name="timed_roslaunch_1" output="screen" />
+<!-- 
+<include file="$(find vehicle_descriptions)/launch/vtec_u3.launch"/> -->
+
+<!-- <include file="$(find vanttec_uuv)/launch/uuv_simulation.launch"/> -->
+<node pkg="vanttec_uuv" type="timed_roslaunch.sh" args="2 vanttec_uuv uuv_simulation.launch" name="timed_roslaunch_2" output="screen" />
+
+<!-- <include file="$(find vanttec_uuv)/launch/sim2.launch"/> -->
+<node pkg="vanttec_uuv" type="timed_roslaunch.sh" args="3 vanttec_uuv sim2.launch" name="timed_roslaunch_3" output="screen" />
+</launch>  

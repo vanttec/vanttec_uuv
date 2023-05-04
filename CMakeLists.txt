@@ -2,12 +2,13 @@ cmake_minimum_required(VERSION 3.0.2)
 project(vanttec_uuv)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++14)
 
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     message_generation
     std_msgs
+    gazebo_msgs
     geometry_msgs
     nav_msgs
     tf2
@@ -15,24 +16,59 @@ find_package(catkin REQUIRED COMPONENTS
     tf2_geometry_msgs
     vehicle_user_control
     visualization_msgs
+    pcl_ros
+    roscpp
+    sensor_msgs
+    cv_bridge
+    actionlib_msgs
+    visualization_msgs
 )
+
+find_package(PCL 1.2  REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 add_message_files(
    FILES
+   clusters_center_list.msg
    ThrustControl.msg
    GuidanceWaypoints.msg
    MasterStatus.msg
    Obstacle.msg
+   DetectedObstacles.msg
+   MissionStatus.msg
+   obj_detected.msg
+   obj_detected_list.msg
+   Gate.msg
+   TargetsCentroids.msg
+   ColorRanges.msg
+   poses.msg
+   poseList.msg
 )
+
+add_service_files(
+   FILES
+   color_id.srv
+)
+
+add_action_files(
+   FILES rotate.action walk.action goto.action
+
+ )
 
 generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  sensor_msgs
+  actionlib_msgs
+  visualization_msgs
 )
 
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs
+  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs sensor_msgs vehicle_user_control pcl_ros 
   DEPENDS ${LIBS}
 )
 
@@ -44,8 +80,11 @@ include_directories(
     lib/uuv_master/include
     lib/uuv_motion_planning/include
     lib/uuv_simulation/include
-    ${catkin_INCLUDE_DIRS}
+    lib/uuv_missions/include
+    include ${catkin_INCLUDE_DIRS}
+    ${PCL_INCLUDE_DIRS}
 )
+add_definitions(${PCL_DEFINITIONS})
 
 add_executable(uuv_odometry_node 
     src/uuv_odometry_node.cpp 
@@ -61,16 +100,34 @@ add_executable(uuv_control_node
 add_dependencies(uuv_control_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_control_node ${catkin_LIBRARIES})
 
+add_executable(asmc_guidance_unit_test 
+    tests/asmc_guidance_unit_test.cpp
+    lib/uuv_control/src/asmc.cpp
+    lib/uuv_guidance/src/asmc_guidance.cpp
+    lib/uuv_guidance/src/asmc_guidance_4dof.cpp)
+add_dependencies(asmc_guidance_unit_test ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(asmc_guidance_unit_test ${catkin_LIBRARIES})
+
 add_executable(uuv_simulation_node 
     src/uuv_simulation_node.cpp 
     lib/uuv_simulation/src/uuv_dynamic_4dof_model.cpp)
 add_dependencies(uuv_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_simulation_node ${catkin_LIBRARIES})
 
-add_executable(uuv_obstacle_simulation_node 
-    src/uuv_obstacle_simulation_node.cpp) 
-add_dependencies(uuv_obstacle_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(uuv_obstacle_simulation_node ${catkin_LIBRARIES})
+add_executable(uuv_gate_simulation_node 
+    src/uuv_gate_simulation_node.cpp) 
+add_dependencies(uuv_gate_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_gate_simulation_node ${catkin_LIBRARIES})
+
+add_executable(uuv_buoy_simulation_node 
+    src/uuv_buoy_simulation_node.cpp) 
+add_dependencies(uuv_buoy_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_buoy_simulation_node ${catkin_LIBRARIES})
+
+add_executable(uuv_shootout_simulation_node 
+    src/uuv_shootout_simulation_node.cpp) 
+add_dependencies(uuv_shootout_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_shootout_simulation_node ${catkin_LIBRARIES})
 
 add_executable(uuv_tf_broadcast_node 
     src/uuv_tf_broadcast_node.cpp 
@@ -94,7 +151,25 @@ target_link_libraries(uuv_waypoint_publisher_node ${catkin_LIBRARIES})
 
 add_executable(uuv_guidance_node 
     src/uuv_guidance_node.cpp 
-    lib/uuv_guidance/src/uuv_guidance_controller.cpp)
+    lib/uuv_guidance/src/uuv_guidance_controller.cpp
+    lib/uuv_control/src/asmc.cpp
+    lib/uuv_guidance/src/asmc_guidance.cpp
+    lib/uuv_guidance/src/asmc_guidance_4dof.cpp)
 add_dependencies(uuv_guidance_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_guidance_node ${catkin_LIBRARIES})
+
+add_executable(uuv_mission_manager_node 
+    src/uuv_mission_manager_node.cpp 
+    lib/uuv_missions/src/uuv_mission_manager.cpp 
+    lib/uuv_missions/src/gate_mission.cpp
+    lib/uuv_missions/src/buoy_mission.cpp
+    lib/uuv_missions/src/shootout_mission.cpp
+    lib/uuv_common/src/uuv_common.cpp
+)
+add_dependencies(uuv_mission_manager_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(uuv_mission_manager_node ${catkin_LIBRARIES})
+
+link_directories(${PCL_LIBRARY_DIRS})
+add_executable(object_detector_node src/object_detector_node.cpp)
+target_link_libraries(object_detector_node ${catkin_LIBRARIES} pcl_visualization)
 
