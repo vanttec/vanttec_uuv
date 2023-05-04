@@ -22,9 +22,9 @@ WALKDIS = 6
 
 class pixel:
     def __init__(self, u = 0, v = 0, d = 0):
-        u = u
-        v = v
-        d = d
+        self.u = u
+        self.v = v
+        self.d = d
 
 class uuv:
     #Inicializacion de uuv
@@ -105,6 +105,17 @@ class uuv:
         
         self.path = pixel()
         self.path_found = 0
+        
+        self.bin1 = pixel()
+        self.bin2 = pixel()
+
+        self.binA = Point()
+        self.binTemp = Point()
+        self.binB = Point()
+
+        self.bin1_found = 0
+        self.bin2_found = 0
+        
 
         #Modelo de la camara
         self.camera = PinholeCameraModel()
@@ -237,7 +248,7 @@ class uuv:
 
                 #Marcar objeto como encontrado
                 self.gate_found = 1
-            elif object.clase == "gangster" and self.completedMissions["GATE"] == 0:
+            elif object.clase == "police" and self.completedMissions["GATE"] == 0:
                 #Pixel central del objeto
                 self.gate_police.u = object.X
                 self.gate_police.v = object.Y
@@ -248,7 +259,7 @@ class uuv:
                 #Marcar objeto como encontrado
                 self.police_found = 1
 
-            elif object.clase == "police" and self.completedMissions["GATE"] == 0:
+            elif object.clase == "gangster" and self.completedMissions["GATE"] == 0:
                 #Pixel central del objeto
                 self.gate_gangster.u = object.X
                 self.gate_gangster.v = object.Y
@@ -267,7 +278,17 @@ class uuv:
                 self.path.d = object.Depth
 
                 self.path_found = 1
-    
+
+            elif object.clase == "bin2" and self.completedMissions["BINS"] == 0:
+                 #pixel central del objeto
+                self.bin2.u = object.X
+                self.bin2.v = object.Y
+
+                #Distancia del objeto al uuv
+                self.bin2.d = object.Depth   
+
+                self.bin2_found = 1
+
     def retos(self):
         #Si encontramos el gate y la imagen correcta
         if self.gate_found == 1 and self.completedMissions["GATE"] == 0:
@@ -278,10 +299,15 @@ class uuv:
             elif self.gangster_found:
                 self.gate(self.gate_gangster.u, self.gate_gangster.v, self.gate_gangster.d)
 
-        elif self.gun_found and self.side == "gangster" and self.completedMissions["BUOYS"] == 0:
-            self.buoys(self.buoys_badge.u, self.buoys_badge.v, self.buoys_badge.d)
         elif self.badge_found and self.side == "police" and self.completedMissions["BUOYS"] == 0:
+            self.buoys(self.buoys_badge.u, self.buoys_badge.v, self.buoys_badge.d)
+
+        elif self.gun_found and self.side == "gangster" and self.completedMissions["BUOYS"] == 0:
             self.buoys(self.buoys_gun.u, self.buoys_gun.v, self.buoys_gun.d)
+
+        elif self.bin2_found and self.completedMissions["BINS"] == 0:
+            self.bins()
+
         elif self.path_found:
             self.marker(self.path.u, self.path.v, self.path.d)
         
@@ -301,6 +327,7 @@ class uuv:
         ray = self.camera.projectPixelTo3dRay((u,v))
 
         #Multiplicar por la distancia para obtener la coordenada
+        #(se cambia el orden de las x, y y z debido a que hay una rotacion en el frame de referencia de la imagen)
         (y, z, x) = [el * (d+400)/1000 for el in ray]
         
         return (x, y, z)
@@ -348,8 +375,9 @@ class uuv:
 
         distance = (d+400)/1000 
         print(distance)
+        print("buoys")
 
-        if distance > 5:
+        if distance > 6:
             x = x * (0.5)
             y = y * (0.5)
 
@@ -402,15 +430,81 @@ class uuv:
         
         #If marker seen go to marker
         target = Point(x,y,self.ned.z)
-        self.goto(target)
+        # self.goto(target)
         
-        self.scan()
+        # self.scan()
+
+    def bins(self):
+        #TODO
+        if self.firstB:
+            self.binTemp = self.pixelto3D(self.bin2.u, self.bin2.v, self.bin2.d)
+
+            self.binTemp.x += self.ned.x
+            self.binTemp.y += self.ned.y
+
+            #Go to over the bin
+            self.goto(self.binTemp)
+
+            #Activate bottom YOLO, publish on topic
+
+        else:
+            #Estimate Pose of both bins
+            
+            #use pixel of the barrel or bottle
+            binGang = self.pixelto3D()
+            binGang.x += self.ned.x
+            binGang.y += self.ned.y 
+            binGang.z += self.ned.z - 1 #offset for gripper
+
+            #use pixel of telephone or notepad
+            binPolice = self.pixelto3D()
+            binPolice.x += self.ned.x
+            binPolice.y += self.ned.y 
+            binPolice.z += self.ned.z - 1 #offset for gripper
+            
+            #Store middle pose
+            middlePose = self.ned
+
+            if self.side == "police":
+                #Go to opposite side
+                self.goto(binGang)
+
+                #Grab the marker
+                print("Grab marker")
+
+                #Go to middle pose
+                self.goto(middlePose)
+
+                #Go to our side
+                self.goto(binPolice)
+
+                #Drop the marker
+                print("Drop marker")
+            else:
+                #Go to opposite side
+                self.goto(binPolice)
+
+                #Grab the marker
+                print("Grab marker")
+
+                #Go to middle pose
+                self.goto(middlePose)
+
+                #Go to our side
+                self.goto(binGang)
+
+                #Drop the marker
+                print("Drop marker")
+            
+            self.completedMissions["BINS"] = 1
+            print("BINS COMPLETED")
+            self.walk(3)
         
 
 
 if __name__ == "__main__":
     try:
-        rospy.init_node("navigation", anonymous=False)
+        rospy.init_node("gate", anonymous=False)
         i = uuv()
         i.main()
     except rospy.ROSInterruptException:     

@@ -10,28 +10,44 @@ import rospy
 from geometry_msgs.msg import Pose, Point
 from vanttec_uuv.msg import obj_detected_list, poses, poseList
 import actionlib
-from image_geometry import PinholeCameraModel
+from image_geometry import PinholeCameraModel, StereoCameraModel
 from sensor_msgs.msg import CameraInfo
 import math
 
 #Posicion actual
-currentPose = Point()
+# currentPose = Point()
 
-#Modelo de la camara frontal
+# currentPose.x = 0
+# currentPose.y = 0
+# currentPose.z = 0
+
+#Modelo de la camara
 camera = PinholeCameraModel()
-msg = CameraInfo()
-msg.D = [-0.813149231, 612.338476, -0.00268726812, -0.00601155767, 1.48938401]
-msg.K = [5816.60691, 0.0, 328.23376, 0.0, 5263.47548, 217.7909, 0.0, 0.0, 1.0]
-msg.R = [0.999864, 0.008003, -0.014412, -0.007971, 0.999966, 0.00223, 0.01443, -0.002115, 0.999894]
-msg.P = [554.3826904296875, 0.0, 320.0, 0.0, 0.0, 554.3826904296875, 240.0, 0.0, 0.0, 0.0, 1.0, 0.0]
-camera.fromCameraInfo(msg) 
+#Modelo de la camara stereo
+stereo = StereoCameraModel()
 
-#Callback que nos da la posicion actual del uuv
-def ins_pose_callback(pose):
-    global currentPose
-    currentPose.x = pose.position.x
-    currentPose.y = pose.position.y
-    currentPose.z = pose.position.z
+
+def infoCamRightCB(msg):
+    stereo.right.fromCameraInfo(msg)
+
+def infoCamLeftCB(msg):
+    stereo.left.fromCameraInfo(msg)
+
+def infoCamCB(msg):
+    camera.fromCameraInfo(msg) 
+
+def stereoPixelto3D(u,v,d):
+    #left cam u, v
+    disparity = stereo.getDisparity(d) #ver disparity map
+    x, y, z = stereo.projectPixelTo3d((u,v), disparity)
+    return y, z, x
+
+# #Callback que nos da la posicion actual del uuv
+# def ins_pose_callback(pose):
+#     global currentPose
+#     currentPose.x = pose.position.x
+#     currentPose.y = pose.position.y
+#     currentPose.z = pose.position.z
 
 def pixelto3D(u, v, d):
     #Obtener el rayo 3D de la camara al pixel indicado
@@ -39,7 +55,7 @@ def pixelto3D(u, v, d):
 
     #Multiplicar por la distancia para obtener la coordenada 
     #(se cambia el orden de las x, y y z debido a que hay una rotacion en el frame de referencia de la imagen)
-    (y, z, x) = [el * (d+400)/1000 for el in ray]
+    (y, z, x) = [el * (d) for el in ray]
     
     return (x, y, z)
 
@@ -53,9 +69,14 @@ def detected_objects_callback(msg):
         item = poses()
 
         x, y, z = pixelto3D(object.X, object.Y, object.Depth)
-        item.location.x = x + currentPose.x
-        item.location.y = y + currentPose.y
-        item.location.z = z + currentPose.z
+        rospy.loginfo("Pose Monocular X: " + str(x) + " Y:" + str(y) + " Z:" + str(z))
+
+        x, y, z = stereoPixelto3D(object.X, object.Y, object.Depth)
+        rospy.loginfo("Pose Stereo X: " + str(x) + " Y:" + str(y) + " Z:" + str(z))
+
+        item.location.x = x 
+        item.location.y = y 
+        item.location.z = z 
         item.name = object.clase
 
         objects.targets.append(item)
@@ -65,10 +86,12 @@ def detected_objects_callback(msg):
     
         
 #Current pose
-rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, ins_pose_callback)
+# rospy.Subscriber("/uuv_simulation/dynamic_model/pose", Pose, ins_pose_callback)
         
 #Object detector
-rospy.Subscriber('/uuv_perception/yolo_zed/objects_detected', obj_detected_list, detected_objects_callback,queue_size=10)
+rospy.Subscriber('/uuv_perception/yolo_zed/objects_detected', obj_detected_list, detected_objects_callback, queue_size=10)
+rospy.Subscriber('/zed2i/zed_node/right_raw/camera_info', CameraInfo, infoCamRightCB, queue_size=1)
+rospy.Subscriber('/zed2i/zed_node/left_raw/camera_info', CameraInfo, infoCamLeftCB, queue_size=1)
 
 
 if __name__ == "__main__":
