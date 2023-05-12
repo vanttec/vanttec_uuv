@@ -10,7 +10,7 @@
  * -----------------------------------------------------------------------------
  **/
 
-#include "6dof_tf2_broadcaster.hpp"
+#include "simulation/6dof_tf2_broadcaster.hpp"
 
 #include <ros/ros.h>
 #include <string.h>

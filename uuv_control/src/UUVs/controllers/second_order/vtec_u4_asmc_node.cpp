@@ -45,12 +45,12 @@ int main(int argc, char **argv)
     // Max Tau
     float MAX_TAU[6] = {127, 34, 118, 28, 9.6, 36.6};
 
-    float* lambda = &lambda_v[0];
-    float* K1_init = &K1_init_v[0];
-    float* K2 = &K2_v[0];
-    float* K_alpha = &K_alpha_v[0];
-    float* K_min = &K_min_v[0];
-    float* mu = &mu_v[0];
+    const float* lambda = &lambda_v[0];
+    const float* K1_init = &K1_init_v[0];
+    const float* K2 = &K2_v[0];
+    const float* K_alpha = &K_alpha_v[0];
+    const float* K_min = &K_min_v[0];
+    const float* mu = &mu_v[0];
 
     ASMC6DOF   system_controller(SAMPLE_TIME_S, lambda, K2, K_alpha, K1_init, K_min, mu);
     system_controller.setMaxThrust(MAX_TAU);

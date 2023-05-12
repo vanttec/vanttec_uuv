@@ -36,9 +36,9 @@ int main(int argc, char **argv)
     nh.getParam("k_i", g_i);
     nh.getParam("k_d", g_d);
 
-    float* k_p = &g_p[0];
-    float* k_i = &g_i[0];
-    float* k_d= &g_d[0];
+    const float* k_p = &g_p[0];
+    const float* k_i = &g_i[0];
+    const float* k_d= &g_d[0];
 
     float MAX_TAU[6] = {127, 34, 118, 28, 9.6, 36.6};
 
