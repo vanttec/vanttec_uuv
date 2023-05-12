@@ -31,21 +31,19 @@ add_executable(tf2_broadcaster_node
     libs/vanttec_controllers/simulation/6dof_tf2_broadcaster.cpp)
 target_link_libraries(tf2_broadcaster_node ${catkin_LIBRARIES})
 
-# add_executable(vtec_u4_simulation_node
-#     src/UUVs/model/vtec_u4_simulation_node.cpp
-#     libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_6dof_dynamic_model.cpp
-#     libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/models/marine_6dof_dynamic_model.cpp
-#     libs/vanttec_controllers/dynamic_models/base/base_fblin_6dof_model.cpp
-#     libs/vanttec_controllers/utils/utils.cpp)
-# target_link_libraries(vtec_u4_simulation_node ${catkin_LIBRARIES})
+add_executable(vtec_u4_simulation_node
+    src/UUVs/model/vtec_u4_simulation_node.cpp
+    libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_6dof_dynamic_model.cpp
+    libs/vanttec_controllers/dynamic_models/marine_vehicles/base/marine_6dof_dynamic_model.cpp
+    libs/vanttec_controllers/utils/utils.cpp)
+target_link_libraries(vtec_u4_simulation_node ${catkin_LIBRARIES})
 
-# add_executable(inertial_vtec_u4_simulation_node
-#     src/UUVs/model/in_vtec_u4_simulation_node.cpp
-#     libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_in_6dof_dynamic_model.cpp
-#     libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/models/marine_6dof_in_dynamic_model.cpp
-#     libs/vanttec_controllers/dynamic_models/base/base_fblin_6dof_model.cpp
-#     libs/vanttec_controllers/utils/utils.cpp)
-# target_link_libraries(inertial_vtec_u4_simulation_node ${catkin_LIBRARIES})
+add_executable(inertial_vtec_u4_simulation_node
+    src/UUVs/model/in_vtec_u4_simulation_node.cpp
+    libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_in_6dof_dynamic_model.cpp
+    libs/vanttec_controllers/dynamic_models/marine_vehicles/base/marine_6dof_in_dynamic_model.cpp
+    libs/vanttec_controllers/utils/utils.cpp)
+target_link_libraries(inertial_vtec_u4_simulation_node ${catkin_LIBRARIES})
 
 # add_executable(vtec_u4_pid1_node
 #     src/UUVs/controllers/first_order/vtec_u4_pid_control_node.cpp
@@ -54,16 +52,16 @@ target_link_libraries(tf2_broadcaster_node ${catkin_LIBRARIES})
 #     libs/vanttec_controllers/utils/utils.cpp)
 # target_link_libraries(vtec_u4_pid1_node ${catkin_LIBRARIES})
 
-add_executable(vtec_u4_pid2_node
-    src/UUVs/controllers/second_order/vtec_u4_pid_node.cpp
-    libs/vanttec_controllers/controllers/feedback_linearization/model_based_controllers/UUVs/vtec_u4_6dof_in_pid.cpp
-    libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_in_6dof_dynamic_model.cpp
-    libs/vanttec_controllers/dynamic_models/marine_vehicles/base/marine_6dof_in_dynamic_model.cpp
-    libs/vanttec_controllers/controllers/feedback_linearization/PID_based/second_order/6dof_pid.cpp
-    libs/vanttec_controllers/controllers/feedback_linearization/base/fb_lin_6dof_control.cpp
-    libs/vanttec_controllers/controllers/control_laws/PID/second_order/pid.cpp
-    libs/vanttec_controllers/utils/utils.cpp)
-target_link_libraries(vtec_u4_pid2_node ${catkin_LIBRARIES})
+# add_executable(vtec_u4_pid2_node
+#     src/UUVs/controllers/second_order/vtec_u4_pid_node.cpp
+#     libs/vanttec_controllers/controllers/feedback_linearization/model_based_controllers/UUVs/vtec_u4_6dof_in_pid.cpp
+#     libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_in_6dof_dynamic_model.cpp
+#     libs/vanttec_controllers/dynamic_models/marine_vehicles/base/marine_6dof_in_dynamic_model.cpp
+#     libs/vanttec_controllers/controllers/feedback_linearization/PID_based/second_order/6dof_pid.cpp
+#     libs/vanttec_controllers/controllers/feedback_linearization/base/fb_lin_6dof_control.cpp
+#     libs/vanttec_controllers/controllers/control_laws/PID/second_order/pid.cpp
+#     libs/vanttec_controllers/utils/utils.cpp)
+# target_link_libraries(vtec_u4_pid2_node ${catkin_LIBRARIES})
 
 # add_executable(vtec_u4_asmc_node
 #     src/UUVs/controllers/second_order/vtec_u4_asmc_node.cpp
