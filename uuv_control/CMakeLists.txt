@@ -59,7 +59,6 @@ add_executable(vtec_u4_pid2_node
     libs/vanttec_controllers/controllers/feedback_linearization/model_based_controllers/UUVs/vtec_u4_6dof_in_pid.cpp
     libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_in_6dof_dynamic_model.cpp
     libs/vanttec_controllers/dynamic_models/marine_vehicles/base/marine_6dof_in_dynamic_model.cpp
-    libs/vanttec_controllers/dynamic_models/base/fblin_6dof_model.cpp
     libs/vanttec_controllers/controllers/feedback_linearization/PID_based/second_order/6dof_pid.cpp
     libs/vanttec_controllers/controllers/feedback_linearization/base/fb_lin_6dof_control.cpp
     libs/vanttec_controllers/controllers/control_laws/PID/second_order/pid.cpp
