@@ -32,14 +32,14 @@ add_executable(tf2_broadcaster_node
 target_link_libraries(tf2_broadcaster_node ${catkin_LIBRARIES})
 
 add_executable(vtec_u4_simulation_node
-    src/UUVs/model/vtec_u4_simulation_node.cpp
+    src/UUVs/models/vtec_u4_simulation_node.cpp
     libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_6dof_dynamic_model.cpp
     libs/vanttec_controllers/dynamic_models/marine_vehicles/base/marine_6dof_dynamic_model.cpp
     libs/vanttec_controllers/utils/utils.cpp)
 target_link_libraries(vtec_u4_simulation_node ${catkin_LIBRARIES})
 
 add_executable(inertial_vtec_u4_simulation_node
-    src/UUVs/model/in_vtec_u4_simulation_node.cpp
+    src/UUVs/models/in_vtec_u4_simulation_node.cpp
     libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_in_6dof_dynamic_model.cpp
     libs/vanttec_controllers/dynamic_models/marine_vehicles/base/marine_6dof_in_dynamic_model.cpp
     libs/vanttec_controllers/utils/utils.cpp)

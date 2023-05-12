@@ -35,8 +35,8 @@ void VTecU4ModelNodelet::onInit()
 
     ros::Subscriber uuv_thrust_input = nh.subscribe("/uuv_control/uuv_control_node/thrust", 
                                                     10, 
-                                                    &Generic6DOFUUVDynamicModel::thrustCallbacK,
-                                                    dynamic_cast<Generic6DOFUUVDynamicModel*> (&uuv_model));
+                                                    &Marine6DOFDynamicModel::thrustCallbacK,
+                                                    dynamic_cast<Marine6DOFDynamicModel*> (&uuv_model));
             
     uuv_functions.g.layout.dim.push_back(std_msgs::MultiArrayDimension());
     uuv_functions.g.layout.dim.push_back(std_msgs::MultiArrayDimension());

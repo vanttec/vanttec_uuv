@@ -40,8 +40,8 @@ int main(int argc, char **argv)
 
     ros::Subscriber uuv_thrust_input = private_nh.subscribe("/uuv_control/uuv_control_node/thrust", 
                                                     10, 
-                                                    &GenericIn6DOFUUVDynamicModel::thrustCallbacK,
-                                                    dynamic_cast<GenericIn6DOFUUVDynamicModel*> (&uuv_model));
+                                                    &Marine6DOFInDynamicModel::thrustCallbacK,
+                                                    dynamic_cast<Marine6DOFInDynamicModel*> (&uuv_model));
             
     uuv_functions.g.layout.dim.push_back(std_msgs::MultiArrayDimension());
     uuv_functions.g.layout.dim.push_back(std_msgs::MultiArrayDimension());
