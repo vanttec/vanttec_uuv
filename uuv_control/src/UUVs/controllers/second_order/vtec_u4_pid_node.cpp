@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     std::vector<float> k_i;
     std::vector<float> k_d;
 
-    std::array<float,6> chi1_d {1, 1, 0, 0, 0, 0};
+    std::array<float,6> chi1_d {1, 0, 0, 0, 0, 0};
     std::array<float,6> chi2_d {0, 0, 0, 0, 0, 0};
     std::array<float,6> chi2_dot_d {0, 0, 0, 0, 0, 0};
 
@@ -42,6 +42,11 @@ int main(int argc, char **argv)
     private_nh.getParam("k_p", k_p);
     private_nh.getParam("k_i", k_i);
     private_nh.getParam("k_d", k_d);
+
+    // private_nh.param("k_p", k_p, {1, 1, 1, 1, 1, 1});
+    // private_nh.param("k_i", k_i, {0,0,0,0,0,0});
+    // private_nh.param("k_d", k_d, {1, 1, 1, 1, 1, 1});
+
     private_nh.param("init_pose", init_pose, {0,0,0,0,0,0});
 
     std::array<float,6> max_tau {127, 34, 118, 28, 9.6, 36.6};
@@ -57,7 +62,7 @@ int main(int argc, char **argv)
     ros::Subscriber trajectory    = private_nh.subscribe("/uuv_motion_planning/trajectory_planner/s_curve", 1, &VTEC_U4_6DOF_PID::updateTrajectoryReference, &model);
 
     model.setInitPose(init_pose);
-    model.updateReferences(chi1_d, chi2_d, chi2_dot_d);
+    // model.updateReferences(chi1_d, chi2_d, chi2_dot_d);
 
     while(ros::ok())
     {

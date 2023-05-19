@@ -1,5 +1,5 @@
 /** ----------------------------------------------------------------------------
- * @file: 6dof_tf2_broadcast_node.cpp
+ * @file: tf2_6dof_broadcast_node.cpp
  * @date: April 10, 2022
  * @author: Pedro Sanchez
  * @email: pedro.sc.97@gmail.com
@@ -10,7 +10,7 @@
  * -----------------------------------------------------------------------------
  **/
 
-#include "simulation/6dof_tf2_broadcaster.hpp"
+#include "simulation/tf2_6dof_broadcaster.hpp"
 
 #include <ros/ros.h>
 #include <string.h>

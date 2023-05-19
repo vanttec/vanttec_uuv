@@ -22,8 +22,8 @@ include_directories(
 )
 
 add_executable(tf2_broadcaster_node
-    src/UUVs/6dof_tf2_broadcast_node.cpp
-    libs/vanttec_controllers/simulation/6dof_tf2_broadcaster.cpp)
+    src/UUVs/tf2_6dof_broadcast_node.cpp
+    libs/vanttec_controllers/simulation/tf2_6dof_broadcaster.cpp)
 target_link_libraries(tf2_broadcaster_node ${catkin_LIBRARIES})
 
 add_executable(vtec_u4_simulation_node
