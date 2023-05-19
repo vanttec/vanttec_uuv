@@ -14,7 +14,7 @@
 #include <nav_msgs/Path.h> 
 #include <nav_msgs/OccupancyGrid.h>
 
-#include "vanttec_motion_planners/path_planners/include/RRT_star.hpp"
+#include "vanttec_motion_planners/path_planners/sampling_based/RRT_star.hpp"
 
 int main(int argc, char** argv)
 {

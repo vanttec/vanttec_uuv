@@ -1,10 +1,10 @@
 /** ----------------------------------------------------------------------------
  * @file: vtec_u4_pid_node.cpp
  * @date: May 6, 2023
- * @author: Pedro Sanchez
- * @email: pedro.sc.97@gmail.com
+ * @author: Sebas Mtz
+ * @email: sebas.martp@gmail.com
  * 
- * @brief: ROS control node for the UUV. Uses uuv_control library.
+ * @brief: ROS control node for the UUV.
  * -----------------------------------------------------------------------------
  **/
 
@@ -44,15 +44,17 @@ int main(int argc, char **argv)
     private_nh.getParam("k_d", k_d);
     private_nh.param("init_pose", init_pose, {0,0,0,0,0,0});
 
-    std::array<float,6> U_MAX {127, 34, 118, 28, 9.6, 36.6};
+    std::array<float,6> max_tau {127, 34, 118, 28, 9.6, 36.6};
     std::array<DOFControllerType_E,6> types {LINEAR_DOF, LINEAR_DOF, LINEAR_DOF, ANGULAR_DOF, ANGULAR_DOF, ANGULAR_DOF};
 
-    VTEC_U4_6DOF_PID   model(SAMPLE_TIME_S, k_p, k_i, k_d, U_MAX, types);
+    VTEC_U4_6DOF_PID   model(SAMPLE_TIME_S, k_p, k_i, k_d, max_tau, types);
     
     ros::Publisher  uuv_accel     = private_nh.advertise<geometry_msgs::Vector3>("/vectornav/ins_3d/ins_acc", 10);
     ros::Publisher  uuv_vel       = private_nh.advertise<geometry_msgs::Twist>("/uuv_simulation/dynamic_model/vel", 10);
     ros::Publisher  uuv_eta_pose  = private_nh.advertise<vanttec_msgs::EtaPose>("/uuv_simulation/dynamic_model/eta_pose", 10);
     ros::Publisher  uuv_thrust    = private_nh.advertise<vanttec_msgs::ThrustControl>("/uuv_control/uuv_control_node/thrust", 1);
+
+    ros::Subscriber trajectory    = private_nh.subscribe("/uuv_motion_planning/trajectory_planner/s_curve", 1, &VTEC_U4_6DOF_PID::updateTrajectoryReference, &model);
 
     model.setInitPose(init_pose);
     model.updateReferences(chi1_d, chi2_d, chi2_dot_d);
@@ -66,6 +68,8 @@ int main(int argc, char **argv)
         model.calculateStates();
 
         model.updateNonLinearFunctions();
+
+        model.updateCurrentReference();
 
         model.calculateControlSignals();
 

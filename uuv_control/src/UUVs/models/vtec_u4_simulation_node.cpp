@@ -13,7 +13,7 @@
  * -----------------------------------------------------------------------------
  **/
 
-#include "dynamic_models/marine_vehicles/underwater/vehicles/vtec_u4_6dof_dynamic_model.hpp"
+#include "dynamic_models/marine_vehicles/underwater/vtec_u4_6dof_dynamic_model.hpp"
 #include "vanttec_msgs/EtaPose.h"
 #include "vanttec_msgs/SystemDynamics.h"
 #include <std_msgs/MultiArrayDimension.h>

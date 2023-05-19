@@ -13,8 +13,8 @@
 #include <geometry_msgs/Vector3.h>
 #include "vanttec_msgs/Trajectory.h"
 
-#include "vanttec_motion_planners/path_planners/include/RRT_star.hpp"
-#include "vanttec_motion_planners/trajectory_planners/include/s_curve.hpp"
+#include "vanttec_motion_planners/path_planners/sampling_based/RRT_star.hpp"
+#include "vanttec_motion_planners/trajectory_planners/s_curve/s_curve.hpp"
 
 int main(int argc, char** argv){
 
