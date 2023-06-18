@@ -1,7 +1,11 @@
 <launch>
+    <param name="frequency" type="double" value="100.0" />
+
     <include file="$(find uuv_map_tools)/launch/map.launch"/>
 
     <node pkg="uuv_motion_planning" name="rrt_star" type="rrt_star_node" output="screen">
         <rosparam file="$(find uuv_motion_planning)/config/planner_config.yaml"/>
+        <rosparam param="start_point">[6, -5, 0]</rosparam> 
+        <rosparam param="goal_point"> [-6, 5, 0]</rosparam> 
     </node>
 </launch>

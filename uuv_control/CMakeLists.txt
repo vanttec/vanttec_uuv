@@ -61,6 +61,22 @@ add_executable(vtec_u4_pid2_node
     libs/vanttec_controllers/utils/utils.cpp)
 target_link_libraries(vtec_u4_pid2_node ${catkin_LIBRARIES})
 add_dependencies(vtec_u4_pid2_node vanttec_msgs_generate_messages_cpp)
+
+add_executable(vtec_u4_pid2_traj_node
+    src/UUVs/controllers/second_order/vtec_u4_pid_node_traj.cpp
+    libs/vanttec_controllers/controllers/feedback_linearization/model_based_controllers/UUVs/vtec_u4_6dof_in_pid.cpp
+    libs/vanttec_controllers/dynamic_models/marine_vehicles/underwater/vtec_u4_in_6dof_dynamic_model.cpp
+    libs/vanttec_controllers/dynamic_models/marine_vehicles/base/marine_6dof_in_dynamic_model.cpp
+
+    libs/vanttec_controllers/controllers/feedback_linearization/PID_based/second_order/fblin_6dof_pid.cpp
+    libs/vanttec_controllers/controllers/feedback_linearization/base/fb_lin_6dof_control.cpp
+    libs/vanttec_controllers/controllers/control_laws/PID/second_order/pid_6dof.cpp
+    libs/vanttec_controllers/controllers/control_laws/PID/second_order/pid.cpp
+
+    libs/vanttec_controllers/utils/utils.cpp)
+target_link_libraries(vtec_u4_pid2_traj_node ${catkin_LIBRARIES})
+add_dependencies(vtec_u4_pid2_traj_node vanttec_msgs_generate_messages_cpp)
+
                 # ${${PROJECT_NAME}_EXPORTED_TARGETS}
                 # ${catkin_EXPORTED_TARGETS})
 

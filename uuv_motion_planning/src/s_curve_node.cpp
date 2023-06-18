@@ -21,12 +21,12 @@ int main(int argc, char** argv){
 
     // Create node handler
     ros::NodeHandle private_nh("~");
-
-    const float SAMPLE_TIME = 0.01;
-    SCurve trajectory_planner(SAMPLE_TIME);
+    ros::NodeHandle nh("");
 
     // std::array<float, 3> start = {-1, -2, -1};
     // std::array<float, 3> goal =  { 1.05489,  1.10891, 1.0};
+
+    nh.param("frequency", frequency, 100);
 
     std::array<float, 3> start = {0, 0, 0};
     std::array<float, 3> goal =  {1.5, 1.5, 1.5};
@@ -36,6 +36,10 @@ int main(int argc, char** argv){
     const std::array<float, 5> Y_MAX = {0, 0.5, 0.5, 0.5, 0.5};
     const std::array<float, 5> Z_MAX = {0, 0.88, 1.96, 3.7, 21};
     
+    const float SAMPLE_TIME = (float) 1/frequency;
+    
+    SCurve trajectory_planner(SAMPLE_TIME);
+
     trajectory_planner.setKinematicConstraints(X_MAX, Y_MAX, Z_MAX);
 
     // Setup the ROS loop rate
@@ -45,6 +49,7 @@ int main(int argc, char** argv){
     ros::Publisher trajectory_pub = private_nh.advertise<vanttec_msgs::Trajectory>("/uuv_motion_planning/trajectory_planner/s_curve", 1);
 
     // trajectory_planner.setStartTime(ros::Time::now().toSec());
+
     trajectory_planner.calculateTrajectory(start, goal);
     while (ros::ok()){
         vanttec_msgs::Trajectory trajectory;

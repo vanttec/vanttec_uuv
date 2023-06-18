@@ -19,7 +19,6 @@
 int main(int argc, char** argv){
 
     int frequency = 100;
-    const float SAMPLE_TIME = 0.01;
     float MAX_TIME = 1.0;
     // bool use_map;
     int dim;
@@ -44,9 +43,7 @@ int main(int argc, char** argv){
 
     // Create node handler
     ros::NodeHandle private_nh("~");
-
-    // Setup the ROS loop rate
-    ros::Rate loop_rate(frequency);
+    ros::NodeHandle nh("");
 
     // private_nh.getParam("use_map", use_map);
     private_nh.getParam("state_space_dimension", dim);
@@ -54,6 +51,9 @@ int main(int argc, char** argv){
     private_nh.getParam("start_point", start);
     private_nh.getParam("goal_point", goal);
     private_nh.getParam("frame_id", frame_id);
+    nh.param("frequency", frequency, 100);
+    
+    const float SAMPLE_TIME = (float) 1/frequency;
 
     RRTStar path_planner(dim, SO3_bounds, MAX_TIME);
     SCurve trajectory_planner(SAMPLE_TIME);
@@ -73,6 +73,9 @@ int main(int argc, char** argv){
     goal[1] = -goal[1];
     goal[2] = -goal[2];
     path_planner.setStartAndGoal(start, goal);
+
+    // Setup the ROS loop rate
+    ros::Rate loop_rate(frequency);
 
     while(!path_planner.map_arrived_){
         ros::spinOnce();  // So map messages are received before processing solution

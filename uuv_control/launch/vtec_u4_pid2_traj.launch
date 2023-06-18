@@ -1,11 +1,7 @@
 <launch>
 
-    <arg name="init_pose" default="[0, 0, 0]" /> 
-
-    <node name="vtec_u4_pid2_node" pkg="uuv_control" type="vtec_u4_pid2_node" output="screen">
+    <node name="vtec_u4_pid2_traj_node" pkg="uuv_control" type="vtec_u4_pid2_traj_node" output="screen">
         <rosparam file="$(find uuv_control)/config/VTec_U4_PID_Gains.yaml"/>
-        <rosparam file="$(find uuv_control)/config/uuv_init_cond.yaml"/>
-        <rosparam param="init_pose" subst_value="True">$(arg init_pose)</rosparam>
     </node>
 
     <param name="robot_description" textfile="$(find uuv_control)/models/vtec_u3.urdf" />
@@ -16,4 +12,5 @@
         <param name="child_frame" value="uuv" />
     </node>
 
+    <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uuv_control)/launch/rviz_cfg/uuv_predef_traj.rviz" />
 </launch>

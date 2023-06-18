@@ -1,13 +1,12 @@
 frame_id: "world" # World is NWU
 state_space_dimension: 3
 use_map: true
-SO3_space_bounds: [-10, 10] # Low, High for x, y and z
+SO3_space_bounds: [-100, 100] # Low, High for x, y and z
 # start_point: [-2.5, 3.3, 0]  # x, y, z
 
-
 # THESE ARE IN NED
-start_point: [6, -5, 0]  # x, y, z
-goal_point: [-6, 5, 0]  # x, y, z  
+# start_point: [6, -5, 0]  # x, y, z
+# goal_point: [-6, 5, 0]  # x, y, z  
 
 # THESE ARE IN N-W-U (default in RVIZ). 
 # MUST BE GIVEN IN THIS FRAME AS COLLISIONS ARE MANAGED IN THIS FRAME

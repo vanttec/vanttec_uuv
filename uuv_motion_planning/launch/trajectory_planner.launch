@@ -1,10 +1,14 @@
 <launch>
+    <param name="frequency" type="int" value="100" />
+
     <!-- <node pkg="rqt_plot" name="rqt_plot" type="rqt_plot"/> -->
     
     <include file="$(find uuv_map_tools)/launch/map.launch"/>
     
     <node pkg="uuv_motion_planning" name="s_curve_trajectory_planner" type="s_curve_trajectory_planner_node" output="screen">
         <rosparam file="$(find uuv_motion_planning)/config/planner_config.yaml"/>
+        <rosparam param="start_point">[6, -5, 0]</rosparam> 
+        <rosparam param="goal_point"> [-6, 5, 0]</rosparam> 
     </node>
 
 </launch>

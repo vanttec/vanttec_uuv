@@ -28,6 +28,7 @@ int main(int argc, char** argv)
 
     // Create node handler
     ros::NodeHandle private_nh("~");
+    ros::NodeHandle nh("");
 
     std::vector<float> SO3_bounds; // Low, High
     std::vector<float> start;
@@ -41,6 +42,7 @@ int main(int argc, char** argv)
     private_nh.getParam("start_point", start);
     private_nh.getParam("goal_point", goal);
     private_nh.getParam("frame_id", frame_id);
+    nh.param("frequency", frequency, 100);
     
     RRTStar planner(dim, SO3_bounds, MAX_TIME);
 
