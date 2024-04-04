@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# Settings used for getting graphics within the container
-#DOCKER_GRAPHIC_ARGS="--env DISPLAY --env QT_X11_NO_MITSHM=1 --volume=/tmp/.X11-unix:/tmp/.X11-unix:rw --device=/dev/dri:/dev/dri"
+# Settings used for accessing X11 server and thus getting graphics within the container
+DOCKER_GRAPHICS_ARGS="--env DISPLAY --env QT_X11_NO_MITSHM=1 --volume=/tmp/.X11-unix:/tmp/.X11-unix:rw --device=/dev/dri:/dev/dri"
 
-# Settings used for gpu
-#DOCKER_GPU_ARGS="--gpus all --env NVIDIA_DRIVER_CAPABILITIES=all"
-
-#xhost +
+xhost +
 
 docker run -it -d\
+    $DOCKER_GRAPHICS_ARGS \
     --name uuv \
+    --gpus all \
     uuv \
     /bin/bash
