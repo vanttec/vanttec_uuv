@@ -11,10 +11,10 @@ Working. This is the main UUV's repository, which is based entirely on a docker 
 ```Shell
 cd
 git clone --recurse-submodules https://github.com/vanttec/vanttec_uuv.git
-chmod +x create_container_intel.bash 
+chmod +x create_container_gpu.bash 
 ./create_container_gpu.bash
 docker build -t uuv .
-docker exec uuv -it /bin/bash
+docker exec -it uuv /bin/bash
 ```
 
 

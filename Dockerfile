@@ -18,3 +18,7 @@ COPY bashrc /home/uuv/.bashrc
 
 # ROS: installation process: http://wiki.ros.org/noetic/Installation/Ubuntu
 RUN rosdep update
+
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT [ "/bin/bash", "/entrypoint.sh"]
+CMD ["bash"]
