@@ -13,12 +13,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     software-properties-common -y \
     && rm -r /var/lib/apt/lists/*
 
-# Sourcing ROS on the bashrc for autocompletion
-COPY bashrc /home/uuv/.bashrc
-
 # ROS: installation process: http://wiki.ros.org/noetic/Installation/Ubuntu
 RUN rosdep update
 
+# ROS: preparing ROS environment 
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT [ "/bin/bash", "/entrypoint.sh"]
 CMD ["bash"]
+
+# Sourcing ROS on each /root/.bashrc
+RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
