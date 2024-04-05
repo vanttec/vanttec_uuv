@@ -9,5 +9,6 @@ docker run -it -d\
     $DOCKER_GRAPHICS_ARGS \
     --name uuv \
     --gpus all \
+    -v "$PWD:/home/uuv/vanttec_uuv" \
     uuv \
     /bin/bash

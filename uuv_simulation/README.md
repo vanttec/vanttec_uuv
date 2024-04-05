@@ -1,0 +1,1 @@
+The simulation ROS package would be here. The external uuv_sim ROS package (not this one) will use the /launch directory of this uuv_simulation package. The Isaac SIM would also be placed somehow here. https://docs.omniverse.nvidia.com/isaacsim/latest/ros_tutorials/tutorial_ros_drive_turtlebot.html

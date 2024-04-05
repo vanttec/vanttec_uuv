@@ -1,0 +1,1 @@
+The object detection ROS package would be here.
