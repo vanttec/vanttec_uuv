@@ -13,10 +13,10 @@ find_package(catkin REQUIRED COMPONENTS
     tf2
     tf2_ros
     tf2_geometry_msgs
-    vehicle_user_control
+    #vehicle_user_control
     visualization_msgs
 )
-
+#[[
 add_message_files(
    FILES
    ThrustControl.msg
@@ -24,7 +24,7 @@ add_message_files(
    MasterStatus.msg
    Obstacle.msg
 )
-
+]]
 generate_messages(
   DEPENDENCIES
   std_msgs
@@ -32,10 +32,10 @@ generate_messages(
 )
 
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs message_runtime geometry_msgs
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs
   DEPENDS ${LIBS}
 )
-
+#[[
 include_directories(
     lib/uuv_common/include
     lib/uuv_odometry/include
@@ -98,3 +98,4 @@ add_executable(uuv_guidance_node
 add_dependencies(uuv_guidance_node ${${PROJECT_NAME}_EXPORTED_TARGETS})
 target_link_libraries(uuv_guidance_node ${catkin_LIBRARIES})
 
+]]

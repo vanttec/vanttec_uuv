@@ -16,10 +16,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 # ROS: installation process: http://wiki.ros.org/noetic/Installation/Ubuntu
 RUN rosdep update
 
-# ROS: preparing ROS environment 
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT [ "/bin/bash", "/entrypoint.sh"]
-CMD ["bash"]
-
 # Sourcing ROS on each /root/.bashrc
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
+
+RUN mkdir -p /home/uuv/vanttec_uuv/src
+RUN mkdir -p /home/uuv/vanttec_sim/src

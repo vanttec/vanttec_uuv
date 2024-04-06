@@ -9,6 +9,7 @@ docker run -it -d\
     $DOCKER_GRAPHICS_ARGS \
     --name uuv \
     --gpus all \
-    -v "$PWD:/home/uuv/vanttec_uuv" \
+    -v "$PWD:/home/uuv/vanttec_uuv/src" \
+    -v "$(realpath ../vanttec_sim):/home/uuv/vanttec_sim/src" \
     uuv \
     /bin/bash
