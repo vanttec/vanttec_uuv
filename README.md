@@ -1,14 +1,27 @@
-# Working: VantTec's Unmanned Underwater Vehicle (UUV) Repository.
+# Working in progress: VantTec's Unmanned Underwater Vehicle (UUV) Repository.
 
 **How to start working?**
+
 
 ```Shell
 cd
 git clone --recurse-submodules https://github.com/vanttec/vanttec_uuv.git
-chmod +x create_container_gpu.bash 
+git clone --recurse-submodules https://github.com/vanttec/vanttec_sim.git
+
+chmod +x create_container_gpu.bash
 docker build -t uuv .
 ./create_container_gpu.bash
 docker exec -it uuv /bin/bash
+```
+
+Inside docker run: 
+```Shell
+source ~/.bashrc
+
+cd /home/uuv/vanttec_uuv/
+catkin_make
+cd /home/uuv/vanttec_sim/
+catkin_make
 ```
 
 - **arduino_br**: ROS package that uses rosserial_python and rosserial_arduino to interface with the T-100 and the T-200 thrusters.
