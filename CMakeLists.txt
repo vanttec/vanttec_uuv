@@ -13,10 +13,10 @@ find_package(catkin REQUIRED COMPONENTS
     tf2
     tf2_ros
     tf2_geometry_msgs
-    #vehicle_user_control
+    vanttec_msgs
     visualization_msgs
 )
-#[[
+
 add_message_files(
    FILES
    ThrustControl.msg
@@ -24,7 +24,7 @@ add_message_files(
    MasterStatus.msg
    Obstacle.msg
 )
-]]
+
 generate_messages(
   DEPENDENCIES
   std_msgs
