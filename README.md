@@ -1,4 +1,4 @@
-# Working in progress: VantTec's Unmanned Underwater Vehicle (UUV) Repository.
+# Work in progress: VantTec's Unmanned Underwater Vehicle (UUV) Repository.
 
 **How to start working?**
 
@@ -7,6 +7,10 @@
 cd
 git clone --recurse-submodules https://github.com/vanttec/vanttec_uuv.git
 git clone --recurse-submodules https://github.com/vanttec/vanttec_sim.git
+
+cd vanttec_uuv && git checkout feature/integration
+cd 
+cd vanttec_sim && git checkout feature/integration 
 
 chmod +x create_container_gpu.bash
 docker build -t uuv .

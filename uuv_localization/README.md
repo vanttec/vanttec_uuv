@@ -1,1 +1,0 @@
-Everything related to the localization ROS package would be inside.
