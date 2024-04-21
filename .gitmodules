@@ -7,3 +7,6 @@
 [submodule "arduino_br"]
 	path = arduino_br
 	url = http://github.com/vanttec/arduino_br.git
+[submodule "vanttec_sim"]
+	path = vanttec_sim
+	url = https://github.com/vanttec/vanttec_sim.git

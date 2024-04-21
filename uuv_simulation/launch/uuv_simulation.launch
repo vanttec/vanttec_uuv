@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- Runs each ROS node of the UUV in the simulation. -->
 <launch>
     <!-- upload urdf -->
     <param name="robot_description"          textfile="$(find vanttec_uuv)/models/uuv_gamma.urdf"/>
