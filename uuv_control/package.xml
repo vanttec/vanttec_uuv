@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>uuv_perception</name>
+  <name>uuv_control</name>
   <version>0.0.0</version>
-  <description>The uuv_perception package</description>
+  <description>The uuv_control package</description>
 
-  <maintainer email="ivan.d557d@hotmail.com">Ivan</maintainer>
+  <maintainer email="ivan.d557d@hotmail.com">Ivan Diaz</maintainer>
+
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
@@ -33,12 +34,12 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>rospy</depend>
   <depend>roscpp</depend>
+  <depend>rospy</depend>
   <depend>std_msgs</depend>
-
   <depend>message_generation</depend>
   <depend>message_runtime</depend>
+  
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
