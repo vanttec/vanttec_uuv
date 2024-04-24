@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/sensor_snippets.xacro"/>
+
+  <!-- Sensor macros in the package uuv_sensor_ros_plugins/urdf -->
+
+  <xacro:macro name="vtec_u3_sensors" params="namespace">
+    <!-- TODO: Add missing sensors, such as the IMU and Pressure. To add them, use:
+    <xacro:name_sensor ... > name_sensor found on the urdf/sensor_snippets.xacro.
+    -->
+
+    <!-- Realsense R200 Camera-->
+    <xacro:realsense_camera namespace="${namespace}" parent_link="${namespace}_base_link" suffix="front">
+      <origin xyz="0.19281 0.01961 0.06659" rpy="0 0 0"/>
+    </xacro:realsense_camera>
+
+  </xacro:macro>
+
+</robot>
