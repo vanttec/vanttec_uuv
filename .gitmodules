@@ -10,3 +10,4 @@
 [submodule "vanttec_sim"]
 	path = vanttec_sim
 	url = https://github.com/vanttec/vanttec_sim.git
+	branch = feature/integration
