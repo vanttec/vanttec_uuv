@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
       tf2_ros
       tf2_geometry_msgs
       gazebo_msgs
-      vanttec_msgs
+      #vanttec_msgs
 )
 find_package(gazebo REQUIRED)
 
@@ -22,7 +22,7 @@ find_package(gazebo REQUIRED)
 generate_messages(
    DEPENDENCIES
    geometry_msgs
-   nav_msgs
+   #nav_msgs
 )
 
 catkin_package()
@@ -41,10 +41,8 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
 add_executable(gazebo_interface lib/mobility/src/gazebo_interface.cpp)
-add_executable(gazebo_interface_usv lib/mobility/src/gazebo_interface_usv.cpp)
 add_executable(gazebo_interface_uuv lib/mobility/src/gazebo_interface_uuv.cpp)
 target_link_libraries(gazebo_interface ${catkin_LIBRARIES})
-target_link_libraries(gazebo_interface_usv ${catkin_LIBRARIES})
 target_link_libraries(gazebo_interface_uuv ${catkin_LIBRARIES})
 
 ## Declare a C++ library
