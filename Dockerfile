@@ -18,7 +18,6 @@ RUN rosdep update
 
 # Sourcing ROS on each /root/.bashrc
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
-RUN echo "source /ws/vanttec_sim/devel/setup.bash" >> /root/.bashrc
+RUN echo "source /ws/vanttec_uuv/devel/setup.bash" >> /root/.bashrc
 
 RUN mkdir -p /ws/vanttec_uuv/src
-RUN mkdir -p /ws/vanttec_sim/src
