@@ -1,18 +1,6 @@
-# IN PROGRESS... VantTec UV simulation
+# IN PROGRESS... VantTec UUV simulation
 
-Pre-step: Install the vanttec_uuv on host in ~/ This creates the main container
-1. Install the vanttec_sim on host in ~/
-
-This is the USV and UUV simulation repository. It runs on Gazebo and requires the package uuv_simulator to be installed.
-
-
-### To run the USV simulator, in a terminal write the following commands:
-
- ```
-roslaunch uv_worlds lake_challenges.launch
-roslaunch vehicle_descriptions vtec_s3.launch 
-roslaunch usv_master usv_master.launch 
-```
+This is the UUV simulation repository, using as a base the uv_sim repository from Vanttec. It runs on Gazebo and requires the package uuv_simulator to be installed.
 
 ### To run the UUV simulator, in a terminal write the following commands:
 
