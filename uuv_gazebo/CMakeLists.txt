@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(uuv_sim)
+project(uuv_gazebo)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -7,11 +7,7 @@ add_compile_options(-std=c++11)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-    message_generation
-    std_msgs
-    geometry_msgs
-)
+find_package(catkin REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -47,22 +43,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  FILES
-  EtaPose.msg
-  ThrustControl.msg
-  MasterStatus.msg
-  Obstacle.msg
-  DetectedObstacles.msg
-  MissionStatus.msg
-  ObjectDetected.msg
-  ObjectDetectedList.msg
-  Gate.msg
-  SystemDynamics.msg
-  Trajectory.msg
-  SplineDefinition.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -79,12 +64,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
+# generate_messages(
+#   DEPENDENCIES
 #   std_msgs  # Or other packages containing msgs
-)
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -117,8 +100,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES vanttec_msgs
-# CATKIN_DEPENDS other_catkin_pkg
+#  LIBRARIES uv_worlds
+#  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
 
@@ -135,7 +118,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/vanttec_msgs.cpp
+#   src/${PROJECT_NAME}/uv_worlds.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -146,7 +129,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/vanttec_msgs_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/uv_worlds_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -210,7 +193,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_vanttec_msgs.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_uv_worlds.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

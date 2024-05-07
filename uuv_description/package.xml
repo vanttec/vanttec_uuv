@@ -3,16 +3,12 @@
 <!-- https://answers.ros.org/question/257694/questions-to-sdf-urdf-xacro-material-textures-using-gazebo/ -->
 
 <package format="2">
-  <name>vehicle_descriptions</name>
+  <name>uuv_description</name>
   <version>0.0.0</version>
-  <description>The vehicle_description package</description>
+  <description>The uuv_description package</description>
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag -->
-  <!-- Example:  -->
-  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="edison@todo.todo">edison</maintainer>
+  <maintainer email="ivan.d557d@hotmail.com">Ivan</maintainer>
  
-
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
@@ -21,11 +17,8 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>geometry_msgs</build_depend>
-  <build_depend>message_generation</build_depend>
   <build_depend>gazebo_msgs</build_depend>
-
   <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>message_runtime</exec_depend>
   <exec_depend>gazebo_msgs</exec_depend>
 
   <build_export_depend>geometry_msgs</build_export_depend>
@@ -44,6 +37,9 @@
   <depend>tf2</depend>
   <depend>image_transport</depend>
   <depend>laser_geometry</depend>
+  <depend>message_generation</depend>
+  <depend>message_runtime</depend>
+
 
   <test_depend>rosunit</test_depend>
   <test_depend>rostest</test_depend>

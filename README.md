@@ -13,15 +13,12 @@ chmod +x create_container_gpu.bash
 docker build -t uuv .
 ./create_container_gpu.bash
 docker exec -it uuv /bin/bash
-```
 
-Inside docker run: 
-```Shell
+# Inside the container
+cd /ws/vanttec_uuv/
+catkin_make
 source ~/.bashrc
 
-cd /home/uuv/vanttec_uuv/
-catkin_make
-```
 
 - **arduino_br**: ROS package that uses rosserial_python and rosserial_arduino to interface with the T-100 and the T-200 thrusters.
 - **vectornav_ros**: ROS package that allows the USV to interface with Vectornav's IMUs.

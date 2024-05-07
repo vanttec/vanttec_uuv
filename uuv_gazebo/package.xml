@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>uuv_sim</name>
+  <name>uuv_gazebo</name>
   <version>0.0.0</version>
-  <description>The uuv_sim package</description>
+  <description>The uuv_gazebo package</description>
 
   <maintainer email="ivan.d557d@hotmail.com">Ivan</maintainer>
 
@@ -10,6 +10,8 @@
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
+
+  <exec_depend>gazebo_ros</exec_depend>
 
   <!-- The *depend tags are used to specify dependencies -->
   <!-- Dependencies can be catkin packages or system dependencies -->
@@ -33,11 +35,11 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>message_generation</depend>
-  <depend>message_runtime</depend>
+
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-
+      <gazebo_ros gazebo_model_path="${prefix}/models"/>
+      <gazebo_ros gazebo_media_path="${prefix}"/>
   </export>
 </package>

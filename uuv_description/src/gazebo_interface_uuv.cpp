@@ -12,7 +12,7 @@
 #include "math.h"
 #include "gazebo_msgs/ModelState.h"
 #include "gazebo_msgs/ModelStates.h"
-#include "vanttec_msgs/EtaPose.h"
+#include <uuv_description/EtaPose.h> //ros_packages_name/message_name.h
 #include <geometry_msgs/Pose.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -30,11 +30,11 @@ private:
     bool foundFlag = false;
 
 public:
-    void stateCallback(const vanttec_msgs::EtaPose& msg);
+    void stateCallback(const uuv_description::EtaPose& msg);
     void gazStateCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
 };
 
-void SetState::stateCallback(const vanttec_msgs::EtaPose& msg){
+void SetState::stateCallback(const uuv_description::EtaPose& msg){
     // https://wiki.ros.org/action/show/geometry2/RotationMethods?action=show&redirect=geometry%2FRotationMethods
     model_msg.model_name = "vtec_u3";
 
