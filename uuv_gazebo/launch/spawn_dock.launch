@@ -12,7 +12,7 @@
 
     
       <!-- send table urdf to param server -->
-      <param name="Dock_Descr" command="cat '$(find uv_worlds)/urdf/dock.urdf'"/>
+      <param name="Dock_Descr" command="cat '$(find uuv_gazebo)/urdf/dock.urdf'"/>
     
       <!-- push table_description to factory and spawn robot in gazebo -->
       <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"  

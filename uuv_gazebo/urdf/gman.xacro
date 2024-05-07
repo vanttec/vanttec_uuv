@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="gman_target" xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:property name="visual_mesh_file" value="file://$(find props_gazebo)/meshes/gman.dae" />
+    <xacro:property name="visual_mesh_file" value="file://$(find uuv_gazebo)/meshes/gman.dae" />
     <!-- <xacro:property name="collision_mesh_file" value="file://$(find props_gazebo)/meshes/gman.dae"/> -->
     <link name="base_link">
         <visual>
