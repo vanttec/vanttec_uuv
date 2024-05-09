@@ -16,16 +16,16 @@
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/imu_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/magnetometer_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/pressure_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/camera_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/realsense_camera.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/dvl_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/rpt_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/sonar_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/stereo_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/gps_sensor_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/pose_3d_snippets.xacro" />
-  <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/chemical_concentration_snippets.xacro"/>
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/imu_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/magnetometer_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/pressure_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/camera_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/realsense_camera.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/dvl_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/rpt_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/sonar_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/stereo_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/gps_sensor_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/pose_3d_snippets.xacro" />
+  <xacro:include filename="$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/urdf/chemical_concentration_snippets.xacro"/>
 </robot>
