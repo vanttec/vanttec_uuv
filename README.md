@@ -1,7 +1,6 @@
-# Work in progress: VantTec's Unmanned Underwater Vehicle (UUV) Repository.
+# Work in progress
 
 **Running the workspace for the first time**
-
 
 ```Shell
 cd
@@ -20,12 +19,13 @@ catkin_make
 source ~/.bashrc
 ```
 
-Did you left off? Follow these steps to restart working.
+Did you stop? Follow these steps to restart working.
 ```Shell
 docker start uuv
 docker exec -it uuv /bin/bash
 ```
 
+############################################################3
 - **arduino_br**: ROS package that uses rosserial_python and rosserial_arduino to interface with the T-100 and the T-200 thrusters.
 - **vectornav_ros**: ROS package that allows the USV to interface with Vectornav's IMUs.
 - **zed_ros_wrapper**: ROS package for the Stereolabs ZED Camera.
