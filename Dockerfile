@@ -6,11 +6,11 @@
 #   @Author: Ivan Diaz
 #   @Email: ivan.d557d@hotmail.com
 #   @Date: 26.05.24
-#   @Brief: It works with Ubuntu 20.04, ZED SDK 3.7, Cuda 11.4, ROS Noetic
+#   @Brief: It works with Ubuntu 20.04, ZED SDK 4.1, Cuda 11.4, ROS Noetic
 #
 #########################################################################################################
 
-FROM stereolabs/zed:3.7-gl-devel-cuda11.4-ubuntu20.04
+FROM stereolabs/zed:4.1-gl-devel-cuda11.4-ubuntu20.04
 
 # Setup ROS
 RUN apt-get update -y && \
