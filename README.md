@@ -1,14 +1,23 @@
 # Work in progress
 
+This is the UUV's main repository running with ROS Noetic and docker containers. Please consider the host you would be working on before starting: 1) jetson tx2, 2) OS without gpu, i.e., iOS, ubuntu20.04 or windows, 3) ubuntu20.04 with gpu.
+
 **Running the workspace for the first time**
 
 ```Shell
 cd
 git clone --recurse-submodules https://github.com/vanttec/vanttec_uuv.git
-
 cd vanttec_uuv && git checkout feature/integration
+```
 
-chmod +x create_container_gpu.bash
+Inside the /vanttec_uuv/dockerfiles/ directory you would find the next three options: 
+* jetsontx2
+* ubuntu2004
+* ubuntu2004_gpu
+Each option contains a create_container.bash, so please select the one that suits you the most, e.g., the one for mac would be ./create_container_mac.bash.
+
+```Shell
+cd ~/vanttec_uuv/dockerfiles/{selected_option}
 docker build -t uuv .
 ./create_container_gpu.bash
 docker exec -it uuv /bin/bash
@@ -24,8 +33,3 @@ Did you stop? Follow these steps to restart working.
 docker start uuv
 docker exec -it uuv /bin/bash
 ```
-
-############################################################3
-- **arduino_br**: ROS package that uses rosserial_python and rosserial_arduino to interface with the T-100 and the T-200 thrusters.
-- **vectornav_ros**: ROS package that allows the USV to interface with Vectornav's IMUs.
-- **zed_ros_wrapper**: ROS package for the Stereolabs ZED Camera.
