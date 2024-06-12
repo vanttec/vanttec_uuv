@@ -14,6 +14,7 @@ Inside the /vanttec_uuv/dockerfiles/ directory you would find the next three opt
 * jetsontx2
 * ubuntu2004
 * ubuntu2004_gpu
+
 Each option contains a create_container.bash, so please select the one that suits you the most, e.g., the one for mac would be ./create_container_mac.bash.
 
 ```Shell
@@ -26,6 +27,23 @@ docker exec -it uuv /bin/bash
 cd /ws/vanttec_uuv/
 catkin_make
 source ~/.bashrc
+```
+
+**How to start working: host without gpu**
+
+In this case, you would use the zed-open-capture project for manipulating the ZED camera and you must follow the next steps:
+
+```Shell
+cd /zed-open-capture
+cd udev 
+bash install_udev_rule.sh
+cd ..
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+sudo make install
+sudo ldconfig
 ```
 
 Did you stop? Follow these steps to restart working.
