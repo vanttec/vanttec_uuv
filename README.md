@@ -2,7 +2,7 @@
 
 <p align="right">
   <img src="docs/uuv.jpeg" width="200" height="200" align="center"/>
-  <img src="docs/vanttec.png" width="340" height="180" align="left"/>
+  <img src="docs/vanttec.png" width="320" height="180" align="left"/>
 </p>
 
 
@@ -49,7 +49,7 @@ cd build512
 sudo ldconfig
 ```
 
-** Do you want to validate your ROS packages? Use the Gazebo Simulator. **
+**Do you want to validate your ROS packages? Use the Gazebo Simulator.**
 Inside the docker follow the next steps:
 ```Shell
 roslaunch uuv_gazebo lake.launch
@@ -61,7 +61,7 @@ roslaunch uuv_description vtec_u3.launch
 The result is shown next:
 
 <p align="center">
-  <img src="docs/gazebo_uuv.png" width="480" height="360" align="center"/>
+  <img src="docs/gazebo_uuv.png" width="440" height="360" align="center"/>
 </p>
 
 Did you stop? Follow these steps to restart working.
