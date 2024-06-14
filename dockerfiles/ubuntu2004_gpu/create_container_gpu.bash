@@ -10,7 +10,7 @@ docker run -it -d\
     --name uuv_gpu \
     --gpus all \
     --privileged \
-    -v "$PWD:/ws/vanttec_uuv/src" \
+    -v "${PWD%/*/*}:/ws/vanttec_uuv/src" \
     -v "/dev/bus/usb/:/dev/bus/usb" \
     uuv_gpu \
     /bin/bash

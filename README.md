@@ -1,5 +1,11 @@
 # Work in progress
 
+<p align="right">
+  <img src="docs/vanttec.png" width="231" height="131" align="center"/>
+  <img src="docs/uuv.png" width="131" height="131" align="left"/>
+</p>
+
+
 This is the UUV's main repository running with ROS Noetic and docker containers. Please consider the host you would be working on before starting: 1) jetson tx2, 2) OS without gpu, i.e., iOS, ubuntu20.04 or windows, 3) ubuntu20.04 with gpu.
 
 **Running the workspace for the first time**
@@ -45,6 +51,21 @@ make -j$(nproc)
 sudo make install
 sudo ldconfig
 ```
+
+** Do you want to validate your ROS packages? Use the Gazebo Simulator. **
+Inside the docker follow the next steps:
+```Shell
+roslaunch uuv_gazebo lake.launch
+```
+Open a new terminal without closing the previous one and run the next:
+```Shell
+roslaunch uuv_description vtec_u3.launch
+```
+The result is shown next:
+<p align="center">
+  <img src=https://github.com/vanttec/vanttec_uuv/tree/feature/integration/master/docs/LogoNegro_Azul.png width="400" height="240" align="center"/>
+</p>
+
 
 Did you stop? Follow these steps to restart working.
 ```Shell

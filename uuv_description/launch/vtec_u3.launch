@@ -4,11 +4,11 @@
 
   <!-- Vehicle's initial pose -->
   <arg name="x"     default="0"/>
-  <arg name="y"     default="5"/>
+  <arg name="y"     default="0"/>
   <arg name="z"     default="0"/>
   <arg name="roll"  default="0"/>
   <arg name="pitch" default="0"/>
-  <arg name="yaw"   default="1.570796"/>
+  <arg name="yaw"   default="0"/>
   <arg name="allow_trajectory_execution" default="true"/>
 
 
@@ -49,4 +49,3 @@
   <!-- <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="1 0 0 0 0 0 1 vtec_u3_base_link frontrs200_camera 100" />-->
 
 </launch>
- 

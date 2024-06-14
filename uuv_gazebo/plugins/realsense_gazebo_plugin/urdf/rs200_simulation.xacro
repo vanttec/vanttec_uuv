@@ -7,7 +7,7 @@
     <link name="world"/>
 
     <!-- Import macro for realsense-RS200 camera-->
-    <xacro:include filename="$(find realsense_gazebo_plugin)/urdf/realsense-RS200.macro.xacro"/>
+    <xacro:include filename="$(find uuv_gazebo)/plugins/realsense_gazebo_plugin/urdf/realsense-RS200.macro.xacro"/>
     <!-- Create camera instance -->
     <xacro:realsense-rs200 prefix="" parent="world">
         <origin xyz="0 0 1.0" rpy="0 0 0" />   

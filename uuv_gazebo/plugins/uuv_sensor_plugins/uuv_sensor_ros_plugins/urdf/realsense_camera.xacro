@@ -56,7 +56,7 @@
         <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-                <mesh filename="package://realsense_gazebo_plugin/models/realsense_camera/meshes/realsense.dae"/>
+                <mesh filename="package://uuv_gazebo/plugins/realsense_gazebo_plugin/models/realsense_camera/meshes/realsense.dae"/>
             </geometry>
         </visual>
         <collision>
