@@ -1,8 +1,8 @@
 # Work in progress
 
 <p align="right">
-  <img src="docs/vanttec.png" width="231" height="131" align="center"/>
-  <img src="docs/uuv.jpeg" width="131" height="131" align="left"/>
+  <img src="docs/uuv.jpeg" width="200" height="200" align="center"/>
+  <img src="docs/vanttec.png" width="340" height="180" align="left"/>
 </p>
 
 
@@ -45,10 +45,7 @@ cd udev
 bash install_udev_rule.sh
 cd ..
 mkdir build
-cd build
-cmake ..
-make -j$(nproc)
-sudo make install
+cd build512
 sudo ldconfig
 ```
 
@@ -64,7 +61,7 @@ roslaunch uuv_description vtec_u3.launch
 The result is shown next:
 
 <p align="center">
-  <img src="docs/gazebo_uuv.png" width="640" height="480" align="center"/>
+  <img src="docs/gazebo_uuv.png" width="480" height="360" align="center"/>
 </p>
 
 Did you stop? Follow these steps to restart working.
