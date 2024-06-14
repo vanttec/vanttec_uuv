@@ -2,7 +2,7 @@
 
 <p align="right">
   <img src="docs/vanttec.png" width="231" height="131" align="center"/>
-  <img src="docs/uuv.png" width="131" height="131" align="left"/>
+  <img src="docs/uuv.jpeg" width="131" height="131" align="left"/>
 </p>
 
 
@@ -62,10 +62,10 @@ Open a new terminal without closing the previous one and run the next:
 roslaunch uuv_description vtec_u3.launch
 ```
 The result is shown next:
-<p align="center">
-  <img src=https://github.com/vanttec/vanttec_uuv/tree/feature/integration/master/docs/LogoNegro_Azul.png width="400" height="240" align="center"/>
-</p>
 
+<p align="center">
+  <img src="docs/gazebo_uuv.png" width="640" height="480" align="center"/>
+</p>
 
 Did you stop? Follow these steps to restart working.
 ```Shell
