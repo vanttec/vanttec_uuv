@@ -12,7 +12,6 @@ This is the UUV's main repository running with ROS Noetic and docker containers.
 ```Shell
 cd
 git clone --recurse-submodules https://github.com/vanttec/vanttec_uuv.git
-cd vanttec_uuv && git checkout feature/integration
 ```
 
 Inside the /vanttec_uuv/dockerfiles/ directory you would find the next three options: 
