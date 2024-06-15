@@ -16,7 +16,7 @@ cd vanttec_uuv && git checkout feature/integration
 ```
 
 Inside the /vanttec_uuv/dockerfiles/ directory you would find the next three options: 
-* jetsontx2kages? Use the Gazebo Simulat
+* jetsontx2
 * ubuntu2004
 * ubuntu2004_gpu
 
