@@ -1,10 +1,9 @@
-# Work in progress
-
 <p align="right">
   <img src="docs/uuv.jpeg" width="200" height="200" align="center"/>
   <img src="docs/vanttec.png" width="320" height="180" align="left"/>
 </p>
 
+# VantTec's UUV Repository
 
 This is the UUV's main repository running with ROS Noetic and docker containers. Please consider the host you would be working on before starting: 1) jetson tx2, 2) OS without gpu, i.e., iOS, ubuntu20.04 or windows, 3) ubuntu20.04 with gpu.
 
@@ -17,7 +16,7 @@ cd vanttec_uuv && git checkout feature/integration
 ```
 
 Inside the /vanttec_uuv/dockerfiles/ directory you would find the next three options: 
-* jetsontx2
+* jetsontx2kages? Use the Gazebo Simulat
 * ubuntu2004
 * ubuntu2004_gpu
 
@@ -50,6 +49,7 @@ sudo ldconfig
 ```
 
 **Do you want to validate your ROS packages? Use the Gazebo Simulator.**
+
 Inside the docker follow the next steps:
 ```Shell
 roslaunch uuv_gazebo lake.launch

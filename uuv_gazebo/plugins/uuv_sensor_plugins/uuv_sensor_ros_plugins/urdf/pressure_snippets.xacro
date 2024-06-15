@@ -40,7 +40,7 @@
       standardPressure="101.325"
       kPaPerM="9.80638">
       <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001" />
-      <xacro:insert_block name="origin" />>
+      <xacro:insert_block name="origin" />
     </xacro:pressure_plugin_macro>
   </xacro:macro>
 
@@ -76,22 +76,18 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find uuv_sensor_ros_plugins)/meshes/pressure.dae" scale="0.1 0.1 0.1"/>
+          <mesh filename="file://$(find uuv_gazebo)/plugins/uuv_sensor_plugins/uuv_sensor_ros_plugins/meshes/pressure.dae" scale="0.1 0.1 0.1"/>
         </geometry>
       </visual>
       <xacro:no_collision/>
     </link>
 
-    <gazebo reference="${namespace}/pressure${suffix}_link">>
+    <gazebo reference="${namespace}/pressure${suffix}_link">
       <turnGravityOff>1</turnGravityOff>
     </gazebo>
 
     <joint name="${namespace}/pressure${suffix}_joint" type="revolute">
       <xacro:insert_block name="origin" />
-      <parent link="${parent_link}" />
-      <child link="${namespace}/pressure${suffix}_link" />
-      <limit upper="0" lower="0" effort="0" velocity="0" />
-      <axis xyz="1 0 0"/>
     </joint>
 
     <gazebo>
