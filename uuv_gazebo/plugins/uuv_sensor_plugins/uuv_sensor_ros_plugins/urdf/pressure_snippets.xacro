@@ -87,7 +87,11 @@
     </gazebo>
 
     <joint name="${namespace}/pressure${suffix}_joint" type="revolute">
-      <xacro:insert_block name="origin" />
+      <xacro:insert_block name="origin"/>
+      <parent link="${parent_link}"/>
+      <child link="${namespace}/pressure${suffix}_link"/>
+      <limit upper="0" lower="0" effort="0" velocity="0" />
+      <axis xyz="1 0 0"/>
     </joint>
 
     <gazebo>

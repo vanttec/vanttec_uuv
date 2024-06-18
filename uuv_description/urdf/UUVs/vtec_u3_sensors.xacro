@@ -14,10 +14,17 @@
       <origin xyz="0 0 0.18" rpy="0 0 1.57"/>
     </xacro:realsense_camera>
 
-    <!--xacro:default_pressure_macro namespace="${namespace}" parent_link="${namespace}_base_link">
-      <origin xyz="0 0 0" rpy="0 0 1.57"/>
-    </xacro:default_pressure_macro> -->
-    
+    <gazebo>
+      <plugin name="pose_3d_plugin" filename="libgazebo_ros_p3d.so">
+      <robotNamespace>${namespace}</robotNamespace>
+      <bodyName>${namespace}_base_link</bodyName>
+      <topicName>pose_gt</topicName>
+      <frameName>world</frameName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <updateRate>30</updateRate>
+      </plugin>
+    </gazebo>
+
   </xacro:macro>
 
 </robot>
