@@ -35,5 +35,6 @@ RUN git clone https://github.com/stereolabs/zed-open-capture.git
 # Sourcing ROS on each /root/.bashrc
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
 RUN echo "source /ws/vanttec_uuv/devel/setup.bash" >> /root/.bashrc
+RUN echo "export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:/ws/vanttec/build" >> /root/.bashrc
 
 RUN mkdir -p /ws/vanttec_uuv/src
