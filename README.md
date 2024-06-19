@@ -24,7 +24,7 @@ Each option contains a create_container.bash, so please select the one that suit
 ```Shell
 cd ~/vanttec_uuv/dockerfiles/{selected_option}
 docker build -t uuv .
-./create_container_gpu.bash
+./create_container.bash
 docker exec -it uuv /bin/bash
 
 # Inside the container
@@ -38,13 +38,17 @@ source ~/.bashrc
 In this case, you would use the zed-open-capture project for manipulating the ZED camera and you must follow the next steps:
 
 ```Shell
-cd /zed-open-capture
+cd /
+cd zed-open-capture
 cd udev 
 bash install_udev_rule.sh
 cd ..
 mkdir build
-cd build512
-sudo ldconfig
+cd build
+cmake ..
+make -j$(nproc)
+make install
+ldconfig
 ```
 
 **Do you want to validate your ROS packages? Use the Gazebo Simulator.**
@@ -63,8 +67,12 @@ The result is shown next:
   <img src="docs/gazebo_uuv.png" width="440" height="360" align="center"/>
 </p>
 
-Did you stop? Follow these steps to restart working.
+**Did you stop, ran ```docker exec ...```, but no GUI is shown? Please use:**
 ```Shell
-docker start uuv
+docker stop uuv
+docker rm uuv
+cd ~/vanttec_uuv/dockerfiles/{selected_option}./create_container.bash
 docker exec -it uuv /bin/bash
 ```
+
+**Is your already-created container not running? Try using ```docker start uuv```.**
