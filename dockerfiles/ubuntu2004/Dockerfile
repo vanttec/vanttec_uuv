@@ -1,3 +1,16 @@
+#########################################################################################################
+#   @Description: This Dockerfile takes the image from osrf/ros: noetic-desktop-full. 
+#   The most important aspect on this image is that no Nvidia GPU is required; for this reason, the 
+#   zed-open-capture project is used on top of a ros noetic image with Ubuntu 20.04. For more information 
+#   about dockerfiles: https://www.stereolabs.com/docs/docker/configure-ros-dockerfile
+#
+#   @Author: Ivan Diaz
+#   @Email:  ivan.d557d@hotmail.com
+#   @Date:   18.06.24
+#   @Brief:  Outputs a container with Ubuntu 20.04, ROS Noetic and the zed-open-capture project.
+#
+#########################################################################################################
+
 FROM osrf/ros:noetic-desktop-full 
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,6 +48,6 @@ RUN git clone https://github.com/stereolabs/zed-open-capture.git
 # Sourcing ROS on each /root/.bashrc
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
 RUN echo "source /ws/vanttec_uuv/devel/setup.bash" >> /root/.bashrc
-RUN echo "export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:/ws/vanttec/build" >> /root/.bashrc
+RUN echo "$(printf 'export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:/ws/vanttec/build\n')" >> /root/.bashrc
 
 RUN mkdir -p /ws/vanttec_uuv/src

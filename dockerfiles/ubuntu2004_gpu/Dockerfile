@@ -4,9 +4,9 @@
 #   For more info: https://www.stereolabs.com/docs/docker/configure-ros-dockerfile
 #
 #   @Author: Ivan Diaz
-#   @Email: ivan.d557d@hotmail.com
-#   @Date: 26.05.24
-#   @Brief: It works with Ubuntu 20.04, ZED SDK 4.1, Cuda 11.4, ROS Noetic
+#   @Email:  ivan.d557d@hotmail.com
+#   @Date:   26.05.24
+#   @Brief:  Outputs a container with Ubuntu 20.04, ZED SDK 4.1 and ROS Noetic.
 #
 #########################################################################################################
 
@@ -37,5 +37,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
 # Sourcing ROS on each /root/.bashrc
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
 RUN echo "source /ws/vanttec_uuv/devel/setup.bash" >> /root/.bashrc
+RUN echo "$(printf 'export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:/ws/vanttec/build\n')" >> /root/.bashrc
 
 RUN mkdir -p /ws/vanttec_uuv/src
