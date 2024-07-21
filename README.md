@@ -19,7 +19,7 @@ Inside the /vanttec_uuv/dockerfiles/ directory you would find the next three opt
 * ubuntu2004_gpu
 * ubuntu2004_jetsontx2
 
-Each option contains a the Dockerfile (image) and their respective create_container.bash, so please select the one that suits you the most and continue:
+Each option contains a Dockerfile (image) and their respective create_container.bash, so please select the one that suits you the most and continue:
 
 ```Shell
 cd ~/vanttec_uuv/dockerfiles/{selected_option}
@@ -36,7 +36,7 @@ cd /ws/vanttec_uuv/src/dockerfiles/ubuntu2004_jetsontx2
 ./ZED_SDK_Tegra_L4T32.7_v4.1.3.zstd.run
 ```
 
-Afterward:
+Afterwards:
 
 ```Shell
 cd /ws/vanttec_uuv/
@@ -46,7 +46,7 @@ source ~/.bashrc
 
 **Are you working with the ZED on your laptop without gpu?**
 
-In this case, you would use the zed-open-capture project for manipulating the ZED camera and you must follow the next steps:
+In this case, you would use the zed-open-capture project for manipulating the ZED camera:
 
 ```Shell
 cd /
