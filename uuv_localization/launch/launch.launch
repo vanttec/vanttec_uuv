@@ -1,0 +1,3 @@
+<launch>
+    <node name="talker" pkg="imu_node" type="publisher_imu" output="screen"/>
+</launch>
