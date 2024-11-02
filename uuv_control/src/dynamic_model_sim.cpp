@@ -14,7 +14,7 @@
 #include "std_msgs/msg/float64.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
 #include "tf2_ros/transform_broadcaster.h"
-#include "model/dynamic_model.h"
+#include "uuv/uuv_dynamic_model.h"
 
 using namespace std::chrono_literals;
 
@@ -31,9 +31,11 @@ class DynamicModelSim : public rclcpp::Node {
     odomPub =
         this->create_publisher<nav_msgs::msg::Odometry>("output/odom", 10);
 
-    thrusterSub = this->create_subscription<std_msgs::msg::Float64>(
+    thrusterSub = this->create_subscription<std_msgs::msg::Float64MultiArray>(
         "uuv/thruster_input", 10,
-        [this](const std_msgs::msg::Float64 &msg) {
+        [this](const std_msgs::msg::Float64MultiArray &msg) {
+            RCLCPP_ERROR(this->get_logger(), "size: %d", 
+            msg.data.size());
             for(int i = 0 ; i < msg.data.size() ; i++){
                 thruster_input[i] = msg.data[i];
             }
@@ -80,13 +82,17 @@ class DynamicModelSim : public rclcpp::Node {
     pose.position.y = y;
     pose.position.z = z;
 
-    tf2::Quaternion q;
-    q.setRPY(roll, pitch, yaw);
+    tf2::Quaternion qq;
+    qq.setRPY(roll, pitch, yaw);
 
-    pose.orientation.x = q[0];
-    pose.orientation.y = q[1];
-    pose.orientation.z = q[2];
-    pose.orientation.w = q[3];
+    pose.orientation.w = qq.getW();
+    pose.orientation.x = qq.getX();
+    pose.orientation.y = qq.getY();
+    pose.orientation.z = qq.getZ();
+    //  = q[0];
+    // pose.orientation.y = q[1];
+    // pose.orientation.z = q[2];
+    // pose.orientation.w = q[3];
 
     odom.pose.pose = pose;
 
@@ -119,7 +125,7 @@ class DynamicModelSim : public rclcpp::Node {
   }
 
  private:
-  rclcpp::Publisher<geometry_msgs::msg::Pose2D>::SharedPtr posePub;
+  rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr posePub;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr pose_path_pub;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odomPub;
   rclcpp::TimerBase::SharedPtr updateTimer;
@@ -135,7 +141,7 @@ class DynamicModelSim : public rclcpp::Node {
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster;
   std::string subname_;
 
-  void tf_broadcast(const geometry_msgs::msg::Pose2D &msg) {
+  void tf_broadcast(const geometry_msgs::msg::Pose &msg) {
     geometry_msgs::msg::TransformStamped t;
 
     // Read message content and assign it to
@@ -144,21 +150,17 @@ class DynamicModelSim : public rclcpp::Node {
     t.header.frame_id = "world";
     t.child_frame_id = subname_.c_str();;
 
-    // Turtle only exists in 2D, thus we get x and y translation
-    // coordinates from the message and set the z coordinate to 0
-    t.transform.translation.x = msg.x;
-    t.transform.translation.y = msg.y;
-    t.transform.translation.z = 0.0;
+    t.transform.translation.x = msg.position.x;
+    t.transform.translation.y = msg.position.y;
+    t.transform.translation.z = msg.position.z;
 
     // For the same reason, turtle can only rotate around one axis
     // and this why we set rotation in x and y to 0 and obtain
     // rotation in z axis from the message
-    tf2::Quaternion q;
-    q.setRPY(0, 0, msg.theta);
-    t.transform.rotation.x = q.x();
-    t.transform.rotation.y = q.y();
-    t.transform.rotation.z = q.z();
-    t.transform.rotation.w = q.w();
+    t.transform.rotation.w = msg.orientation.w;
+    t.transform.rotation.x = msg.orientation.x;
+    t.transform.rotation.y = msg.orientation.y;
+    t.transform.rotation.z = msg.orientation.z;
 
     // Send the transformation
     tf_broadcaster->sendTransform(t);
