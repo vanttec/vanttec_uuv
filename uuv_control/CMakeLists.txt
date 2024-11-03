@@ -21,29 +21,29 @@ find_package(Boost 1.45.0 COMPONENTS filesystem)
 
 add_subdirectory(libs/usv_libs)
 
-add_executable(dynamic_model_node src/dynamic_model_sim.cpp)
-target_include_directories(dynamic_model_node PUBLIC
+add_executable(dynamic_model_uuv src/dynamic_model_uuv.cpp)
+target_include_directories(dynamic_model_uuv PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include> libs/usv_libs/src)
-target_compile_features(dynamic_model_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-ament_target_dependencies(dynamic_model_node rclcpp std_msgs Eigen3 geometry_msgs nav_msgs tf2_ros)
-target_link_libraries(dynamic_model_node usv_libs)
+target_compile_features(dynamic_model_uuv PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(dynamic_model_uuv rclcpp std_msgs Eigen3 geometry_msgs nav_msgs tf2_ros)
+target_link_libraries(dynamic_model_uuv usv_libs)
 
 
 install(TARGETS
-  dynamic_model_node
+  dynamic_model_uuv
   DESTINATION lib/${PROJECT_NAME})
 
-# install(DIRECTORY
-  # config 
-  # launch
-  # DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY
+  launch
+  # config
+  DESTINATION share/${PROJECT_NAME})
 
 # Install Python executables
-# install(PROGRAMS
-#   scripts/example.py
-#   DESTINATION lib/${PROJECT_NAME}
-# )
+install(PROGRAMS
+  scripts/teleop_node_forces.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
