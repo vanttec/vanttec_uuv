@@ -70,3 +70,10 @@ docker rm uuv
 cd ~/vanttec_uuv/dockerfiles/{selected_option}./create_container.bash
 docker exec -it uuv /bin/bash
 ```
+
+## To run latest dynamic model launch file:
+1. Connect xbox joystick controller
+2. In terminal:
+```Shell
+ros2 launch uuv_control uuv_control_sim_launch.py
+```
