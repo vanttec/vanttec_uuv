@@ -1,1 +1,1 @@
-Estos archivos todavia falta revisarlos y cambiarlos, mas que nada estan solo por la estructura
+Estos archivos todavia falta revisarlos y cambiarlos, mas que nada estan solo por la estructura, estos si irian dentro de control

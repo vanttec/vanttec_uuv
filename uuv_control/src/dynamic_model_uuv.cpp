@@ -1,3 +1,5 @@
+/* Esto es el equivalente al dynamic_model_sim.cpp en vanttec_usv*/
+
 #include <tf2/LinearMath/Quaternion.h>
 
 #include <cstdio>
