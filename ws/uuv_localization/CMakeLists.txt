@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(vectornav)
+project(uuv_localization)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -28,25 +28,25 @@ find_package(vectornav_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
 # vncxx
-add_subdirectory(vnproglib-1.2.0.0/cpp)
+add_subdirectory(libs/vnproglib-1.2.0.0/cpp)
 
 # vectornav library (with composable node)
-add_library(${PROJECT_NAME}_lib SHARED src/vectornav.cc)
-ament_target_dependencies(${PROJECT_NAME}_lib
+add_library(vectornav_lib SHARED src/vectornav.cc)
+ament_target_dependencies(vectornav_lib
   rclcpp rclcpp_components geometry_msgs vectornav_msgs rclcpp_action)
-target_link_libraries(${PROJECT_NAME}_lib vncxx)
-rclcpp_components_register_nodes(${PROJECT_NAME}_lib "vectornav::Vectornav")
+target_link_libraries(vectornav_lib vncxx)
+rclcpp_components_register_nodes(vectornav_lib "uuv_localization::Vectornav")
 
 # vectornav node
-add_executable(${PROJECT_NAME} src/vectornav_node.cc)
-ament_target_dependencies(${PROJECT_NAME} rclcpp geometry_msgs vectornav_msgs)
-target_link_libraries(${PROJECT_NAME} vncxx ${PROJECT_NAME}_lib)
+add_executable(vectornav src/vectornav_node.cc)
+ament_target_dependencies(vectornav rclcpp geometry_msgs vectornav_msgs)
+target_link_libraries(vectornav vncxx vectornav_lib)
 
 # vn_sensor_msgs library (with composable node)
 add_library(vn_sensor_msgs_lib SHARED src/vn_sensor_msgs.cc)
 ament_target_dependencies(vn_sensor_msgs_lib
   rclcpp rclcpp_components sensor_msgs vectornav_msgs tf2_geometry_msgs)
-rclcpp_components_register_nodes(vn_sensor_msgs_lib "vectornav::VnSensorMsgs")
+rclcpp_components_register_nodes(vn_sensor_msgs_lib "uuv_localization::VnSensorMsgs")
 
 # vn_sensor_msgs node
 add_executable(vn_sensor_msgs src/vn_sensor_msgs_node.cc)
@@ -57,13 +57,13 @@ target_link_libraries(vn_sensor_msgs vn_sensor_msgs_lib)
 # install shared libraries with composable nodes into global
 # directory so they can be loaded by other packages
 install(TARGETS
-  ${PROJECT_NAME}_lib
+  vectornav_lib
   vn_sensor_msgs_lib
   DESTINATION lib)
 
 # install executables into project specific folder
 install(TARGETS
-  ${PROJECT_NAME}
+  vectornav
   vn_sensor_msgs
   DESTINATION lib/${PROJECT_NAME})
 

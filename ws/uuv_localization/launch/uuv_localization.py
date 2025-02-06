@@ -7,17 +7,17 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    this_dir = get_package_share_directory('vectornav')
+    this_dir = get_package_share_directory('uuv_localization')
     
     # Vectornav
     start_vectornav_cmd = Node(
-        package='vectornav',
+        package='uuv_localization',
         executable='vectornav',
         output='screen',
         parameters=[os.path.join(this_dir, 'config', 'vectornav.yaml')])
     
     start_vectornav_sensor_msgs_cmd = Node(
-        package='vectornav',
+        package='uuv_localization',
         executable='vn_sensor_msgs',
         output='screen',
         parameters=[os.path.join(this_dir, 'config', 'vectornav.yaml')])
