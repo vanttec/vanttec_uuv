@@ -10,3 +10,6 @@
 [submodule "vanttec_msgs"]
 	path = vanttec_msgs
 	url = https://github.com/vanttec/vanttec_msgs.git
+[submodule "ws/uuv_can/libs/ws/uuv_can/libs/vanttec_CANLib"]
+	path = ws/uuv_can/libs/ws/uuv_can/libs/vanttec_CANLib
+	url = https://github.com/vanttec/vanttec_CANLib.git
