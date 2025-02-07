@@ -1,2 +1,0 @@
-Invoking command in '/home/soni/Documents/vanttec_uuv/build/uuv_control': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/soni/Documents/vanttec_uuv/uuv_control -DCMAKE_INSTALL_PREFIX=/home/soni/Documents/vanttec_uuv/install/uuv_control
-Invoked command in '/home/soni/Documents/vanttec_uuv/build/uuv_control' returned '1': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/soni/Documents/vanttec_uuv/uuv_control -DCMAKE_INSTALL_PREFIX=/home/soni/Documents/vanttec_uuv/install/uuv_control
