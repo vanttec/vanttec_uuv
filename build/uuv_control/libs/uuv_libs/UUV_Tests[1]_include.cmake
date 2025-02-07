@@ -1,0 +1,5 @@
+if(EXISTS "/home/soni/Documents/vanttec_uuv/build/uuv_control/libs/uuv_libs/UUV_Tests[1]_tests.cmake")
+  include("/home/soni/Documents/vanttec_uuv/build/uuv_control/libs/uuv_libs/UUV_Tests[1]_tests.cmake")
+else()
+  add_test(UUV_Tests_NOT_BUILT UUV_Tests_NOT_BUILT)
+endif()

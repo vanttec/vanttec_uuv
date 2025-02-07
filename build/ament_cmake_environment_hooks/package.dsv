@@ -1,0 +1,4 @@
+source;share/uuv_control/local_setup.bash
+source;share/uuv_control/local_setup.dsv
+source;share/uuv_control/local_setup.sh
+source;share/uuv_control/local_setup.zsh

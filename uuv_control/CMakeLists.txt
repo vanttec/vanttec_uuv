@@ -16,22 +16,33 @@ find_package(visualization_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(tf2 REQUIRED)
 find_package(Boost 1.45.0 COMPONENTS filesystem)
 
 
-add_subdirectory(libs/usv_libs)
+add_subdirectory(libs/uuv_libs)
 
+#dynamic_model_uuv node
 add_executable(dynamic_model_uuv src/dynamic_model_uuv.cpp)
 target_include_directories(dynamic_model_uuv PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include> libs/usv_libs/src)
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
 target_compile_features(dynamic_model_uuv PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 ament_target_dependencies(dynamic_model_uuv rclcpp std_msgs Eigen3 geometry_msgs nav_msgs tf2_ros)
-target_link_libraries(dynamic_model_uuv usv_libs)
+target_link_libraries(dynamic_model_uuv uuv_libs)
 
+#pid6dof node
+add_executable(pid6dof_node src/pid6dof_node.cpp)
+target_include_directories(pid6dof_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
+target_compile_features(pid6dof_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(pid6dof_node rclcpp std_msgs Eigen3 geometry_msgs)
+target_link_libraries(pid6dof_node uuv_libs)
 
 install(TARGETS
   dynamic_model_uuv
+  pid6dof_node
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY

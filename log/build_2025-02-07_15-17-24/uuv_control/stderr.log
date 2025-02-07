@@ -1,0 +1,8 @@
+[31mCMake Error at libs/uuv_libs/CMakeLists.txt:18 (add_subdirectory):
+  The source directory
+
+    /home/soni/Documents/vanttec_uuv/uuv_control/libs/uuv_libs/pybind11
+
+  does not contain a CMakeLists.txt file.
+
+[0m

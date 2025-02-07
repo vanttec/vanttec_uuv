@@ -1,0 +1,299 @@
+[0.055s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--packages-select', 'uuv_control']
+[0.055s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=32, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['uuv_control'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x7660b5f14b20>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x7660b5f145b0>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x7660b5f145b0>>, mixin_verb=('build',))
+[0.119s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.119s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.119s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.119s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.119s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.119s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.119s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/soni/Documents/vanttec_uuv'
+[0.119s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.119s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extensions ['ignore', 'ignore_ament_install']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extension 'ignore'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extension 'ignore_ament_install'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extensions ['colcon_pkg']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extension 'colcon_pkg'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extensions ['colcon_meta']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extension 'colcon_meta'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extensions ['ros']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extension 'ros'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extensions ['cmake', 'python']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extension 'cmake'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extension 'python'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extensions ['python_setup_py']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles) by extension 'python_setup_py'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extensions ['ignore', 'ignore_ament_install']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extension 'ignore'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extension 'ignore_ament_install'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extensions ['colcon_pkg']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extension 'colcon_pkg'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extensions ['colcon_meta']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extension 'colcon_meta'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extensions ['ros']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extension 'ros'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extensions ['cmake', 'python']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extension 'cmake'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extension 'python'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extensions ['python_setup_py']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004) by extension 'python_setup_py'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extensions ['ignore', 'ignore_ament_install']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extension 'ignore'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extension 'ignore_ament_install'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extensions ['colcon_pkg']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extension 'colcon_pkg'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extensions ['colcon_meta']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extension 'colcon_meta'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extensions ['ros']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extension 'ros'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extensions ['cmake', 'python']
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extension 'cmake'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extension 'python'
+[0.125s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extensions ['python_setup_py']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_gpu) by extension 'python_setup_py'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extensions ['ignore', 'ignore_ament_install']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extension 'ignore'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extension 'ignore_ament_install'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extensions ['colcon_pkg']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extension 'colcon_pkg'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extensions ['colcon_meta']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extension 'colcon_meta'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extensions ['ros']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extension 'ros'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extensions ['cmake', 'python']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extension 'cmake'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extension 'python'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extensions ['python_setup_py']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(dockerfiles/ubuntu2004_jetsontx2) by extension 'python_setup_py'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extensions ['ignore', 'ignore_ament_install']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extension 'ignore'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extension 'ignore_ament_install'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extensions ['colcon_pkg']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extension 'colcon_pkg'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extensions ['colcon_meta']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extension 'colcon_meta'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extensions ['ros']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extension 'ros'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extensions ['cmake', 'python']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extension 'cmake'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extension 'python'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extensions ['python_setup_py']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(docs) by extension 'python_setup_py'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extensions ['ignore', 'ignore_ament_install']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extension 'ignore'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extension 'ignore_ament_install'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extensions ['colcon_pkg']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extension 'colcon_pkg'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extensions ['colcon_meta']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extension 'colcon_meta'
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extensions ['ros']
+[0.126s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_control) by extension 'ros'
+[0.127s] DEBUG:colcon.colcon_core.package_identification:Package 'uuv_control' with type 'ros.ament_cmake' and name 'uuv_control'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extensions ['ignore', 'ignore_ament_install']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extension 'ignore'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extension 'ignore_ament_install'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extensions ['colcon_pkg']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extension 'colcon_pkg'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extensions ['colcon_meta']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extension 'colcon_meta'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extensions ['ros']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_description) by extension 'ros'
+[0.128s] DEBUG:colcon.colcon_core.package_identification:Package 'uuv_description' with type 'ros.ament_cmake' and name 'uuv_description'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extensions ['ignore', 'ignore_ament_install']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extension 'ignore'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extension 'ignore_ament_install'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extensions ['colcon_pkg']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extension 'colcon_pkg'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extensions ['colcon_meta']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extension 'colcon_meta'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extensions ['ros']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_gazebo) by extension 'ros'
+[0.128s] DEBUG:colcon.colcon_core.package_identification:Package 'uuv_gazebo' with type 'ros.catkin' and name 'uuv_gazebo'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extensions ['ignore', 'ignore_ament_install']
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extension 'ignore'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extension 'ignore_ament_install'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extensions ['colcon_pkg']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extension 'colcon_pkg'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extensions ['colcon_meta']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extension 'colcon_meta'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extensions ['ros']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extension 'ros'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extensions ['cmake', 'python']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extension 'cmake'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extension 'python'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extensions ['python_setup_py']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces) by extension 'python_setup_py'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extensions ['ignore', 'ignore_ament_install']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extension 'ignore'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extension 'ignore_ament_install'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extensions ['colcon_pkg']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extension 'colcon_pkg'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extensions ['colcon_meta']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extension 'colcon_meta'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extensions ['ros']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extension 'ros'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extensions ['cmake', 'python']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extension 'cmake'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extension 'python'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extensions ['python_setup_py']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_interfaces/msg) by extension 'python_setup_py'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extensions ['ignore', 'ignore_ament_install']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extension 'ignore'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extension 'ignore_ament_install'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extensions ['colcon_pkg']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extension 'colcon_pkg'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extensions ['colcon_meta']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extension 'colcon_meta'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extensions ['ros']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_localization) by extension 'ros'
+[0.129s] DEBUG:colcon.colcon_core.package_identification:Package 'uuv_localization' with type 'ros.catkin' and name 'imu_node'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extensions ['ignore', 'ignore_ament_install']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extension 'ignore'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extension 'ignore_ament_install'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extensions ['colcon_pkg']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extension 'colcon_pkg'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extensions ['colcon_meta']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extension 'colcon_meta'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extensions ['ros']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extension 'ros'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extensions ['cmake', 'python']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extension 'cmake'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extension 'python'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extensions ['python_setup_py']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master) by extension 'python_setup_py'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extension 'ignore_ament_install'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extensions ['colcon_pkg']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extension 'colcon_pkg'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extensions ['colcon_meta']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extension 'colcon_meta'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extensions ['ros']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extension 'ros'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extensions ['cmake', 'python']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extension 'cmake'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extension 'python'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extensions ['python_setup_py']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_master/src) by extension 'python_setup_py'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extension 'ignore_ament_install'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extensions ['colcon_pkg']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extension 'colcon_pkg'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extensions ['colcon_meta']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extension 'colcon_meta'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extensions ['ros']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extension 'ros'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extensions ['cmake', 'python']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extension 'cmake'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extension 'python'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extensions ['python_setup_py']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission) by extension 'python_setup_py'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extension 'ignore_ament_install'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extensions ['colcon_pkg']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extension 'colcon_pkg'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extensions ['colcon_meta']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extension 'colcon_meta'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extensions ['ros']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extension 'ros'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extensions ['cmake', 'python']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extension 'cmake'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extension 'python'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extensions ['python_setup_py']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_mission/src) by extension 'python_setup_py'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extension 'ignore_ament_install'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extensions ['colcon_pkg']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extension 'colcon_pkg'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extensions ['colcon_meta']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extension 'colcon_meta'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extensions ['ros']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(uuv_vision) by extension 'ros'
+[0.131s] DEBUG:colcon.colcon_core.package_identification:Package 'uuv_vision' with type 'ros.catkin' and name 'uuv_vision'
+[0.131s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.131s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.131s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.131s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.131s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.144s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'imu_node' in 'uuv_localization'
+[0.144s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'uuv_description' in 'uuv_description'
+[0.144s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'uuv_gazebo' in 'uuv_gazebo'
+[0.144s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'uuv_vision' in 'uuv_vision'
+[0.144s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.144s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.145s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 271 installed packages in /opt/ros/humble
+[0.146s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'cmake_args' from command line to 'None'
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'cmake_target' from command line to 'None'
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'cmake_clean_cache' from command line to 'False'
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'cmake_clean_first' from command line to 'False'
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'cmake_force_configure' from command line to 'False'
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'ament_cmake_args' from command line to 'None'
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'catkin_cmake_args' from command line to 'None'
+[0.160s] Level 5:colcon.colcon_core.verb:set package 'uuv_control' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.160s] DEBUG:colcon.colcon_core.verb:Building package 'uuv_control' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/soni/Documents/vanttec_uuv/build/uuv_control', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/soni/Documents/vanttec_uuv/install/uuv_control', 'merge_install': False, 'path': '/home/soni/Documents/vanttec_uuv/uuv_control', 'symlink_install': False, 'test_result_base': None}
+[0.160s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.161s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.161s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/soni/Documents/vanttec_uuv/uuv_control' with build type 'ament_cmake'
+[0.161s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/soni/Documents/vanttec_uuv/uuv_control'
+[0.162s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.162s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.162s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.166s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/soni/Documents/vanttec_uuv/build/uuv_control': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/soni/Documents/vanttec_uuv/uuv_control -DCMAKE_INSTALL_PREFIX=/home/soni/Documents/vanttec_uuv/install/uuv_control
+[2.205s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/soni/Documents/vanttec_uuv/build/uuv_control' returned '1': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/soni/Documents/vanttec_uuv/uuv_control -DCMAKE_INSTALL_PREFIX=/home/soni/Documents/vanttec_uuv/install/uuv_control
+[2.215s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(uuv_control)
+[2.216s] Level 1:colcon.colcon_core.environment:checking '/home/soni/Documents/vanttec_uuv/install/uuv_control' for CMake module files
+[2.216s] Level 1:colcon.colcon_core.environment:checking '/home/soni/Documents/vanttec_uuv/install/uuv_control' for CMake config files
+[2.216s] Level 1:colcon.colcon_core.environment:checking '/home/soni/Documents/vanttec_uuv/install/uuv_control/bin'
+[2.216s] Level 1:colcon.colcon_core.environment:checking '/home/soni/Documents/vanttec_uuv/install/uuv_control/lib/pkgconfig/uuv_control.pc'
+[2.216s] Level 1:colcon.colcon_core.environment:checking '/home/soni/Documents/vanttec_uuv/install/uuv_control/lib/python3.10/site-packages'
+[2.216s] Level 1:colcon.colcon_core.environment:checking '/home/soni/Documents/vanttec_uuv/install/uuv_control/bin'
+[2.216s] INFO:colcon.colcon_core.shell:Creating package script '/home/soni/Documents/vanttec_uuv/install/uuv_control/share/uuv_control/package.ps1'
+[2.217s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/soni/Documents/vanttec_uuv/install/uuv_control/share/uuv_control/package.dsv'
+[2.217s] INFO:colcon.colcon_core.shell:Creating package script '/home/soni/Documents/vanttec_uuv/install/uuv_control/share/uuv_control/package.sh'
+[2.217s] INFO:colcon.colcon_core.shell:Creating package script '/home/soni/Documents/vanttec_uuv/install/uuv_control/share/uuv_control/package.bash'
+[2.218s] INFO:colcon.colcon_core.shell:Creating package script '/home/soni/Documents/vanttec_uuv/install/uuv_control/share/uuv_control/package.zsh'
+[2.218s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/soni/Documents/vanttec_uuv/install/uuv_control/share/colcon-core/packages/uuv_control)
+[2.228s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[2.228s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[2.228s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '1'
+[2.228s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[2.235s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[2.235s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[2.235s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[2.250s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[2.251s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/soni/Documents/vanttec_uuv/install/local_setup.ps1'
+[2.252s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/soni/Documents/vanttec_uuv/install/_local_setup_util_ps1.py'
+[2.254s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/soni/Documents/vanttec_uuv/install/setup.ps1'
+[2.255s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/soni/Documents/vanttec_uuv/install/local_setup.sh'
+[2.255s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/soni/Documents/vanttec_uuv/install/_local_setup_util_sh.py'
+[2.256s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/soni/Documents/vanttec_uuv/install/setup.sh'
+[2.256s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/soni/Documents/vanttec_uuv/install/local_setup.bash'
+[2.257s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/soni/Documents/vanttec_uuv/install/setup.bash'
+[2.257s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/soni/Documents/vanttec_uuv/install/local_setup.zsh'
+[2.258s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/soni/Documents/vanttec_uuv/install/setup.zsh'
