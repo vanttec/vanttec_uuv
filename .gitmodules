@@ -15,4 +15,4 @@
 	url = https://github.com/vanttec/usv_libs.git
 [submodule "uuv_control/libs/uuv_libs"]
 	path = uuv_control/libs/uuv_libs
-	url = https://github.com/vanttec/uuv_libs.git
+	url = https://github.com/vanttec/uuv_libs
