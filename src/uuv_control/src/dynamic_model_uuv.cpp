@@ -18,7 +18,7 @@
 #include "tf2_ros/transform_broadcaster.h"
 
 
-#include "uuv/uuv_dynamic_model.h"
+#include "model/uuv_dynamic_model.h"
 
 using namespace std::chrono_literals;
 

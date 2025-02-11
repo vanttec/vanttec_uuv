@@ -2,5 +2,5 @@
 log/
 build/
 install/
-*/.vscode
-.vscode
+**/.vscode/  
+.vscode/    

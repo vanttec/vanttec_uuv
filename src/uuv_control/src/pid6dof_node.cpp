@@ -1,5 +1,3 @@
-#pragma once
-
 #include <rclcpp/rclcpp.hpp>
 #include <eigen3/Eigen/Dense>
 
@@ -19,7 +17,7 @@ PID6DOFNode() : Node("pid_6dof_node") {
 
   // Initialize parameters of controller
   params = initialize_params();
-  controller = PID6DOFController(params);
+  controller = PID6DOF(params);
 
   //Subscriptions
   pose_sub = this->create_subscription<geometry_msgs::msg::Pose>(
@@ -70,8 +68,8 @@ PID6DOFNode() : Node("pid_6dof_node") {
 private:
 
   // Controller instance
-  PID6DOFController controller;
-  PID6DOFParams params;
+  PID6DOF controller;
+  PIDParams params;
 
   // ROS Subscribers
   rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_sub;
@@ -96,9 +94,9 @@ private:
   std_msgs::msg::UInt16 auto_mode;
 
   // Initialization of parameters
-  PID6DOFParams initialize_params(){
+  PIDParams initialize_params(){
     // Define default parameters
-    auto default_params = PID6DOFController::defaultParams();
+    auto default_params = PID6DOF::defaultParams();
     
     // Create parameter map for ROS2 parameter server
     auto params_map = std::map<std::string, double>({
@@ -116,7 +114,7 @@ private:
     this->declare_parameters("", params_map);
 
     // Read parameters 
-    PID6DOFParams p = default_params;
+    PIDParams p = default_params;
     p.kP_pos = this->get_parameter("kP_pos").as_double();
     p.kI_pos = this->get_parameter("kI_pos").as_double();
     p.kD_pos = this->get_parameter("kD_pos").as_double();
@@ -166,7 +164,7 @@ private:
     desired_state.orientation << roll, pitch, yaw;
   }
 
-  void PID6DOFNode::setpoint_pose_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
+  void setpoint_pose_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
     desired_state.position << msg->position.x, msg->position.y, msg->position.z;
     
     // Convert quaternion to Euler angles
@@ -183,16 +181,16 @@ private:
     desired_state.orientation << roll, pitch, yaw;
   }
   
-  void PID6DOFNode::setpoint_velocity_callback(const geometry_msgs::msg::Twist::SharedPtr msg) {
+  void setpoint_velocity_callback(const geometry_msgs::msg::Twist::SharedPtr msg) {
     desired_state.velocity << msg->linear.x, msg->linear.y, msg->linear.z;
     desired_state.angular_velocity << msg->angular.x, msg->angular.y, msg->angular.z;
   }
 
-  void PID6DOFNode::auto_mode_callback(const std_msgs::msg::UInt16::SharedPtr msg) {
+  void auto_mode_callback(const std_msgs::msg::UInt16::SharedPtr msg) {
     auto_mode = *msg;
 }
 
-  void PID6DOFNode::update() {
+  void update() {
     if (auto_mode.data == 0) {  // Auto mode is 0 in the usv apparently
         // Compute control outputs
         Eigen::VectorXd control_outputs = controller.update(current_state, desired_state);
@@ -208,6 +206,6 @@ private:
         std_msgs::msg::Float64MultiArray error_msg, gain_msg;
         // error_pub->publish(error_msg);
         // gain_pub->publish(gain_msg);
-    }h
-}
+    }
+  }
 };
