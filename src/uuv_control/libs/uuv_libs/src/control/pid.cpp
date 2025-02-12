@@ -25,7 +25,8 @@ double PID::update(double measurement, double desired) {
 
 PIDParams PID::defaultParams() {
   PIDParams p{};
-  p.kD = 0.0;
+  p.kP = 0.0;
+  p.kI = 0.0;
   p.kD = 0.0;
   p.dt = 0.0;
   p.kUMax = 0.0;

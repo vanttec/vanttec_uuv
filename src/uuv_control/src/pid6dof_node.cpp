@@ -1,211 +1,164 @@
 #include <rclcpp/rclcpp.hpp>
 #include <eigen3/Eigen/Dense>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 // Message types
 #include <geometry_msgs/msg/pose.hpp>
-#include <geometry_msgs/msg/twist.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
-#include <std_msgs/msg/u_int16.hpp>
-#include <std_msgs/msg/bool.hpp>
 
-// Custom headers
-#include "control/pid6dof.h" 
+#include "control/pid6dof.h"
 
 class PID6DOFNode : public rclcpp::Node {
 public:
-PID6DOFNode() : Node("pid_6dof_node") {
+    PID6DOFNode() : Node("pid_6dof_node"), 
+                    current_state_(Eigen::VectorXf::Zero(6)),
+                    desired_state_(Eigen::VectorXf::Zero(6)) {
+        
+        // Initialize parameters
+        auto params = initialize_params();
+        controller = std::make_unique<PID6DOF>(params);
 
-  // Initialize parameters of controller
-  params = initialize_params();
-  controller = PID6DOF(params);
+        // Subscriptions
+        pose_sub_ = this->create_subscription<geometry_msgs::msg::Pose>(
+            "uuv/state/pose", 10, 
+            std::bind(&PID6DOFNode::pose_callback, this, std::placeholders::_1));
 
-  //Subscriptions
-  pose_sub = this->create_subscription<geometry_msgs::msg::Pose>(
-    "uuv/state/pose", 10, 
-    std::bind(&PID6DOFNode::pose_callback, this, std::placeholders::_1)
-  );
+        desired_pose_sub_ = this->create_subscription<geometry_msgs::msg::Pose>(
+            "uuv/desired_pose", 10,
+            std::bind(&PID6DOFNode::desired_pose_callback, this, std::placeholders::_1));
 
-  velocity_sub = this->create_subscription<geometry_msgs::msg::Twist>(
-    "uuv/state/velocity", 10, 
-    std::bind(&PID6DOFNode::velocity_callback, this, std::placeholders::_1)
-  );
+        // Publishers
+        control_output_pub_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+            "uuv/control_output", 10);
 
-  setpoint_pose_sub = this->create_subscription<geometry_msgs::msg::Pose>(
-    "setpoint/pose", 10, 
-    std::bind(&PID6DOFNode::setpoint_pose_callback, this, std::placeholders::_1)
-  );
-
-  setpoint_velocity_sub = this->create_subscription<geometry_msgs::msg::Twist>(
-    "setpoint/velocity", 10, 
-    std::bind(&PID6DOFNode::setpoint_velocity_callback, this, std::placeholders::_1)
-  );
-
-  auto_mode_sub = this->create_subscription<std_msgs::msg::UInt16>(
-    "uuv/op_mode", 10, 
-    std::bind(&PID6DOFNode::auto_mode_callback, this, std::placeholders::_1)
-  );
-
-  // Publishers
-  control_output_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-    "uuv/control_output", 10
-  );
-
-  error_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-    "debug/control_error", 10
-  );
-
-  gain_pub = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-    "debug/control_gains", 10
-  );
-
-  // Setup update timer
-  update_timer = this->create_wall_timer(
-    std::chrono::milliseconds(10),  // 100 Hz update rate
-      std::bind(&PID6DOFNode::update, this)
-  );
-}
+        // Setup update timer
+        update_timer_ = this->create_wall_timer(
+            std::chrono::milliseconds(10),  // 100 Hz update rate
+            std::bind(&PID6DOFNode::update, this));
+    }
 
 private:
-
-  // Controller instance
-  PID6DOF controller;
-  PIDParams params;
-
-  // ROS Subscribers
-  rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_sub;
-  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr velocity_sub;
-  rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr setpoint_pose_sub;
-  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr setpoint_velocity_sub;
-  rclcpp::Subscription<std_msgs::msg::UInt16>::SharedPtr auto_mode_sub;
-
-  // ROS Publishers
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr control_output_pub;
+    // Controller instance
+    std::unique_ptr<PID6DOF> controller;
     
-  // Debug publishers (max los tenia, asi que los agregue)
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr error_pub;
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr gain_pub;
+    // State vectors
+    Eigen::VectorXf current_state_;
+    Eigen::VectorXf desired_state_;
 
-  // Timer
-  rclcpp::TimerBase::SharedPtr update_timer;
+    // ROS Subscribers
+    rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_sub_;
+    rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr desired_pose_sub_;
 
-  // Current state variables
-  State6DOF current_state;
-  State6DOF desired_state;
-  std_msgs::msg::UInt16 auto_mode;
+    // ROS Publishers
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr control_output_pub_;
 
-  // Initialization of parameters
-  PIDParams initialize_params(){
-    // Define default parameters
-    auto default_params = PID6DOF::defaultParams();
-    
-    // Create parameter map for ROS2 parameter server
-    auto params_map = std::map<std::string, double>({
-        {"kP_pos", default_params.kP_pos},
-        {"kI_pos", default_params.kI_pos},
-        {"kD_pos", default_params.kD_pos},
-        {"kP_vel", default_params.kP_vel},
-        {"kI_vel", default_params.kI_vel},
-        {"kD_vel", default_params.kD_vel},
-        {"dt", default_params.dt},
-        {"u_max", default_params.u_max},
-        {"u_min", default_params.u_min}
-    });
+    // Timer
+    rclcpp::TimerBase::SharedPtr update_timer_;
 
-    this->declare_parameters("", params_map);
+    std::array<PIDParams, 6> initialize_params() {
+        // Degrees of freedom
+        std::vector<std::string> dof_labels = {"x", "y", "z", "roll", "pitch", "yaw"};
+        
+        // Get default parameters
+        auto default_params = PID::defaultParams();
+        
+        // Create parameter map
+        std::map<std::string, double> params_map;
+        for (const auto& dof : dof_labels) {
+            declare_parameter("kp_" + dof, default_params.kP);
+            declare_parameter("ki_" + dof, default_params.kI);
+            declare_parameter("kd_" + dof, default_params.kD);
+            declare_parameter("dt_" + dof, default_params.dt);
+            declare_parameter("u_max_" + dof, default_params.kUMax);
+            declare_parameter("u_min_" + dof, default_params.kUMin);
+            declare_parameter("enable_ramp_" + dof, default_params.enable_ramp_rate_limit);
+            declare_parameter("ramp_rate_" + dof, default_params.ramp_rate);
+        }
 
-    // Read parameters 
-    PIDParams p = default_params;
-    p.kP_pos = this->get_parameter("kP_pos").as_double();
-    p.kI_pos = this->get_parameter("kI_pos").as_double();
-    p.kD_pos = this->get_parameter("kD_pos").as_double();
-    p.kP_vel = this->get_parameter("kP_vel").as_double();
-    p.kI_vel = this->get_parameter("kI_vel").as_double();
-    p.kD_vel = this->get_parameter("kD_vel").as_double();
-    p.dt = this->get_parameter("dt").as_double();
-    p.u_max = this->get_parameter("u_max").as_double();
-    p.u_min = this->get_parameter("u_min").as_double();
+        // Read parameters
+        std::array<PIDParams, 6> params;
+        for (size_t i = 0; i < 6; i++) {
+            const auto& dof = dof_labels[i];
+            params[i] = default_params;
+            params[i].kP = get_parameter("kp_" + dof).as_double();
+            params[i].kI = get_parameter("ki_" + dof).as_double();
+            params[i].kD = get_parameter("kd_" + dof).as_double();
+            params[i].dt = get_parameter("dt_" + dof).as_double();
+            params[i].kUMax = get_parameter("u_max_" + dof).as_double();
+            params[i].kUMin = get_parameter("u_min_" + dof).as_double();
+            params[i].enable_ramp_rate_limit = get_parameter("enable_ramp_" + dof).as_bool();
+            params[i].ramp_rate = get_parameter("ramp_rate_" + dof).as_double();
+            
+            RCLCPP_INFO(get_logger(), 
+                       "PID [%s] -> Kp: %.2f, Ki: %.2f, Kd: %.2f", 
+                       dof.c_str(), params[i].kP, params[i].kI, params[i].kD);
+        }
+        return params;
+    }
 
-    return p;
-  }
+    void pose_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
+        current_state_[0] = msg->position.x;
+        current_state_[1] = msg->position.y;
+        current_state_[2] = msg->position.z;
 
-  // Callback methods
-  void pose_callback(const geometry_msgs::msg::Pose::SharedPtr msg){
-    current_state.position << msg->position.x, msg->position.y, msg->position.z;
-    
-    // Convert quaternion to Euler angles
-    tf2::Quaternion q(
-        msg->orientation.x, 
-        msg->orientation.y, 
-        msg->orientation.z, 
-        msg->orientation.w
-    );
-    tf2::Matrix3x3 m(q);
-    double roll, pitch, yaw;
-    m.getRPY(roll, pitch, yaw);
-    
-    current_state.orientation << roll, pitch, yaw;
-  }
+        tf2::Quaternion q(
+            msg->orientation.x,
+            msg->orientation.y,
+            msg->orientation.z,
+            msg->orientation.w
+        );
+        
+        double roll, pitch, yaw;
+        tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
+        
+        current_state_[3] = roll;
+        current_state_[4] = pitch;
+        current_state_[5] = yaw;
+    }
 
-  void velocity_callback(const geometry_msgs::msg::Twist::SharedPtr msg) {
-    
-    desired_state.position << msg->position.x, msg->position.y, msg->position.z;
-    
-    // Convert quaternion to Euler angles
-    tf2::Quaternion q(
-        msg->orientation.x, 
-        msg->orientation.y, 
-        msg->orientation.z, 
-        msg->orientation.w
-    );
-    tf2::Matrix3x3 m(q);
-    double roll, pitch, yaw;
-    m.getRPY(roll, pitch, yaw);
-    
-    desired_state.orientation << roll, pitch, yaw;
-  }
+    void desired_pose_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
+        desired_state_[0] = msg->position.x;
+        desired_state_[1] = msg->position.y;
+        desired_state_[2] = msg->position.z;
 
-  void setpoint_pose_callback(const geometry_msgs::msg::Pose::SharedPtr msg) {
-    desired_state.position << msg->position.x, msg->position.y, msg->position.z;
-    
-    // Convert quaternion to Euler angles
-    tf2::Quaternion q(
-        msg->orientation.x, 
-        msg->orientation.y, 
-        msg->orientation.z, 
-        msg->orientation.w
-    );
-    tf2::Matrix3x3 m(q);
-    double roll, pitch, yaw;
-    m.getRPY(roll, pitch, yaw);
-    
-    desired_state.orientation << roll, pitch, yaw;
-  }
-  
-  void setpoint_velocity_callback(const geometry_msgs::msg::Twist::SharedPtr msg) {
-    desired_state.velocity << msg->linear.x, msg->linear.y, msg->linear.z;
-    desired_state.angular_velocity << msg->angular.x, msg->angular.y, msg->angular.z;
-  }
+        tf2::Quaternion q(
+            msg->orientation.x,
+            msg->orientation.y,
+            msg->orientation.z,
+            msg->orientation.w
+        );
+        
+        double roll, pitch, yaw;
+        tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
+        
+        desired_state_[3] = roll;
+        desired_state_[4] = pitch;
+        desired_state_[5] = yaw;
+    }
 
-  void auto_mode_callback(const std_msgs::msg::UInt16::SharedPtr msg) {
-    auto_mode = *msg;
-}
+    void update() {
+        if (!controller) {
+            RCLCPP_WARN(get_logger(), "Controller not initialized!");
+            return;
+        }
 
-  void update() {
-    if (auto_mode.data == 0) {  // Auto mode is 0 in the usv apparently
-        // Compute control outputs
-        Eigen::VectorXd control_outputs = controller.update(current_state, desired_state);
-
-        // Publish control outputs
-        std_msgs::msg::Float64MultiArray output_msg;
+        auto control_outputs = controller->update(current_state_, desired_state_);
+        
+        auto output_msg = std_msgs::msg::Float64MultiArray();
         output_msg.data.resize(6);
         for (int i = 0; i < 6; ++i) {
-            output_msg.data[i] = control_outputs(i);
+            output_msg.data[i] = control_outputs[i];
         }
-        control_output_pub->publish(output_msg);
-
-        std_msgs::msg::Float64MultiArray error_msg, gain_msg;
-        // error_pub->publish(error_msg);
-        // gain_pub->publish(gain_msg);
+        
+        control_output_pub_->publish(output_msg);
     }
-  }
 };
+
+int main(int argc, char** argv) {
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<PID6DOFNode>();
+    rclcpp::spin(node);
+    rclcpp::shutdown();
+    return 0;
+}
