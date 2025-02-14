@@ -19,7 +19,9 @@ find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(CMAKE_CXX_STANDARD 17)
 set(UUV_LIBS_SRC 
-        src/model/uuv_dynamic_model.cpp)
+        src/model/uuv_dynamic_model.cpp
+        src/control/pid.cpp
+        src/control/pid6dof.h)
 
 # Library compilation
 include_directories(src)

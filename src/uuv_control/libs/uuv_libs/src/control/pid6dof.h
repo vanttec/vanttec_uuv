@@ -1,5 +1,3 @@
-#pragma once
-
 #include "pid.h"
 #include <eigen3/Eigen/Dense>
 #include <vector>
