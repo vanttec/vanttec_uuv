@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<robot name="uuv" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <link name="uuv">
+    <visual>
+      <origin rpy="1.5708 0 1.5708" xyz="-0.3 0 0"/>
+      <geometry>
+        <mesh filename="package://uuv_description/models/uuv_s4/meshes/uuv.gltf" scale="1. 1. 1."/>
+      </geometry>
+    </visual>
+  </link>
+
+  <gazebo reference="world">
+    <material>Gazebo/White</material>
+    <gravity>true</gravity>
+  </gazebo>
+
+</robot>
