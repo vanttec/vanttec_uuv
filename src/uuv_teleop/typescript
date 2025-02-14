@@ -1,0 +1,257 @@
+Script started on 2024-05-19 08:24:41-06:00 [TERM="xterm-256color" TTY="/dev/pts/13" COLUMNS="134" LINES="33"]
+[?2004h]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop[00m$ cd scripts[K
+[?2004lbash: cd: script: No such file or directory
+[?2004h]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop[00m$ cd scripts/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ ls
+[?2004luuv_teleop_node.py
+[?2004h]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ vim uuv_teleop_node.py 
+[?2004l[?1049h[22;0;0t[22;0t[?1h=[H[2J]11;?[?2004h[?25h[?25l(B[m[H[2J]112[1 q]112[1 q[?1004h[?25h[?25l]112[2 q[?25h[?25l[93m  1 (B[m[96m#!/usr/bin/env python3(B[m[K
+[93m  2 (B[m[K
+[93m  3 (B[m[38;5;81mimport(B[m rclpy[K
+[93m  4 (B[m[38;5;81mfrom(B[m rclpy.node [38;5;81mimport(B[m Node[K
+[93m  5 (B[m[38;5;81mfrom(B[m sensor_msgs.msg [38;5;81mimport(B[m Joy[K
+[93m  6 (B[m[38;5;81mfrom(B[m geometry_msgs.msg [38;5;81mimport(B[m Twist, Vector3[K
+[93m  7 (B[m[K
+[93m  8 (B[m[38;5;81mimport(B[m numpy [93mas(B[m np[K
+[93m  9 (B[m[38;5;81mimport(B[m math[K
+[93m 10 (B[m[K
+[93m 11 class(B[m (B[0;1m[96mTeleopControl(B[m(Node):[K
+[93m 12 (B[m[K
+[93m 13 (B[m    [93mdef(B[m (B[0;1m[96m__init__(B[m(self):[K
+[93m 14 (B[m        (B[0;1m[96msuper(B[m().__init__([95m'teleop_control_node'(B[m)[K
+[93m 15 (B[m        self.jsub = self.create_subscription([K
+[93m 16 (B[m            Joy, [95m'/joy'(B[m, self.convert_joy, [95m10(B[m[K
+[93m 17 (B[m        )[K
+[93m 18 (B[m[K
+[93m 19 (B[m        self.vel_pub = self.create_publisher(Twist, [95m'/uuv/cmd_twist'(B[m, [95m10(B[m)[K
+[93m 20 (B[m        self.vel_msg = Twist()[K
+[93m 21 (B[m[K
+[93m 22 (B[m        self.current_vel = np.zeros([95m6(B[m)[K
+[93m 23 (B[m        self.dt = [95m0.1(B[m[K
+[93m 24 (B[m    [K
+[93m 25 (B[m    [93mdef(B[m (B[0;1m[96mconvert_joy(B[m(self, msg):[K
+[93m 26 (B[m        roll_ax = [95m0(B[m[K
+[93m 27 (B[m        pitch_ax = [95m1(B[m[K
+[93m 28 (B[m        surge_neg_ax = [95m2(B[m[K
+[93m 29 (B[m        sway_ax = [95m3(B[m[K
+[93m 30 (B[m        heave_ax = [95m4(B[m[K
+[93m 31 (B[m        surge_pos_ax = [95m5(B[m[K
+(B[0;1;7muuv_teleop_node.py                                                                                                  1,1            Top[1;5H[?25h[?25l[33;124H(B[mj         [1;5H[?25h[?25l[33;124H [1;5H[?25h[?25l[32;117H(B[0;1;7m2,0-1[2;5H[?25h[?25l[33;124H(B[mj[2;5H[?25h[?25l[33;124H [2;5H[?25h[?25l[32;117H(B[0;1;7m3,1  [3;5H[?25h[?25l[33;124H(B[mj[3;5H[?25h[?25l[33;124H [3;5H[?25h[?25l[32;117H(B[0;1;7m4[4;5H[?25h[?25l[33;124H(B[mj[4;5H[?25h[?25l[33;124H [4;5H[?25h[?25l[32;117H(B[0;1;7m5[5;5H[?25h[?25l[33;124H(B[mj[5;5H[?25h[?25l[33;124H [5;5H[?25h[?25l[32;117H(B[0;1;7m6[6;5H[?25h[?25l[33;124H(B[mj[6;5H[?25h[?25l[33;124H [6;5H[?25h[?25l[32;117H(B[0;1;7m7,0-1[7;5H[?25h[?25l[33;124H(B[mj[7;5H[?25h[?25l[33;124H [7;5H[?25h[?25l[32;117H(B[0;1;7m8,1  [8;5H[?25h[?25l[33;124H(B[mj[8;5H[?25h[?25l[33;124H [8;5H[?25h[?25l[32;117H(B[0;1;7m9[9;5H[?25h[?25l[33;124H(B[mj[9;5H[?25h[?25l[33;124H [9;5H[?25h[?25l[32;117H(B[0;1;7m10,0-1[10;5H[?25h[?25l[33;124H(B[mj[10;5H[?25h[?25l[33;124H [10;5H[?25h[?25l[32;118H(B[0;1;7m1,1  [11;5H[?25h[?25l[33;124H(B[mj[11;5H[?25h[?25l[33;124H [11;5H[?25h[?25l[32;118H(B[0;1;7m2,0-1[12;5H[?25h[?25l[33;124H(B[mj[12;5H[?25h[?25l[33;124H [12;5H[?25h[?25l[32;118H(B[0;1;7m3,1  [13;5H[?25h[?25l[33;124H(B[mj[13;5H[?25h[?25l[33;124H [13;5H[?25h[?25l[32;118H(B[0;1;7m4[14;5H[?25h[?25l[33;124H(B[mj[14;5H[?25h[?25l[33;124H [14;5H[?25h[?25l[32;118H(B[0;1;7m5[15;5H[?25h[?25l[33;124H(B[mj[15;5H[?25h[?25l[33;124H [15;5H[?25h[?25l[32;118H(B[0;1;7m6[16;5H[?25h[?25l[33;124H(B[mj[16;5H[?25h[?25l[33;124H [16;5H[?25h[?25l[32;118H(B[0;1;7m7[17;5H[?25h[?25l[33;124H(B[mj[17;5H[?25h[?25l[33;124H [17;5H[?25h[?25l[32;118H(B[0;1;7m8,0-1[18;5H[?25h[?25l[33;124H(B[mj[18;5H[?25h[?25l[33;124H [18;5H[?25h[?25l[32;118H(B[0;1;7m9,1  [19;5H[?25h[?25l[33;124H(B[mj[19;5H[?25h[?25l[33;124H [19;5H[?25h[?25l[32;117H(B[0;1;7m20[20;5H[?25h[?25l[33;124H(B[mj[20;5H[?25h[?25l[33;124H [20;5H[?25h[?25l[32;118H(B[0;1;7m1,0-1[21;5H[?25h[?25l[33;124H(B[mk[21;5H[?25h[?25l[33;124H [21;5H[?25h[?25l[32;118H(B[0;1;7m0,1  [20;5H[?25h[?25l[33;124H(B[mk[20;5H[?25h[?25l[33;124H [20;5H[?25h[?25l[32;117H(B[0;1;7m19[19;5H[?25h[?25l[33;124H(B[mw[19;5H[?25h[?25l[33;124H [19;5H[?25h[?25l[32;120H(B[0;1;7m9[19;13H[?25h[?25l[33;124H(B[mw[19;13H[?25h[?25l[33;124H [19;13H[?25h[?25l[32;120H(B[0;1;7m13[19;17H[?25h[?25l[33;124H(B[mk[19;17H[?25h[?25l[33;124H [19;17H[?25h[?25l[32;118H(B[0;1;7m8,0-1[18;5H[?25h[?25l[33;124H(B[m:[18;5H[?25h[?25l[15B[J:]112[2 q[?25h[?25lw[?25h[?25lq[?25h[?25l[33;1H[?25h[?25l"uuv_teleop_node.py"]112[2 q[?25h[?25l[C71L, 2083C written[33;1H[?25h[?25l]112[2 q(B[m[?25h[?1l>[?1049l[23;0;0t[23;0t[?2004l[?1004l[?25h[?2004h]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ [K]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ [K]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ [K]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ [K]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ jj:wq[K[K[K[K[K[K]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ ls
+[?2004luuv_teleop_node.py
+[?2004h]0;demian@dEMBP: ~/vanttec_uuv/src/uuv_teleop/scripts[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_uuv/src/uuv_teleop/scripts[00m$ cd
+[?2004l[?2004h]0;demian@dEMBP: ~[01;32mdemian@dEMBP[00m:[01;34m~[00m$ cd vanttec_usd[Kv/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_usv[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv[00m$ ls
+[?2004lbeeblebrox.cpp               [0m[01;34mdetectors[0m   [01;34mdocs[0m     [01;34mlog[0m       README.md  [01;34msrc[0m
+[01;32mcreate_container_intel.bash[0m  Dockerfile  LICENSE  Makefile  [01;32msource.sh[0m  tags
+[?2004h]0;demian@dEMBP: ~/vanttec_usv[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv[00m$ cd src/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_usv/src[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv/src[00m$ ls
+[?2004l[0m[01;34mdeps[0m             [01;34musv_can[0m      [01;34musv_description[0m  [01;34musv_missions[0m    [01;34mzed-ros2-wrapper[0m
+[01;34mmsgs[0m             [01;34musv_comms[0m    [01;34musv_interfaces[0m   [01;34musv_perception[0m
+[01;34msbg_ros2_driver[0m  [01;34musv_control[0m  [01;34musv_master[0m       [01;34musv_utils[0m
+[?2004h]0;demian@dEMBP: ~/vanttec_usv/src[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv/src[00m$ cd usv_can/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_usv/src/usv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv/src/usv_can[00m$ ls
+[?2004l[0m[01;32mCMakeLists.txt[0m  [01;34mlibs[0m  [01;32mpackage.xml[0m  [01;34msrc[0m
+[?2004h]0;demian@dEMBP: ~/vanttec_usv/src/usv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv/src/usv_can[00m$ grep -rni [7mvanttec::CANMessage can_ms[27mvanttec::CANMessage can_ms[Ksg
+[?2004lgrep: can_msg: No such file or directory
+[?2004h]0;demian@dEMBP: ~/vanttec_usv/src/usv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv/src/usv_can[00m$ grep -rni vanttec::CANMessage can_msg[1@"[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C"
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_usv/src/usv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv/src/usv_can[00m$ ls
+[?2004l[0m[01;32mCMakeLists.txt[0m  [01;34mlibs[0m  [01;32mpackage.xml[0m  [01;34msrc[0m
+[?2004h]0;demian@dEMBP: ~/vanttec_usv/src/usv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_usv/src/usv_can[00m$ cd [K[K[Kcd
+[?2004l[?2004h]0;demian@dEMBP: ~[01;32mdemian@dEMBP[00m:[01;34m~[00m$ cd vanttec_sdv/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_sdv[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv[00m$ ls
+[?2004l[0m[01;34mcontrib[0m                      Dockerfile  README.md  tags   [01;34mworkspace[0m
+[01;32mcreate_container_intel.bash[0m  Makefile    [01;32mstart.sh[0m   [01;34mutils[0m
+[?2004h]0;demian@dEMBP: ~/vanttec_sdv[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv[00m$ cd workspace/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace[00m$ ls
+[?2004l[0m[01;34msrc[0m
+[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace[00m$ cd src/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src[00m$ ls
+[?2004l[0m[01;34mdrivers[0m                  [01;34mndt_omp_ros2[0m     [01;34msdv_docker[0m        [01;34msdv_msgs[0m
+[01;34misaac_ros_common[0m         [01;34msdv_can[0m          [01;34msdv_launch[0m        [01;34msimulation_manual_control[0m
+[01;34mlidar_localization_ros2[0m  [01;34msdv_control[0m      [01;34msdv_lidar[0m
+[01;34mLIO-SAM[0m                  [01;34msdv_description[0m  [01;34msdv_localization[0m
+[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src[00m$ cd sdv_va
+[?2004lbash: cd: sdv_va: No such file or directory
+[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src[00m$ cd sdv_va[K[Kcan/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src/sdv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src/sdv_can[00m$ s[Kls
+[?2004lCMakeLists.txt  [0m[01;34mlaunch[0m  package.xml  [01;34mresources[0m  [01;34msounds[0m
+[01;34mconfig[0m          [01;34mlibs[0m    README.md    [01;34mscripts[0m    [01;34msrc[0m
+[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src/sdv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src/sdv_can[00m$ lscd sdv_can/[2Pvals[Kcd src/ls[Kcd workspace/ls[Kcd vanttec_sdv/[Klsgrep -rni "vanttec::CANMessage can_msg" [A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K"
+[?2004l[35m[Ksrc/can_node_sdv.cpp[m[K[36m[K:[m[K[32m[K22[m[K[36m[K:[m[K                [01;31m[Kvanttec::CANMessage can_msg[m[K;
+[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src/sdv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src/sdv_can[00m$ vim [K[K[K[Kcd s
+[?2004lbash: cd: s: No such file or directory
+[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src/sdv_can[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src/sdv_can[00m$ cd src/
+[?2004l[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src/sdv_can/src[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src/sdv_can/src[00m$ ls
+[?2004lcan_node_base.cpp  can_node_base.h  can_node_sdv.cpp
+[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src/sdv_can/src[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src/sdv_can/src[00m$ vim can_node_sdv.cpp 
+[?2004l[?1049h[22;0;0t[22;0t[?1h=[H[2J]11;?[?2004h[?25h[?25l(B[m[H[2J]112[1 q]112[1 q[?1004h[?25h[?25l]112[2 q[?25h[?25l[93m  1 (B[m[38;5;81m#include (B[m[95m"can_node_base.h"(B[m[K
+[93m  2 (B[m[38;5;81m#include (B[m[95m"Vanttec_CANLib/CANMessage.h"(B[m[K
+[93m  3 (B[m[38;5;81m#include (B[m[95m<std_msgs/msg/float64.hpp>(B[m[K
+[93m  4 (B[m[38;5;81m#include (B[m[95m<std_msgs/msg/u_int8.hpp>(B[m[K
+[93m  5 (B[m[38;5;81m#include (B[m[95m"sdv_msgs/srv/uint8.hpp"(B[m[K
+[93m  6 (B[m[38;5;81m#include (B[m[95m"std_srvs/srv/empty.hpp"(B[m[K
+[93m  7 (B[m[38;5;81m#include (B[m[95m<algorithm>(B[m[K
+[93m  8 (B[m[38;5;81m#include (B[m[95m<chrono>(B[m[K
+[93m  9 (B[m[K
+[93m 10 using(B[m [38;5;121mnamespace(B[m (B[0;1m[96mstd(B[m::chrono_literals;[K
+[93m 11 (B[m[K
+[93m 12 (B[m[38;5;121mclass(B[m CanNodeSDV : [93mpublic(B[m CanNodeBase {[K
+[93m 13 public(B[m:[K
+[93m 14 (B[m[96m[48;5;242m+--- 62 lines: CanNodeSDV() : CanNodeBase("sdv_can_node"){···························
+(B[m[93m 76 protected(B[m:[K
+[93m 77 (B[m[96m[48;5;242m+--- 21 lines: void parse_frame(const struct can_frame &frame) override {············
+(B[m[93m 98 (B[m[K
+[93m 99 (B[m[96m[48;5;242m+--- 24 lines: void throttle_watchdog(){·············································
+(B[m[93m123 (B[m [K
+[93m124 (B[m    [38;5;121mvoid(B[m zero_encoder([38;5;121mconst(B[m (B[0;1m[96mstd(B[m::shared_ptr<(B[0;1m[96mstd_srvs(B[m::(B[0;1m[96msrv(B[m::(B[0;1m[96mEmpty(B[m::Request> request,[K
+[93m125 (B[m[96m[48;5;242m+--- 14 lines: std::shared_ptr<std_srvs::srv::Empty::Response> response) {···········
+(B[m[93m139 (B[m[K
+[93m140 (B[m    [38;5;121mvoid(B[m set_mode([38;5;121mconst(B[m (B[0;1m[96mstd(B[m::shared_ptr<(B[0;1m[96msdv_msgs(B[m::(B[0;1m[96msrv(B[m::(B[0;1m[96mUint8(B[m::Request> request,[K
+[93m141 (B[m[96m[48;5;242m+---  9 lines: std::shared_ptr<sdv_msgs::srv::Uint8::Response> response) {···········
+(B[m[93m150 (B[m[K
+[93m151 (B[m    [38;5;121mvoid(B[m activate_lightshow([38;5;121mconst(B[m (B[0;1m[96mstd(B[m::shared_ptr<(B[0;1m[96msdv_msgs(B[m::(B[0;1m[96msrv(B[m::(B[0;1m[96mUint8(B[m::Request> requ[93m    (B[mest,[K
+[93m152 (B[m[96m[48;5;242m+--- 13 lines: std::shared_ptr<sdv_msgs::srv::Uint8::Response> response) {···········
+(B[m[93m165 (B[m[K
+[93m166 private(B[m:[K
+[93m167 (B[m    [38;5;121mbool(B[m is_auto{[95mfalse(B[m};[K
+[93m168 (B[m    (B[0;1m[96mrclcpp(B[m::(B[0;1m[96mTimerBase(B[m::SharedPtr throttle_watchdog_timer_;[K
+[93m169 (B[m    (B[0;1m[96mrclcpp(B[m::Time last_throttle_message;[K
+[93m170 (B[m[K
+[93m171 (B[m    (B[0;1m[96mrclcpp(B[m::Service<(B[0;1m[96mstd_srvs(B[m::(B[0;1m[96msrv(B[m::Empty>::SharedPtr zero_service;[K
+[93m172 (B[m    (B[0;1m[96mrclcpp(B[m::Service<(B[0;1m[96msdv_msgs(B[m::(B[0;1m[96msrv(B[m::Uint8>::SharedPtr mode_service;[K
+[93m173 (B[m    (B[0;1m[96mrclcpp(B[m::Subscription<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::Float64>::SharedPtr motor_angle_sub;[K
+[93m174 (B[m    (B[0;1m[96mrclcpp(B[m::Subscription<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::UInt8>::SharedPtr throttle_setpoint_sub;[K
+[93m175 (B[m    (B[0;1m[96mrclcpp(B[m::Publisher<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::Float64>::SharedPtr steering_angle_pub;[K
+[93m176 (B[m};[K
+[93m177 (B[m[K
+[93m178 (B[m[38;5;121mint(B[m main([38;5;121mint(B[m argc, [38;5;121mchar(B[m * argv[]){[K
+[93m179 (B[m  (B[0;1m[96mrclcpp(B[m::init(argc, argv);[K
+[93m180 (B[m  (B[0;1m[96mrclcpp(B[m::spin((B[0;1m[96mstd(B[m::make_shared<CanNodeSDV>());[K
+[93m181 (B[m  (B[0;1m[96mrclcpp(B[m::shutdown();[K
+(B[0;1;7mcan_node_sdv.cpp                                                       1,1            Top[1;5H[?25h[?25l[47;79H(B[mj         [1;5H[?25h[?25l[47;79H [1;5H[?25h[?25l[46;72H(B[0;1;7m2[2;5H[?25h[?25l[47;79H(B[mz[2;5H[?25h[?25l[47;80HR[2;5H[?25h[?25l[47;79H  [2;5H[?25h[?25l[12B    CanNodeSDV() : CanNodeBase([95m"sdv_can_node"(B[m){[K[15;2H[93m15 (B[m        [93musing(B[m [38;5;121mnamespace(B[m (B[0;1m[96mstd(B[m::placeholders;[16;2H[93m16 (B[m[K[17;2H[93m17 (B[m        [96m// [joystick] -> [this node] -> [stepper pcb] -> [stepper motor][18;2H(B[m[93m18 (B[m        [96m// [this node][motor_angle_sub] : convert FLoat64 to CANMessage and send it(B[m[K
+[93m 19 (B[m        motor_angle_sub = [93mthis(B[m->create_subscription<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::Float64>(
+[93m 20 (B[m            [95m"/sdv/steering/setpoint"(B[m, [95m10(B[m, [[93mthis(B[m]([38;5;121mconst(B[m (B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::(B[0;1m[96mFloat64(B[m::Shared[93m    (B[mPtr msg){[K
+[93m 21 (B[m                [96m// RCLCPP_INFO(this->get_logger(), "Setpoint: %f", msg->data);
+(B[m[93m 22 (B[m                (B[0;1m[96mvanttec(B[m::CANMessage can_msg;[35X
+[93m 23 (B[m                (B[0;1m[96mvanttec(B[m::packFloat(can_msg, [95m0x01(B[m, msg->data);[K
+[93m 24 (B[m                send_frame([95m0x410(B[m, can_msg);
+[93m 25 (B[m            }[K[27;2H[93m26 (B[m        );
+[93m 27 (B[m[K
+[93m 28 (B[m        throttle_setpoint_sub = [93mthis(B[m->create_subscription<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::UInt8>(
+[93m 29 (B[m            [95m"/sdv/throttle/setpoint"(B[m, [95m10(B[m, [[93mthis(B[m]([38;5;121mconst(B[m (B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::(B[0;1m[96mUInt8(B[m::SharedPt[93m    (B[mr msg){[17X
+[93m 30 (B[m                last_throttle_message = [93mthis(B[m->get_clock()->now();
+[93m 31 (B[m                (B[0;1m[96mvanttec(B[m::CANMessage throttle_setpoint_msg;
+[93m 32 (B[m                [38;5;121muint8_t(B[m output = msg->data;
+[93m 33 (B[m                [93mif(B[m(output > [95m180(B[m)[34X
+[93m 34 (B[m                    output = [95m180(B[m;[33X
+[93m 35 (B[m[76X
+[93m 36 (B[m                (B[0;1m[96mvanttec(B[m::packByte(throttle_setpoint_msg, [95m0x05(B[m, output);[9X
+[93m 37 (B[m                send_frame([95m0x406(B[m, throttle_setpoint_msg);[19X
+[93m 38 (B[m            }
+[93m 39 (B[m        );
+[93m 40 (B[m[34X
+[93m 41 (B[m        [96m// [britter encoder] -> [CAN] -> [this node] -> [ros]
+(B[m[93m 42 (B[m        [96m// [this node][steering_angle_pub] : convert encoder's angle to Float64 and p(B[m[93m    (B[m[96mublish it(B[m[12X[2;5H[?25h[?25l[47;79H/[2;5H[?25h[?25l[45B[J/]112[2 q[?25h[?25l[47;1H ]112[2 q[?25h[?25l[2;5H[?25h[?25l[47;79Hj[2;5H[?25h[?25l[47;79H [2;5H[?25h[?25l[46;72H(B[0;1;7m3[3;5H[?25h[?25l[47;79H(B[mj[3;5H[?25h[?25l[47;79H [3;5H[?25h[?25l[46;72H(B[0;1;7m4[4;5H[?25h[?25l[47;79H(B[mj[4;5H[?25h[?25l[47;79H [4;5H[?25h[?25l[46;72H(B[0;1;7m5[5;5H[?25h[?25l[47;79H(B[mj[5;5H[?25h[?25l[47;79H [5;5H[?25h[?25l[46;72H(B[0;1;7m6[6;5H[?25h[?25l[47;79H(B[mj[6;5H[?25h[?25l[47;79H [6;5H[?25h[?25l[46;72H(B[0;1;7m7[7;5H[?25h[?25l[47;79H(B[mj[7;5H[?25h[?25l[47;79H [7;5H[?25h[?25l[46;72H(B[0;1;7m8[8;5H[?25h[?25l[47;79H(B[mj[8;5H[?25h[?25l[47;79H [8;5H[?25h[?25l[46;72H(B[0;1;7m9,0-1[9;5H[?25h[?25l[47;79H(B[mj[9;5H[?25h[?25l[47;79H [9;5H[?25h[?25l[46;72H(B[0;1;7m10,1 [10;5H[?25h[?25l[47;79H(B[mj[10;5H[?25h[?25l[47;79H [10;5H[?25h[?25l[46;73H(B[0;1;7m1,0-1[11;5H[?25h[?25l[47;79H(B[mj[11;5H[?25h[?25l[47;79H [11;5H[?25h[?25l[46;73H(B[0;1;7m2,1  [12;5H[?25h[?25l[47;79H(B[mj[12;5H[?25h[?25l[47;79H [12;5H[?25h[?25l[46;73H(B[0;1;7m3[13;5H[?25h[?25l[47;79H(B[mj[13;5H[?25h[?25l[47;79H [13;5H[?25h[?25l[46;73H(B[0;1;7m4[14;5H[?25h[?25l[47;79H(B[mj[14;5H[?25h[?25l[47;79H [14;5H[?25h[?25l[46;73H(B[0;1;7m5[15;5H[?25h[?25l[47;79H(B[mj[15;5H[?25h[?25l[47;79H [15;5H[?25h[?25l[46;73H(B[0;1;7m6,0-1[16;5H[?25h[?25l[47;79H(B[mj[16;5H[?25h[?25l[47;79H [16;5H[?25h[?25l[46;73H(B[0;1;7m7,1  [17;5H[?25h[?25l[47;79H(B[mj[17;5H[?25h[?25l[47;79H [17;5H[?25h[?25l[46;73H(B[0;1;7m8[18;5H[?25h[?25l[47;79H(B[mj[18;5H[?25h[?25l[47;79H [18;5H[?25h[?25l[46;73H(B[0;1;7m9[19;5H[?25h[?25l[47;79H(B[mj[19;5H[?25h[?25l[47;79H [19;5H[?25h[?25l[46;72H(B[0;1;7m20[20;5H[?25h[?25l[47;79H(B[mj[20;5H[?25h[?25l[47;79H [20;5H[?25h[?25l[46;73H(B[0;1;7m1[22;5H[?25h[?25l[47;79H(B[mj[22;5H[?25h[?25l[47;79H [22;5H[?25h[?25l[46;73H(B[0;1;7m2[23;5H[?25h[?25l[47;79H(B[mj[23;5H[?25h[?25l[47;79H [23;5H[?25h[?25l[46;73H(B[0;1;7m3[24;5H[?25h[?25l[47;79H(B[mj[24;5H[?25h[?25l[47;79H [24;5H[?25h[?25l[46;73H(B[0;1;7m4[25;5H[?25h[?25l[47;79H(B[mj[25;5H[?25h[?25l[47;79H [25;5H[?25h[?25l[46;73H(B[0;1;7m5[26;5H[?25h[?25l[47;79H(B[mj[26;5H[?25h[?25l[47;79H [26;5H[?25h[?25l[46;73H(B[0;1;7m6[27;5H[?25h[?25l[47;79H(B[mj[27;5H[?25h[?25l[47;79H [27;5H[?25h[?25l[46;73H(B[0;1;7m7,0-1[28;5H[?25h[?25l[47;79H(B[mj[28;5H[?25h[?25l[47;79H [28;5H[?25h[?25l[46;73H(B[0;1;7m8,1  [29;5H[?25h[?25l[47;79H(B[mj[29;5H[?25h[?25l[47;79H [29;5H[?25h[?25l[46;73H(B[0;1;7m9[30;5H[?25h[?25l[47;79H(B[mj[30;5H[?25h[?25l[47;79H [30;5H[?25h[?25l[46;72H(B[0;1;7m30[32;5H[?25h[?25l[47;79H(B[mj[32;5H[?25h[?25l[47;79H [32;5H[?25h[?25l[46;73H(B[0;1;7m1[33;5H[?25h[?25l[47;79H(B[mj[33;5H[?25h[?25l[47;79H [33;5H[?25h[?25l[46;73H(B[0;1;7m2[34;5H[?25h[?25l[47;79H(B[mj[34;5H[?25h[?25l[47;79H [34;5H[?25h[?25l[46;73H(B[0;1;7m3[35;5H[?25h[?25l[47;79H(B[mj[35;5H[?25h[?25l[47;79H [35;5H[?25h[?25l[46;73H(B[0;1;7m4[36;5H[?25h[?25l[47;79H(B[mj[36;5H[?25h[?25l[47;79H [36;5H[?25h[?25l[46;73H(B[0;1;7m5,0-1[37;5H[?25h[?25l[47;79H(B[mj[37;5H[?25h[?25l[47;79H [37;5H[?25h[?25l[46;73H(B[0;1;7m6,1  [38;5H[?25h[?25l[47;79H(B[mj[38;5H[?25h[?25l[47;79H [38;5H[?25h[?25l[46;73H(B[0;1;7m7[39;5H[?25h[?25l[47;79H(B[mj[39;5H[?25h[?25l[47;79H [39;5H[?25h[?25l[46;73H(B[0;1;7m8[40;5H[?25h[?25l[47;79H(B[mj[40;5H[?25h[?25l[47;79H [40;5H[?25h[?25l[46;73H(B[0;1;7m9[41;5H[?25h[?25l[47;79H(B[mj[41;5H[?25h[?25l[47;79H [41;5H[?25h[?25l[46;72H(B[0;1;7m40,0-1[42;5H[?25h[?25l[47;79H(B[mj[42;5H[?25h[?25l[47;79H [42;5H[?25h[?25l[46;73H(B[0;1;7m1,1  [43;5H[?25h[?25l[47;79H(B[mj[43;5H[?25h[?25l[47;79H [43;5H[?25h[?25l[46;73H(B[0;1;7m2[44;5H[?25h[?25l[47;79H(B[mj[44;5H[?25h[?25l[47;79H [44;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 43 (B[m        steering_angle_pub = [93mthis(B[m->create_publisher<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::Float64>([K[46;73H(B[0;1;7m3,1            0%[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 44 (B[m            [95m"/sdv/steering/position"(B[m, [95m10(B[m[K[46;73H(B[0;1;7m4,1            1[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 45 (B[m        );[K[46;73H(B[0;1;7m5,1            2[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 46 (B[m[K[46;73H(B[0;1;7m6,0-1[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 47 (B[m        [96m// [ros] -> [this node] -> [stepper pcb] -> [stepper motor](B[m[K[46;73H(B[0;1;7m7,1            3[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[2M[r[44;1H[93m 48 (B[m        [96m// [this node][zero_service] : if called, send a CAN message to zero the enco(B[m[93m    (B[m[96mder on current position(B[m[K[46;73H(B[0;1;7m8,1            4[44;5H[?25h[?25l[47;79H(B[mj[44;5H[?25h[?25l[47;79H [44;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 49 (B[m        zero_service = [93mthis(B[m->create_service<(B[0;1m[96mstd_srvs(B[m::(B[0;1m[96msrv(B[m::Empty>([K[46;73H(B[0;1;7m9,1            5[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 50 (B[m            [95m"/sdv/steering/reset_encoder"(B[m,[K[46;72H(B[0;1;7m50,1            6[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 51 (B[m            (B[0;1m[96mstd(B[m::bind([K[46;73H(B[0;1;7m1,1            7[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 52 (B[m                &(B[0;1m[96mCanNodeSDV(B[m::zero_encoder, [93mthis(B[m, _1, _2[K[46;73H(B[0;1;7m2[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 53 (B[m            )[K[46;73H(B[0;1;7m3,1            8[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 54 (B[m        );[K[46;73H(B[0;1;7m4,1            9[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 55 (B[m[K[46;73H(B[0;1;7m5,0-1[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 56 (B[m        [96m// [ros] -> [this node] -> [CAN network](B[m[K[46;73H(B[0;1;7m6,1           10[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[2M[r[44;1H[93m 57 (B[m        [96m// [this node][mode_service] : will send the value of the service as the curr(B[m[93m    (B[m[96ment mode to CAN (B[m[K[46;73H(B[0;1;7m7,1           11[44;5H[?25h[?25l[47;79H(B[mj[44;5H[?25h[?25l[47;79H [44;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 58 (B[m        mode_service = [93mthis(B[m->create_service<(B[0;1m[96msdv_msgs(B[m::(B[0;1m[96msrv(B[m::Uint8>([K[46;73H(B[0;1;7m8,1           12[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 59 (B[m            [95m"/sdv/steering/set_mode"(B[m,[K[46;73H(B[0;1;7m9,1           13[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[2M[r[44;1H[93m 60 (B[m            (B[0;1m[96mstd(B[m::bind([K
+[93m 61 (B[m                &(B[0;1m[96mCanNodeSDV(B[m::set_mode, [93mthis(B[m, _1, _2[K[46;72H(B[0;1;7m60,1           14[44;5H[?25h[?25l[47;79H(B[mj[44;5H[?25h[?25l[47;79H [44;5H[?25h[?25l[46;73H(B[0;1;7m1[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 62 (B[m            )[K[46;73H(B[0;1;7m2[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 63 (B[m        );[K[46;73H(B[0;1;7m3,1           15[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 64 (B[m[K[46;73H(B[0;1;7m4,0-1         16[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 65 (B[m        [96m// [ros] -> [this node] -> [CAN network](B[m[K[46;73H(B[0;1;7m5,1  [45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[2M[r[44;1H[93m 66 (B[m        [96m// [this node][mode_service] : will send the value of the service as the curr(B[m[93m    (B[m[96ment mode to CAN (B[m[K[46;73H(B[0;1;7m6,1           18[44;5H[?25h[?25l[47;79H(B[mj[44;5H[?25h[?25l[47;79H [44;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 67 (B[m        mode_service = [93mthis(B[m->create_service<(B[0;1m[96msdv_msgs(B[m::(B[0;1m[96msrv(B[m::Uint8>([K[46;73H(B[0;1;7m7[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 68 (B[m            [95m"/sdv/steering/activate/lightshow"(B[m,[K[46;73H(B[0;1;7m8,1           19[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[2M[r[44;1H[93m 69 (B[m            (B[0;1m[96mstd(B[m::bind([K
+[93m 70 (B[m                &(B[0;1m[96mCanNodeSDV(B[m::activate_lightshow, [93mthis(B[m, _1, _2[K[46;73H(B[0;1;7m9,1           20[44;5H[?25h[?25l[47;79H(B[mj[44;5H[?25h[?25l[47;79H [44;5H[?25h[?25l[46;72H(B[0;1;7m70[45;5H[?25h[?25l[47;79H(B[mj[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[1;45r[H[M[r[45;1H[93m 71 (B[m            )[K[46;73H(B[0;1;7m1,1           21[45;5H[?25h[?25l[47;79H(B[mk[45;5H[?25h[?25l[47;79H [45;5H[?25h[?25l[46;73H(B[0;1;7m0[44;5H[?25h[?25l[47;79H(B[mk[44;5H[?25h[?25l[47;79H [44;5H[?25h[?25l[46;72H(B[0;1;7m69[43;5H[?25h[?25l[47;79H(B[mk[43;5H[?25h[?25l[47;79H [43;5H[?25h[?25l[46;73H(B[0;1;7m8[42;5H[?25h[?25l[47;79H(B[mk[42;5H[?25h[?25l[47;79H [42;5H[?25h[?25l[46;73H(B[0;1;7m7[41;5H[?25h[?25l[47;79H(B[mk[41;5H[?25h[?25l[47;79H [41;5H[?25h[?25l[46;73H(B[0;1;7m6[39;5H[?25h[?25l[47;79H(B[mk[39;5H[?25h[?25l[47;79H [39;5H[?25h[?25l[46;73H(B[0;1;7m5[38;5H[?25h[?25l[47;79H(B[mk[38;5H[?25h[?25l[47;79H [38;5H[?25h[?25l[46;73H(B[0;1;7m4,0-1[37;5H[?25h[?25l[47;79H(B[mk[37;5H[?25h[?25l[47;79H [37;5H[?25h[?25l[46;73H(B[0;1;7m3,1  [36;5H[?25h[?25l[47;79H(B[mk[36;5H[?25h[?25l[47;79H [36;5H[?25h[?25l[46;73H(B[0;1;7m2[35;5H[?25h[?25l[47;79H(B[mk[35;5H[?25h[?25l[47;79H [35;5H[?25h[?25l[46;73H(B[0;1;7m1[34;5H[?25h[?25l[47;79H(B[mk[34;5H[?25h[?25l[47;79H [34;5H[?25h[?25l[46;73H(B[0;1;7m0[33;5H[?25h[?25l[47;79H(B[mk[33;5H[?25h[?25l[47;79H [33;5H[?25h[?25l[46;72H(B[0;1;7m59[32;5H[?25h[?25l[47;79H(B[mk[32;5H[?25h[?25l[47;79H [32;5H[?25h[?25l[46;73H(B[0;1;7m8[31;5H[?25h[?25l[47;79H(B[mk[31;5H[?25h[?25l[47;79H [31;5H[?25h[?25l[46;73H(B[0;1;7m7[29;5H[?25h[?25l[47;79H(B[mk[29;5H[?25h[?25l[47;79H [29;5H[?25h[?25l[46;73H(B[0;1;7m6[28;5H[?25h[?25l[47;79H(B[mk[28;5H[?25h[?25l[47;79H [28;5H[?25h[?25l[46;73H(B[0;1;7m5,0-1[27;5H[?25h[?25l[47;79H(B[mk[27;5H[?25h[?25l[47;79H [27;5H[?25h[?25l[46;73H(B[0;1;7m4,1  [26;5H[?25h[?25l[47;79H(B[mk[26;5H[?25h[?25l[47;79H [26;5H[?25h[?25l[46;73H(B[0;1;7m3[25;5H[?25h[?25l[47;79H(B[mk[25;5H[?25h[?25l[47;79H [25;5H[?25h[?25l[46;73H(B[0;1;7m2[24;5H[?25h[?25l[47;79H(B[mk[24;5H[?25h[?25l[47;79H [24;5H[?25h[?25l[46;73H(B[0;1;7m1[23;5H[?25h[?25l[47;79H(B[mk[23;5H[?25h[?25l[47;79H [23;5H[?25h[?25l[46;73H(B[0;1;7m0[22;5H[?25h[?25l[47;79H(B[mk[22;5H[?25h[?25l[47;79H [22;5H[?25h[?25l[46;72H(B[0;1;7m49[21;5H[?25h[?25l[47;79H(B[mk[21;5H[?25h[?25l[47;79H [21;5H[?25h[?25l[46;73H(B[0;1;7m8[19;5H[?25h[?25l[47;79H(B[mk[19;5H[?25h[?25l[47;79H [19;5H[?25h[?25l[46;73H(B[0;1;7m7[18;5H[?25h[?25l[47;79H(B[mk[18;5H[?25h[?25l[47;79H [18;5H[?25h[?25l[46;73H(B[0;1;7m6,0-1[17;5H[?25h[?25l[47;79H(B[mk[17;5H[?25h[?25l[47;79H [17;5H[?25h[?25l[46;73H(B[0;1;7m5,1  [16;5H[?25h[?25l[47;79H(B[mk[16;5H[?25h[?25l[47;79H [16;5H[?25h[?25l[46;73H(B[0;1;7m4[15;5H[?25h[?25l[47;79H(B[mk[15;5H[?25h[?25l[47;79H [15;5H[?25h[?25l[46;73H(B[0;1;7m3[14;5H[?25h[?25l[47;79H(B[mk[14;5H[?25h[?25l[47;79H [14;5H[?25h[?25l[46;73H(B[0;1;7m2[12;5H[?25h[?25l[47;79H(B[mk[12;5H[?25h[?25l[47;79H [12;5H[?25h[?25l[46;73H(B[0;1;7m1[11;5H[?25h[?25l[47;79H(B[mk[11;5H[?25h[?25l[47;79H [11;5H[?25h[?25l[46;73H(B[0;1;7m0,0-1[10;5H[?25h[?25l[47;79H(B[mk[10;5H[?25h[?25l[47;79H [10;5H[?25h[?25l[46;72H(B[0;1;7m39,1  [9;5H[?25h[?25l[47;79H(B[mk[9;5H[?25h[?25l[47;79H [9;5H[?25h[?25l[46;73H(B[0;1;7m8[8;5H[?25h[?25l[47;79H(B[mk[8;5H[?25h[?25l[47;79H [8;5H[?25h[?25l[46;73H(B[0;1;7m7[7;5H[?25h[?25l[47;79H(B[mk[7;5H[?25h[?25l[47;79H [7;5H[?25h[?25l[46;73H(B[0;1;7m6[6;5H[?25h[?25l[47;79H(B[mk[6;5H[?25h[?25l[47;79H [6;5H[?25h[?25l[46;73H(B[0;1;7m5,0-1[5;5H[?25h[?25l[47;79H(B[mk[5;5H[?25h[?25l[47;79H [5;5H[?25h[?25l[46;73H(B[0;1;7m4,1  [4;5H[?25h[?25l[47;79H(B[mk[4;5H[?25h[?25l[47;79H [4;5H[?25h[?25l[46;73H(B[0;1;7m3[3;5H[?25h[?25l[47;79H(B[mk[3;5H[?25h[?25l[47;79H [3;5H[?25h[?25l[46;73H(B[0;1;7m2[2;5H[?25h[?25l[47;79H(B[mk[2;5H[?25h[?25l[47;79H [2;5H[?25h[?25l[46;73H(B[0;1;7m1[1;5H[?25h[?25l[47;79H(B[mk[1;5H[?25h[?25l[47;79H [1;5H[?25h[?25l[1;45r[H[L[r[H[93m 30 (B[m                last_throttle_message = [93mthis(B[m->get_clock()->now();[K[46;73H(B[0;1;7m0,1           20[1;5H[?25h[?25l[47;79H(B[mk[1;5H[?25h[?25l[47;79H [1;5H[?25h[?25l[1;45r[H[2L[r[H[93m 29 (B[m            [95m"/sdv/throttle/setpoint"(B[m, [95m10(B[m, [[93mthis(B[m]([38;5;121mconst(B[m (B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::(B[0;1m[96mUInt8(B[m::SharedPt[93m    (B[mr msg){[K[46;72H(B[0;1;7m29,1           19[1;5H[?25h[?25l[47;79H(B[mk[1;5H[?25h[?25l[47;79H [1;5H[?25h[?25l[1;45r[H[L[r[H[93m 28 (B[m        throttle_setpoint_sub = [93mthis(B[m->create_subscription<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::UInt8>([K[46;73H(B[0;1;7m8,1           18[1;5H[?25h[?25l[47;79H(B[mk[1;5H[?25h[?25l[47;79H [1;5H[?25h[?25l[1;45r[H[L[r[H[93m 27 (B[m[K[46;73H(B[0;1;7m7,0-1[1;5H[?25h[?25l[47;79H(B[mk[1;5H[?25h[?25l[47;79H [1;5H[?25h[?25l[1;45r[H[L[r[H[93m 26 (B[m        );[K[45;87H[94m@@@[46;73H(B[0;1;7m6,1           17[1;5H[?25h[?25l[47;79H(B[mk[1;5H[?25h[?25l[47;79H [1;5H[?25h[?25l[1;45r[H[L[r[H[93m 25 (B[m            }[K[46;73H(B[0;1;7m5,1           16[1;5H[?25h[?25l(B[m[H[2J[93m 25 (B[m            }
+[93m 26 (B[m        );
+[93m 27 
+ 28 (B[m        throttle_setpoint_sub = [93mthis(B[m->create_subscription<(B[0;1m[96mstd_(B[m[93m    (B[0;1m[96mmsgs(B[m::(B[0;1m[96mmsg(B[m::UInt8>(
+[93m 29 (B[m            [95m"/sdv/throttle/setpoint"(B[m, [95m10(B[m, [[93mthis(B[m]([38;5;121mconst(B[m (B[0;1m[96mstd_msg(B[m[93m    (B[0;1m[96ms(B[m::(B[0;1m[96mmsg(B[m::(B[0;1m[96mUInt8(B[m::SharedPtr msg){
+[93m 30 (B[m                last_throttle_message = [93mthis(B[m->get_clock()->now[93m    (B[m();
+[93m 31 (B[m                (B[0;1m[96mvanttec(B[m::CANMessage throttle_setpoint_msg;
+[93m 32 (B[m                [38;5;121muint8_t(B[m output = msg->data;
+[93m 33 (B[m                [93mif(B[m(output > [95m180(B[m)
+[93m 34 (B[m                    output = [95m180(B[m;
+[93m 35 
+ 36 (B[m                (B[0;1m[96mvanttec(B[m::packByte(throttle_setpoint_msg, [95m0x05(B[m,[93m    (B[m output);
+[93m 37 (B[m                send_frame([95m0x406(B[m, throttle_setpoint_msg);
+[93m 38 (B[m            }
+[93m 39 (B[m        );
+[93m 40 
+ 41 (B[m        [96m// [britter encoder] -> [CAN] -> [this node] -> [ros]
+(B[m[93m 42 (B[m        [96m// [this node][steering_angle_pub] : convert encoder's(B[m[93m    (B[m[96m angle to Float64 and publish it
+(B[m[93m 43 (B[m        steering_angle_pub = [93mthis(B[m->create_publisher<(B[0;1m[96mstd_msgs(B[m::[93m    (B[0;1m[96mmsg(B[m::Float64>(
+[93m 44 (B[m            [95m"/sdv/steering/position"(B[m, [95m10
+(B[m[93m 45 (B[m        );
+[93m 46 
+(B[0;1;7mcan_node_sdv.cpp                                25,1           14%(B[m
+[J[1;5H[?25h[?25l]112[2 q]112[2 q[?25h[?25l[H[2J[29B                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         [17A                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         
+                                                                                         [H[93m 25 (B[m            }
+[93m 26 (B[m        );
+[93m 27 
+ 28 (B[m        throttle_setpoint_sub = [93mthis(B[m->create_subscription<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::UInt8>(
+[93m 29 (B[m            [95m"/sdv/throttle/setpoint"(B[m, [95m10(B[m, [[93mthis(B[m]([38;5;121mconst(B[m (B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::(B[0;1m[96mUInt8(B[m::SharedPt[93m    (B[mr msg){
+[93m 30 (B[m                last_throttle_message = [93mthis(B[m->get_clock()->now();
+[93m 31 (B[m                (B[0;1m[96mvanttec(B[m::CANMessage throttle_setpoint_msg;
+[93m 32 (B[m                [38;5;121muint8_t(B[m output = msg->data;
+[93m 33 (B[m                [93mif(B[m(output > [95m180(B[m)
+[93m 34 (B[m                    output = [95m180(B[m;
+[93m 35 
+ 36 (B[m                (B[0;1m[96mvanttec(B[m::packByte(throttle_setpoint_msg, [95m0x05(B[m, output);
+[93m 37 (B[m                send_frame([95m0x406(B[m, throttle_setpoint_msg);
+[93m 38 (B[m            }
+[93m 39 (B[m        );
+[93m 40 
+ 41 (B[m        [96m// [britter encoder] -> [CAN] -> [this node] -> [ros]
+(B[m[93m 42 (B[m        [96m// [this node][steering_angle_pub] : convert encoder's angle to Float64 and p(B[m[93m    (B[m[96mublish it
+(B[m[93m 43 (B[m        steering_angle_pub = [93mthis(B[m->create_publisher<(B[0;1m[96mstd_msgs(B[m::(B[0;1m[96mmsg(B[m::Float64>(
+[93m 44 (B[m            [95m"/sdv/steering/position"(B[m, [95m10
+(B[m[93m 45 (B[m        );
+[93m 46 
+ 47 (B[m        [96m// [ros] -> [this node] -> [stepper pcb] -> [stepper motor]
+(B[m[93m 48 (B[m        [96m// [this node][zero_service] : if called, send a CAN message to zero the enco(B[m[93m    (B[m[96mder on current position
+(B[m[93m 49 (B[m        zero_service = [93mthis(B[m->create_service<(B[0;1m[96mstd_srvs(B[m::(B[0;1m[96msrv(B[m::Empty>(
+[93m 50 (B[m            [95m"/sdv/steering/reset_encoder"(B[m,
+[93m 51 (B[m            (B[0;1m[96mstd(B[m::bind(
+[93m 52 (B[m                &(B[0;1m[96mCanNodeSDV(B[m::zero_encoder, [93mthis(B[m, _1, _2
+[93m 53 (B[m            )
+[93m 54 (B[m        );
+[93m 55 
+ 56 (B[m        [96m// [ros] -> [this node] -> [CAN network]
+(B[m[93m 57 (B[m        [96m// [this node][mode_service] : will send the value of the service as the curr(B[m[93m    (B[m[96ment mode to CAN 
+(B[m[93m 58 (B[m        mode_service = [93mthis(B[m->create_service<(B[0;1m[96msdv_msgs(B[m::(B[0;1m[96msrv(B[m::Uint8>(
+[93m 59 (B[m            [95m"/sdv/steering/set_mode"(B[m,
+[93m 60 (B[m            (B[0;1m[96mstd(B[m::bind(
+[93m 61 (B[m                &(B[0;1m[96mCanNodeSDV(B[m::set_mode, [93mthis(B[m, _1, _2
+[93m 62 (B[m            )
+[93m 63 (B[m        );
+[93m 64 
+ 65 (B[m        [96m// [ros] -> [this node] -> [CAN network]
+(B[0;1;7mcan_node_sdv.cpp                                                       25,1           16%(B[m
+[J[1;5H[?25h[?25l]112[2 q]112[2 q[?25h[?25l[47;79H:[1;5H[?25h[?25l[47;79H [47;1H:]112[2 q[?25h[?25lw[?25h[?25lq[?25h[?25la[?25h[?25l[47;1H[?25h[?25l]112[2 q[?25h[?25l]112[2 q(B[m[?25h[?1l>[?1049l[23;0;0t[23;0t[?2004l[?1004l[?25h[?2004h]0;demian@dEMBP: ~/vanttec_sdv/workspace/src/sdv_can/src[01;32mdemian@dEMBP[00m:[01;34m~/vanttec_sdv/workspace/src/sdv_can/src[00m$ [?2004l
+exit
+
+Script done on 2024-05-20 13:01:05-06:00 [COMMAND_EXIT_CODE="0"]

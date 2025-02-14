@@ -1,0 +1,9 @@
+uuv_can_node:
+  ros__parameters:
+    up_rightMotor : 0
+    up_leftMotor : 1
+    rightMotor : 2
+    leftMotor : 5
+    low_rightMotor : 4
+    low_leftMotor : 3
+    scaleControl : 0.8
