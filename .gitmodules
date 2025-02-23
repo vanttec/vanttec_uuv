@@ -14,6 +14,6 @@
 	path = src/uuv_can/libs/vanttec_CANLib
 	url = https://github.com/vanttec/vanttec_CANLib.git
 
-[submodule "src/uuv_control/libs"]
-	path = src/uuv_control/libs
+[submodule "src/uuv_control/libs/uuv_libs"]
+	path = src/uuv_control/libs/uuv_libs
 	url = https://github.com/vanttec/uuv_libs
