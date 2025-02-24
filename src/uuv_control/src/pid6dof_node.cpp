@@ -143,7 +143,7 @@ private:
             return;
         }
 
-        auto control_outputs = controller->update(current_state_, desired_state_);
+        auto control_outputs = controller->update(current_state_ , desired_state_);
         
         auto output_msg = std_msgs::msg::Float64MultiArray();
         output_msg.data.resize(6);
