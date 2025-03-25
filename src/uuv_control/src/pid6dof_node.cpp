@@ -6,6 +6,7 @@
 // Message types
 #include <geometry_msgs/msg/pose.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
+#include <std_msgs/msg/int32.hpp>
 
 #include "control/pid6dof.h"
 
@@ -32,6 +33,13 @@ public:
         control_output_pub_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
             "uuv/control_output", 10);
 
+        iniciador_pub_ = this->create_publisher<std_msgs::msg::Int32>("iniciador", 10);
+
+        // Publish initial message
+        auto iniciador_msg = std_msgs::msg::Int32();
+        iniciador_msg.data = 1;
+        iniciador_pub_->publish(iniciador_msg);
+
         // Setup update timer
         update_timer_ = this->create_wall_timer(
             std::chrono::milliseconds(10),  // 100 Hz update rate
@@ -52,6 +60,7 @@ private:
 
     // ROS Publishers
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr control_output_pub_;
+    rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr iniciador_pub_;
 
     // Timer
     rclcpp::TimerBase::SharedPtr update_timer_;

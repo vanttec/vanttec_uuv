@@ -41,9 +41,40 @@ target_compile_features(pid6dof_node PUBLIC c_std_99 cxx_std_17)  # Require C99 
 ament_target_dependencies(pid6dof_node rclcpp std_msgs Eigen3 geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
 target_link_libraries(pid6dof_node uuv_libs)
 
+#posicion node
+add_executable(posicion src/posicion.cpp)
+target_include_directories(posicion PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
+target_compile_features(posicion PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(posicion rclcpp std_msgs geometry_msgs)
+target_link_libraries(posicion uuv_libs)
+
+#objetivo node
+add_executable(objetivo src/objetivo.cpp)
+target_include_directories(objetivo PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
+target_compile_features(objetivo PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(objetivo rclcpp std_msgs geometry_msgs)
+target_link_libraries(objetivo uuv_libs)
+
+#visualizador node
+add_executable(visualizador src/visualizador.cpp)
+target_include_directories(visualizador PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
+target_compile_features(visualizador PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(visualizador rclcpp visualization_msgs geometry_msgs)
+target_link_libraries(visualizador uuv_libs)
+
+
 install(TARGETS
   dynamic_model_uuv
   pid6dof_node
+  posicion
+  objetivo
+  visualizador
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY
