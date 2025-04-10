@@ -46,9 +46,27 @@ def generate_launch_description():
         ]),
     )
 
+    pid_node = Node(
+        package="uuv_control",
+        executable="pid_node",
+    )
+
+    guidance_node = Node(
+        package="uuv_control",
+        executable="guidance_node",
+    )
+
+    path_publisher_node = Node(
+        package="uuv_control",
+        executable="path_publisher_node",
+    )
+
     return LaunchDescription([
         rviz,
         dynamic_sim_node,
         foxglove_bridge,
-        teleop_launch,
+        # teleop_launch,
+        pid_node,
+        # guidance_node,
+        path_publisher_node,
     ])

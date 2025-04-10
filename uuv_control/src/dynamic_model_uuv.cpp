@@ -14,7 +14,7 @@
 #include "std_msgs/msg/float64.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
 #include "tf2_ros/transform_broadcaster.h"
-#include "uuv/uuv_dynamic_model.h"
+#include "src/model/uuv_dynamic_model.h"
 
 using namespace std::chrono_literals;
 
@@ -119,6 +119,10 @@ class DynamicModelSim : public rclcpp::Node {
     pose_stamped_tmp_.pose = pose;
     pose_path.poses.push_back(pose_stamped_tmp_);
 
+    // Erase elements when path is too long
+    if(pose_path.poses.size() > 1000*5){
+      pose_path.poses.erase(pose_path.poses.begin(), pose_path.poses.begin()+1);
+    }
     odom.header = pose_stamped_tmp_.header;
     odomPub->publish(odom);
     pose_path_pub->publish(pose_path);
