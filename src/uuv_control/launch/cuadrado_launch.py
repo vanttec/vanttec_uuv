@@ -16,14 +16,17 @@ from launch.actions import ExecuteProcess
 
 
 def generate_launch_description():
-    joy_node = Node(
-        package="joy",
-        executable="joy_node",
+    objetivo_cuadrado = Node(
+        package="uuv_control",
+        executable="objetivo_cuadrado.cpp",
+        output='screen',
+        emulate_tty=True,
+        arguments=[('__log_level:=debug')],
     )
 
-    teleop_node = Node(
+    pid = Node(
         package="uuv_control",
-        executable="teleop_node_forces.py",
+        executable="pid6dof_node.cpp",
         output='screen',
         emulate_tty=True,
         arguments=[('__log_level:=debug')],
@@ -38,7 +41,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        joy_node,
-        teleop_node,
+        objetivo_cuadrado,
+        pid,
         matriz_locacion
     ])
