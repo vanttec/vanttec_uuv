@@ -58,7 +58,7 @@ void CanNodeBase::send_frame(uint32_t address, const vanttec::CANMessage &msg){
   // TODO Should we add EFF/RTR/ERR flags?
   frame.can_id = address;
   frame.can_dlc = msg.len;
-  memcpy(frame.data, msg.data.data(), sizeof(msg.data));
+  memcpy(frame.data, msg.data, sizeof(msg.data));
   send_frame(frame);
 }
 
