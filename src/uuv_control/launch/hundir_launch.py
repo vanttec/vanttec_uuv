@@ -16,9 +16,25 @@ from launch.actions import ExecuteProcess
 
 
 def generate_launch_description():
+    estados = Node(
+        package="uuv_control",
+        executable="estados",
+        output='screen',
+        emulate_tty=True,
+        arguments=[('__log_level:=debug')],
+    )
+
     objetivo_hundir = Node(
         package="uuv_control",
-        executable="objetivo_hundir.cpp",
+        executable="objetivo_hundir",
+        output='screen',
+        emulate_tty=True,
+        arguments=[('__log_level:=debug')],
+    )
+    
+    dynamic_model_uuv = Node(
+        package="uuv_control",
+        executable="dynamic_model_uuv",
         output='screen',
         emulate_tty=True,
         arguments=[('__log_level:=debug')],
@@ -26,22 +42,35 @@ def generate_launch_description():
 
     pid = Node(
         package="uuv_control",
-        executable="pid6dof_node.cpp",
+        executable="pid.py",
         output='screen',
         emulate_tty=True,
         arguments=[('__log_level:=debug')],
+    )
+    
+    visualizador = Node(
+        package="uuv_control",
+        executable="visualizador.py",
+        output='screen',
+        emulate_tty=True,
+        arguments=[('__log_level:=debug')],
+    )
+    
+    rviz2 = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
     )
 
-    matriz_locacion = Node(
-        package="uuv_control",
-        executable="matriz_locacion.cpp",
-        output='screen',
-        emulate_tty=True,
-        arguments=[('__log_level:=debug')],
-    )
+    
 
     return LaunchDescription([
+    	dynamic_model_uuv,
+        estados,
         objetivo_hundir,
         pid,
-        matriz_locacion
+        visualizador,
+        # matriz_locacion,
+        rviz2
     ])

@@ -20,6 +20,7 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(Boost 1.45.0 COMPONENTS filesystem)
 
+# ament_python_install_package(${PROJECT_NAME})
 
 add_subdirectory(libs/uuv_libs)
 
@@ -41,9 +42,39 @@ target_compile_features(pid6dof_node PUBLIC c_std_99 cxx_std_17)  # Require C99 
 ament_target_dependencies(pid6dof_node rclcpp std_msgs Eigen3 geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
 target_link_libraries(pid6dof_node uuv_libs)
 
+#objetivo_cuadrado node
+add_executable(objetivo_cuadrado src/objetivo_cuadrado.cpp)
+target_include_directories(objetivo_cuadrado PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
+target_compile_features(objetivo_cuadrado PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(objetivo_cuadrado rclcpp std_msgs Eigen3 geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
+target_link_libraries(objetivo_cuadrado uuv_libs)
+
+#objetivo_hundir node
+add_executable(objetivo_hundir src/objetivo_hundir.cpp)
+target_include_directories(objetivo_hundir PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
+target_compile_features(objetivo_hundir PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(objetivo_hundir rclcpp std_msgs Eigen3 geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
+target_link_libraries(objetivo_hundir uuv_libs)
+
+#estados node
+add_executable(estados src/estados.cpp)
+target_include_directories(estados PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
+target_compile_features(estados PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(estados rclcpp std_msgs Eigen3 geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
+target_link_libraries(estados uuv_libs)
+
 install(TARGETS
   dynamic_model_uuv
   pid6dof_node
+  objetivo_cuadrado
+  estados
+  objetivo_hundir
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY
@@ -57,6 +88,9 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  src/visualizador.py
+  DESTINATION lib/${PROJECT_NAME})
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
