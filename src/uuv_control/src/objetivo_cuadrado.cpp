@@ -21,7 +21,7 @@ class ObjetivoNode : public rclcpp::Node
 public:
     ObjetivoNode() : Node("objetivo_cuadrado")
     {
-        pose_pub_ = this->create_publisher<geometry_msgs::msg::Pose>("desired_pose", 10);
+        pose_pub_ = this->create_publisher<geometry_msgs::msg::Pose>("uuv/desired_pose", 10);
         pose_sub_ = this->create_subscription<std_msgs::msg::Int32>(
             "uuv/estado", 10, 
             std::bind(&ObjetivoNode::publish_goal, this, std::placeholders::_1));

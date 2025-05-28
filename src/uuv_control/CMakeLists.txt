@@ -85,12 +85,11 @@ install(DIRECTORY
 # Install Python executables
 install(PROGRAMS
   scripts/teleop_node_forces.py
+  src/visualizador.py
+  scripts/pid.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(PROGRAMS
-  src/visualizador.py
-  DESTINATION lib/${PROJECT_NAME})
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

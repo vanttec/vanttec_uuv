@@ -28,7 +28,7 @@ class ObjetivoNode : public rclcpp::Node
 public:
     ObjetivoNode() : Node("objetivo_hundir")
     {
-        pose_pub_ = this->create_publisher<geometry_msgs::msg::Pose>("desired_pose", 10);
+        pose_pub_ = this->create_publisher<geometry_msgs::msg::Pose>("uuv/desired_pose", 10);
 
         updateTimer = this->create_wall_timer(1000ms, std::bind(&ObjetivoNode::update, this));
 
