@@ -1,6 +1,4 @@
-// Original code from: https://github.com/DemianMArin/my_vanttec_uuv.git
-// Modified by: Abraham de Jesus Maldonado Mata
-// Date: 06/02/2025
+
 
 #pragma once
 

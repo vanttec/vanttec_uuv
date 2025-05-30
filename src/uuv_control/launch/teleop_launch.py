@@ -29,16 +29,17 @@ def generate_launch_description():
         arguments=[('__log_level:=debug')],
     )
 
-    matriz_locacion = Node(
-        package="uuv_control",
-        executable="matriz_locacion.cpp",
-        output='screen',
-        emulate_tty=True,
-        arguments=[('__log_level:=debug')],
+    can_node = Node(
+    package="uuv_can",
+    executable="uuv_can_node",  # ✅ This must match the one from add_executable()
+    output='screen',
+    emulate_tty=True,
+    arguments=[('__log_level:=debug')],
     )
+
 
     return LaunchDescription([
         joy_node,
         teleop_node,
-        matriz_locacion
+        can_node
     ])
