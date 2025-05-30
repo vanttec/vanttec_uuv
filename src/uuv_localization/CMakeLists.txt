@@ -53,6 +53,10 @@ add_executable(vn_sensor_msgs src/vn_sensor_msgs_node.cc)
 ament_target_dependencies(vn_sensor_msgs rclcpp geometry_msgs vectornav_msgs)
 target_link_libraries(vn_sensor_msgs vn_sensor_msgs_lib)
 
+# uuv_localization node
+add_executable(uuv_localization_node src/uuv_localization_node.cpp)
+ament_target_dependencies(uuv_localization_node rclcpp geometry_msgs sensor_msgs)
+install(TARGETS uuv_localization_node DESTINATION lib/${PROJECT_NAME})
 
 # install shared libraries with composable nodes into global
 # directory so they can be loaded by other packages
@@ -65,6 +69,7 @@ install(TARGETS
 install(TARGETS
   vectornav
   vn_sensor_msgs
+  uuv_localization_node
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY

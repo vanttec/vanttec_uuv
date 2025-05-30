@@ -21,11 +21,17 @@ def generate_launch_description():
         executable='vn_sensor_msgs',
         output='screen',
         parameters=[os.path.join(this_dir, 'config', 'vectornav.yaml')])
+    
+    start_uuv_localization_cmd = Node(
+        package='uuv_localization',
+        executable='uuv_localization_node',
+        output='screen')
 
     # Create the launch description and populate
     ld = LaunchDescription()
 
     ld.add_action(start_vectornav_cmd)
     ld.add_action(start_vectornav_sensor_msgs_cmd)
+    ld.add_action(start_uuv_localization_cmd)
 
     return ld
