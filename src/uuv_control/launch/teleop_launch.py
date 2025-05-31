@@ -31,7 +31,7 @@ def generate_launch_description():
 
     can_node = Node(
     package="uuv_can",
-    executable="uuv_can_node",  # ✅ This must match the one from add_executable()
+    executable="uuv_can_node", 
     output='screen',
     emulate_tty=True,
     arguments=[('__log_level:=debug')],
