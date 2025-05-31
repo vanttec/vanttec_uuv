@@ -11,43 +11,36 @@ public:
     uuv_localization_node() : Node("uuv_localization_node")
     {
         // Subscriber
-        pose_sub_ = this->create_subscription<geometry_msgs::msg::Pose>(
-            "uuv/state/pose", 10,
+        imu_sub_ = this->create_subscription<sensor_msgs::msg::Imu>(
+            "vectornav/imu", 10,
             std::bind(&uuv_localization_node::pose_callback, this, std::placeholders::_1));
 
         // Publisher
-        imu_pub_ = this->create_publisher<sensor_msgs::msg::Imu>("vectornav/imu", 10);
+        pose_pub_ = this->create_publisher<geometry_msgs::msg::Pose>("uuv/state/pose", 10);
         
         // Temporal logger message
         RCLCPP_INFO(this->get_logger(), "Pose to IMU bridge node started");
     }
 
 private:
-    void pose_callback(const geometry_msgs::msg::Pose::SharedPtr pose_msg)
+    void pose_callback(const sensor_msgs::msg::Imu::SharedPtr imu_msg)
     {
-        sensor_msgs::msg::Imu imu_msg;
 
-        // Simple conversion: copy orientation
-        imu_msg.orientation = pose_msg->orientation;
+        geometry_msgs::msg::Pose pose_msg;
 
-        // Populate header
-        imu_msg.header.stamp = this->now();
-        imu_msg.header.frame_id = "imu_link";
+        // Copy orientation from IMU
+        pose_msg.orientation = imu_msg->orientation;
 
-        // NOTE: Maybe, this is not useful, so it apply a set to zero. 
-        imu_msg.angular_velocity.x = 0.0;
-        imu_msg.angular_velocity.y = 0.0;
-        imu_msg.angular_velocity.z = 0.0;
+        // You may estimate or set position here if needed (currently set to zero)
+        pose_msg.position.x = 0.0;
+        pose_msg.position.y = 0.0;
+        pose_msg.position.z = 0.0;
 
-        imu_msg.linear_acceleration.x = 0.0;
-        imu_msg.linear_acceleration.y = 0.0;
-        imu_msg.linear_acceleration.z = 0.0;
-
-        imu_pub_->publish(imu_msg);
+        pose_pub_->publish(pose_msg);
     }
 
-    rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr pose_sub_;
-    rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
+    rclcpp::Publisher<geometry_msgs::msg::Pose>::SharedPtr pose_pub_;
 };
 
 int main(int argc, char **argv)
