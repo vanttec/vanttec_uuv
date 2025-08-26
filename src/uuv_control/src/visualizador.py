@@ -33,10 +33,10 @@ class MarkerPublisher(Node):
         sub.pose.position.x = float(self.pose_objetivo_[0])
         sub.pose.position.y = float(self.pose_objetivo_[1])
         sub.pose.position.z = float(self.pose_objetivo_[2])
-        # sub.pose.orientation.x = float(self.pose_objetivo_[3])
-        # sub.pose.orientation.y = float(self.pose_objetivo_[4])
-        # sub.pose.orientation.z = float(self.pose_objetivo_[5])
-        # sub.pose.orientation.w = float(self.pose_objetivo_[6])
+        sub.pose.orientation.x = float(self.pose_objetivo_[3])
+        sub.pose.orientation.y = float(self.pose_objetivo_[4])
+        sub.pose.orientation.z = float(self.pose_objetivo_[5])
+        sub.pose.orientation.w = float(self.pose_objetivo_[6])
         sub.scale.x = 0.5
         sub.scale.y = 0.5
         sub.scale.z = 0.5
@@ -52,10 +52,10 @@ class MarkerPublisher(Node):
         self.pose_objetivo_[0] = msg.position.x
         self.pose_objetivo_[1] = msg.position.y
         self.pose_objetivo_[2] = msg.position.z
-        # self.pose_objetivo_[3] = msg.orientation.x
-        # self.pose_objetivo_[4] = msg.orientation.y
-        # self.pose_objetivo_[5] = msg.orientation.z
-        # self.pose_objetivo_[6] = msg.orientation.w
+        self.pose_objetivo_[3] = msg.orientation.x
+        self.pose_objetivo_[4] = msg.orientation.y
+        self.pose_objetivo_[5] = msg.orientation.z
+        self.pose_objetivo_[6] = msg.orientation.w
 
 
 def main(args=None):

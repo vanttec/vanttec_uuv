@@ -49,6 +49,6 @@ def generate_launch_description():
     return LaunchDescription([
         rviz,
         dynamic_sim_node,
-        foxglove_bridge,
+        # foxglove_bridge,
         teleop_launch,
     ])

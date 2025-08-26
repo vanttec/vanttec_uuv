@@ -38,7 +38,7 @@ class DynamicModelSim : public rclcpp::Node {
     thrusterSub = this->create_subscription<std_msgs::msg::Float64MultiArray>(
         "uuv/forces", 10,
         [this](const std_msgs::msg::Float64MultiArray &msg) {
-            RCLCPP_ERROR(this->get_logger(), "ex: %f", 
+            RCLCPP_INFO(this->get_logger(), "ex: %f", 
             msg.data[0]);
             for(int i = 0 ; i < 6 ; i++){
                 thruster_input[i] = msg.data[i];

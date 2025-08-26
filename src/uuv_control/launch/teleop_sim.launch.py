@@ -17,30 +17,43 @@ from launch.actions import ExecuteProcess
 
 def generate_launch_description():
 
-    estados = Node(
-        package="uuv_control",
-        executable="estados",
-        output='screen',
-        emulate_tty=True,
-        arguments=[('__log_level:=debug')],
-    )
-    
-    static_tf = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        name="static_tf_map_to_base",
-        arguments=["0", "0", "0", "0", "0", "0", "map", "base_link"],
-        output="screen",
+    joy_node = Node(
+        package="joy",
+        executable="joy_node",
+        arguments=[('__log_level:=debug')]
     )
 
-    objetivo_hundir = Node(
+    teleop_forces_node = Node(
         package="uuv_control",
-        executable="objetivo_hundir",
+        executable="teleop_node_forces.py",
+        output='screen',
+        emulate_tty=True,
+        arguments=[('__log_level:=debug')]
+    )
+
+    matriz_locacion = Node(
+        package="uuv_control",
+        executable="matriz_locacion.cpp",
+        output='screen',
+        emulate_tty=True,
+        arguments=[('__log_level:=debug')]
+    )
+
+    rviz2 = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+    )
+
+    visualizador = Node(
+        package="uuv_control",
+        executable="visualizador.py",
         output='screen',
         emulate_tty=True,
         arguments=[('__log_level:=debug')],
     )
-    
+
     dynamic_model_uuv = Node(
         package="uuv_control",
         executable="dynamic_model_uuv",
@@ -56,31 +69,43 @@ def generate_launch_description():
         emulate_tty=True,
         arguments=[('__log_level:=debug')],
     )
-    
-    visualizador = Node(
+
+    joystick = Node(
         package="uuv_control",
-        executable="visualizador.py",
+        executable="joystick.py",
         output='screen',
         emulate_tty=True,
         arguments=[('__log_level:=debug')],
     )
-    
-    rviz2 = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
+
+
+
+    teleop_launch = os.path.join(
+        get_package_share_directory('teleop_twist_joy'),
+        'launch',
+        'teleop-launch.py'
+    )
+
+    joy_type = DeclareLaunchArgument(
+        'controller',
+        default_value='xbox',
+        description='Controller type (ps3/xbox/...)'
     )
 
     
 
     return LaunchDescription([
-    	dynamic_model_uuv,
-    	static_tf,
-        estados,
-        objetivo_hundir,
-        pid,
+        # joy_node,
+        teleop_forces_node,
+        rviz2,
+        joystick,
         visualizador,
-        # matriz_locacion,
-        rviz2
+        dynamic_model_uuv,
+        pid,
+        # matriz_locacion
+        joy_type,
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(teleop_launch),
+            launch_arguments={'joy_config': LaunchConfiguration('controller')}.items()
+        )
     ])

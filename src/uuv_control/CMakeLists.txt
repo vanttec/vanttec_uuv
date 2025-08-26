@@ -13,14 +13,19 @@ find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+# find_package(tf_transformations REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2 REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(teleop_twist_joy REQUIRED)
 find_package(Boost 1.45.0 COMPONENTS filesystem)
 
 # ament_python_install_package(${PROJECT_NAME})
+
 
 add_subdirectory(libs/uuv_libs)
 
@@ -69,9 +74,11 @@ target_compile_features(estados PUBLIC c_std_99 cxx_std_17)  # Require C99 and C
 ament_target_dependencies(estados rclcpp std_msgs Eigen3 geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
 target_link_libraries(estados uuv_libs)
 
+
+
 install(TARGETS
   dynamic_model_uuv
-  pid6dof_node
+  # pid6dof_node
   objetivo_cuadrado
   estados
   objetivo_hundir
@@ -90,6 +97,20 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+<<<<<<< Updated upstream
+=======
+install(DIRECTORY meshes
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+  src/pid.py
+  src/visualizador.py
+  src/uuv_mesh.py
+  src/joystick.py
+  DESTINATION lib/${PROJECT_NAME})
+
+>>>>>>> Stashed changes
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
