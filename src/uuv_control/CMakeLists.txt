@@ -96,6 +96,7 @@ install(PROGRAMS
   scripts/pid.py
   DESTINATION lib/${PROJECT_NAME}
 )
+
 install(DIRECTORY meshes
   DESTINATION share/${PROJECT_NAME}
 )
