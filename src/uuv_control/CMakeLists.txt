@@ -96,9 +96,6 @@ install(PROGRAMS
   scripts/pid.py
   DESTINATION lib/${PROJECT_NAME}
 )
-
-<<<<<<< Updated upstream
-=======
 install(DIRECTORY meshes
   DESTINATION share/${PROJECT_NAME}
 )
@@ -110,7 +107,6 @@ install(PROGRAMS
   src/joystick.py
   DESTINATION lib/${PROJECT_NAME})
 
->>>>>>> Stashed changes
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
