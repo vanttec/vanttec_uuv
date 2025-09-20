@@ -46,7 +46,7 @@ class ToArduinoNode(Node):
 
         self.serial_pub_ = self.create_publisher(Float64MultiArray, 'arduino_read', 10)
 
-        self.ser = serial.Serial(arduinoPort, 9600, timeout=1)
+        self.ser = serial.Serial(arduinoPort, 115200, timeout=1)
         self.get_logger().info('Serial port initialized')
 
     def get_joy(self, msg):
