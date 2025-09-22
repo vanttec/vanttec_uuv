@@ -36,7 +36,12 @@ bottom_right = 5
 # positions = [top_left, top_right, middle_left, middle_right, bottom_left, bottom_right]
 values = ['','','','','','']
 
+
+
 class ToArduinoNode(Node):
+    motor = 0
+    prevState = False
+
     def __init__(self):
         super().__init__('to_arduino')
 
@@ -46,7 +51,7 @@ class ToArduinoNode(Node):
 
         self.serial_pub_ = self.create_publisher(Float64MultiArray, 'arduino_read', 10)
 
-        self.ser = serial.Serial(arduinoPort, 9600, timeout=1)
+        self.ser = serial.Serial(arduinoPort, 115200, timeout=1)
         self.get_logger().info('Serial port initialized')
 
     def get_joy(self, msg):
@@ -58,61 +63,71 @@ class ToArduinoNode(Node):
         # y = map_range(float(msg.axes[y_axes_i]), -1, 1, 1100, 1900)
         for i in range(6):
             values[i] = '1100'
-        
-        if x<=0.000001 and np.abs(y) <= 0.5:
-            x_map = str(map_range(float(x), -1, 0, 1900, 1100))
-            values[middle_left] = x_map
-            values[middle_right] = x_map
-            values[bottom_left] = x_map
-            values[bottom_right] = x_map
-        elif x>=0.000001 and np.abs(y) <= 0.5:
-            x_map = str(map_range(float(x), 0, 1, 1100, 1900))
-            values[middle_left] = x_map
-            values[middle_right] = x_map
-            values[top_left] = x_map
-            values[top_right] = x_map
-        elif y>=0.000001 and np.abs(x) <= 0.5:
-            y_map = str(map_range(float(y), 0, 1, 1100, 1900))
-            values[middle_left] = y_map
-            values[top_left] = y_map
-            values[bottom_left] = y_map
-        elif y<=0.000001 and np.abs(x) <= 0.5:
-            y_map = str(map_range(float(y), -1, 0, 1900, 1100))
-            values[middle_right] = y_map
-            values[top_right] = y_map
-            values[bottom_right] = y_map
+
+        if msg.axes[z_axes_pos_i] < 0: 
+            if msg.buttons[4] and not(self.prevState):
+                self.prevState = True
+            elif not(msg.buttons[4]) and self.prevState:
+                time.sleep(0.01)
+                self.motor = (self.motor+1) % 6
+                self.get_logger().info("Change")
+            self.prevState = msg.buttons[4]
+            values[self.motor] = str(map_range(float(x), -1, 1, 1100, 1900))
+        else:
+            if x<=0.000001 and np.abs(y) <= 0.5:
+                x_map = str(map_range(float(x), -1, 0, 1900, 1100))
+                values[middle_left] = x_map
+                values[middle_right] = x_map
+                values[bottom_left] = x_map
+                values[bottom_right] = x_map
+            elif x>=0.000001 and np.abs(y) <= 0.5:
+                x_map = str(map_range(float(x), 0, 1, 1100, 1900))
+                values[middle_left] = x_map
+                values[middle_right] = x_map
+                values[top_left] = x_map
+                values[top_right] = x_map
+            elif y>=0.000001 and np.abs(x) <= 0.5:
+                y_map = str(map_range(float(y), 0, 1, 1100, 1900))
+                values[middle_left] = y_map
+                values[top_left] = y_map
+                values[bottom_left] = y_map
+            elif y<=0.000001 and np.abs(x) <= 0.5:
+                y_map = str(map_range(float(y), -1, 0, 1900, 1100))
+                values[middle_right] = y_map
+                values[top_right] = y_map
+                values[bottom_right] = y_map
         
         #self.get_logger().info(str(x_map))
 
-        if msg.buttons[A]:
-            values[middle_left] = '1900'
-            values[middle_right] = '1900'
-            values[bottom_left] = '1900'
-            values[bottom_right] = '1900'
-        elif msg.buttons[X]:
-            values[top_left] = '1900'
-            values[middle_left] = '1900'
-            values[bottom_left] = '1900'
-        elif msg.buttons[Y]:
-            values[top_left] = '1900'
-            values[top_right] = '1900'
-            values[middle_left] = '1900'
-            values[middle_right] = '1900'
-        elif msg.buttons[B]:
-            values[top_right] = '1900'
-            values[middle_right] = '1900'
-            values[bottom_right] = '1900'
+            if msg.buttons[A]:
+                values[middle_left] = '1900'
+                values[middle_right] = '1900'
+                values[bottom_left] = '1900'
+                values[bottom_right] = '1900'
+            elif msg.buttons[X]:
+                values[top_left] = '1900'
+                values[middle_left] = '1900'
+                values[bottom_left] = '1900'
+            elif msg.buttons[Y]:
+                values[top_left] = '1900'
+                values[top_right] = '1900'
+                values[middle_left] = '1900'
+                values[middle_right] = '1900'
+            elif msg.buttons[B]:
+                values[top_right] = '1900'
+                values[middle_right] = '1900'
+                values[bottom_right] = '1900'
             
 
         toSend = '(' + values[0]
-        self.get_logger().info(f"Motor {1}: {values[0]}")
+        # self.get_logger().info(f"Motor {1}: {values[0]}")
         for i in range(5):
             toSend = toSend + ',' + values[i+1]
-            self.get_logger().info(f"Motor {i+2}: {values[i+1]}")
+            # self.get_logger().info(f"Motor {i+2}: {values[i+1]}")
         
         toSend += ')'
         toSend = f"{toSend}\n"
-        # self.get_logger().info(toSend)
+        self.get_logger().info(toSend)
         self.ser.write(toSend.encode())
 
 def map_range(value, in_min, in_max, out_min, out_max):
