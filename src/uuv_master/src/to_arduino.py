@@ -62,40 +62,57 @@ class ToArduinoNode(Node):
         # x = map_range(float(msg.axes[x_axes_i]), -1, 1, 1100, 1900)
         # y = map_range(float(msg.axes[y_axes_i]), -1, 1, 1100, 1900)
         for i in range(6):
-            values[i] = '1100'
+            values[i] = '1500'
 
         if msg.axes[z_axes_pos_i] < 0: 
             if msg.buttons[4] and not(self.prevState):
                 self.prevState = True
             elif not(msg.buttons[4]) and self.prevState:
-                time.sleep(0.01)
                 self.motor = (self.motor+1) % 6
                 self.get_logger().info("Change")
             self.prevState = msg.buttons[4]
-            values[self.motor] = str(map_range(float(x), -1, 1, 1100, 1900))
+
+            if abs(x) <= 0.0001:    # esto solamente es para indicar cuál motor está seleccionado con el 1510
+                values[self.motor] = '1510'
+            else:
+                values[self.motor] = str(map_range(float(x), -1, 1, 1100, 1900))
         else:
             if x<=0.000001 and np.abs(y) <= 0.5:
-                x_map = str(map_range(float(x), -1, 0, 1900, 1100))
+                x_map = str(map_range(float(x), -1, 0, 1900, 1500))
+                x2_map = str(map_range(float(x), -1, 0, 1100, 1500))
+                values[top_left] = x2_map
+                values[top_right] = x2_map
                 values[middle_left] = x_map
                 values[middle_right] = x_map
                 values[bottom_left] = x_map
                 values[bottom_right] = x_map
             elif x>=0.000001 and np.abs(y) <= 0.5:
-                x_map = str(map_range(float(x), 0, 1, 1100, 1900))
+                x_map = str(map_range(float(x), 0, 1, 1500, 1900))
+                x2_map = str(map_range(float(x), 0, 1, 1500, 1100))
                 values[middle_left] = x_map
                 values[middle_right] = x_map
                 values[top_left] = x_map
                 values[top_right] = x_map
+                values[bottom_left] = x2_map
+                values[bottom_right] = x2_map
             elif y>=0.000001 and np.abs(x) <= 0.5:
-                y_map = str(map_range(float(y), 0, 1, 1100, 1900))
+                y_map = str(map_range(float(y), 0, 1, 1500, 1900))
+                y2_map = str(map_range(float(y), 0, 1, 1500, 1100))
                 values[middle_left] = y_map
                 values[top_left] = y_map
                 values[bottom_left] = y_map
+                values[middle_right] = y2_map
+                values[top_right] = y2_map
+                values[bottom_right] = y2_map
             elif y<=0.000001 and np.abs(x) <= 0.5:
-                y_map = str(map_range(float(y), -1, 0, 1900, 1100))
+                y_map = str(map_range(float(y), -1, 0, 1900, 1500))
+                y2_map = str(map_range(float(y), -1, 0, 1100, 1500))
                 values[middle_right] = y_map
                 values[top_right] = y_map
                 values[bottom_right] = y_map
+                values[middle_left] = y2_map
+                values[top_left] = y2_map
+                values[bottom_left] = y2_map
         
         #self.get_logger().info(str(x_map))
 
