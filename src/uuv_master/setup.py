@@ -6,7 +6,7 @@ setup(
     name=package_name,
     version='0.0.0',
     packages=[package_name],
-    py_modules=['toArduino'],  # si no está en un paquete, solo el script
+    py_modules=['toArduino', 'limitator'],  # si no está en un paquete, solo el script
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Antonio',
@@ -16,6 +16,7 @@ setup(
     entry_points={
     'console_scripts': [
         'to_arduino = uuv_master.to_arduino:main',
+        'to_arduino_from_locacion = uuv_master.to_arduino_from_locacion:main'
     ],
 },
 

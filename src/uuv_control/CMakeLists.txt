@@ -74,6 +74,15 @@ target_compile_features(estados PUBLIC c_std_99 cxx_std_17)  # Require C99 and C
 ament_target_dependencies(estados rclcpp std_msgs Eigen3 geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
 target_link_libraries(estados uuv_libs)
 
+#matrizlocacion node
+add_executable(matriz_locacion src/matriz_locacion.cpp)
+target_include_directories(matriz_locacion PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include> libs/uuv_libs/src)
+target_compile_features(matriz_locacion PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+ament_target_dependencies(matriz_locacion rclcpp std_msgs Eigen3 geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
+target_link_libraries(matriz_locacion uuv_libs)
+
 
 
 install(TARGETS
@@ -82,6 +91,7 @@ install(TARGETS
   objetivo_cuadrado
   estados
   objetivo_hundir
+  matriz_locacion
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY

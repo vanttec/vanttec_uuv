@@ -18,6 +18,7 @@ find_package(geometry_msgs REQUIRED)
 # Install Python executables
 install(PROGRAMS
   src/to_arduino.py
+  src/to_arduino_from_locacion.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
